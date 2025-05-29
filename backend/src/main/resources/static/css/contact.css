@@ -1,0 +1,146 @@
+.breadcrumb-section {
+    background-color: #212529;
+    color: white;
+    padding: 1rem 0;
+}
+
+.breadcrumb-section a {
+    color: white;
+    text-decoration: none;
+}
+
+.breadcrumb-section a:hover {
+    text-decoration: underline;
+}
+
+.contact-section {
+    margin-bottom: 4rem;
+}
+
+.contact-card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 2rem;
+    height: 100%;
+}
+
+.contact-card-icon {
+    font-size: 2rem;
+    color: #212529;
+    margin-bottom: 1rem;
+}
+
+.contact-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.contact-card-text {
+    color: #6c757d;
+}
+
+.contact-form-card {
+    background-color: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    padding: 2rem;
+}
+
+.contact-form-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: #212529;
+    outline: none;
+}
+
+.contact-btn {
+    padding: 0.75rem 1.5rem;
+    background-color: #212529;
+    color: white;
+    border: none;
+    border-radius: 0.25rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.contact-btn:hover {
+    background-color: #343a40;
+}
+
+.map-container {
+    height: 400px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.faq-section {
+    margin-bottom: 4rem;
+}
+
+.faq-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.accordion-item {
+    border: none;
+    margin-bottom: 1rem;
+}
+
+.accordion-button {
+    background-color: #f8f9fa;
+    font-weight: 600;
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: #212529;
+    color: white;
+}
+
+.accordion-button:focus {
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
+@media (max-width: 768px) {
+    .contact-card {
+        margin-bottom: 1.5rem;
+    }
+    
+    .map-container {
+        height: 300px;
+    }
+}

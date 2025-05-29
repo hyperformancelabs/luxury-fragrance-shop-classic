@@ -1,0 +1,181 @@
+/* Admin CSS */
+.sidebar {
+    min-height: 100vh;
+    background-color: #343a40;
+    color: white;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.8);
+    padding: 0.5rem 1rem;
+    margin: 0.2rem 0;
+    border-radius: 0.25rem;
+}
+
+.sidebar .nav-link:hover {
+    color: white;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-link.active {
+    color: white;
+    background-color: #007bff;
+}
+
+.sidebar .nav-link i {
+    margin-right: 0.5rem;
+}
+
+.content-wrapper {
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.navbar {
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    font-weight: 600;
+}
+
+.table th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+}
+
+.stats-card {
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    color: white;
+    transition: transform 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-card-blue {
+    background: linear-gradient(45deg, #4e73df, #224abe);
+}
+
+.stats-card-green {
+    background: linear-gradient(45deg, #1cc88a, #13855c);
+}
+
+.stats-card-yellow {
+    background: linear-gradient(45deg, #f6c23e, #dda20a);
+}
+
+.stats-card-red {
+    background: linear-gradient(45deg, #e74a3b, #be2617);
+}
+
+.product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 0.25rem;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.status-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-low-stock {
+    background-color: #fff8e1;
+    color: #f57f17;
+}
+
+.status-out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.status-completed {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-shipping {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.status-processing {
+    background-color: #fff8e1;
+    color: #f57f17;
+}
+
+.status-pending {
+    background-color: #f5f5f5;
+    color: #616161;
+}
+
+.status-cancelled {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: #e0e0e0;
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 1.5rem;
+}
+
+.timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: 2px solid #4e73df;
+}
+
+.timeline-item.completed::before {
+    background-color: #1cc88a;
+    border-color: #1cc88a;
+}
+
+.timeline-date {
+    font-size: 0.8rem;
+    color: #6c757d;
+}

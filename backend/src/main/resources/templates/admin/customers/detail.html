@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: html(
+        title='Chi tiết khách hàng - Shop Nước Hoa Xa Xỉ',
+        activeMenu='customers',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+
+            .status-active {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+
+            .status-inactive {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+
+            .status-banned {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+
+            .customer-avatar {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                background-color: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                color: #6c757d;
+                margin: 0 auto 1rem;
+            }
+
+            .info-label {
+                font-weight: 600;
+                color: #6c757d;
+            }
+
+            .order-status-badge {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 5px;
+            }
+
+            .order-completed {
+                background-color: #2e7d32;
+            }
+
+            .order-processing {
+                background-color: #f57f17;
+            }
+
+            .order-cancelled {
+                background-color: #c62828;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Chi tiết khách hàng</h2>
+            <div>
+                <a href="/admin/customers" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+                <button class="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editCustomerModal"
+                        th:attr="
+            data-id=${customer.customerId},
+            data-name=${customer.name},
+            data-phone=${customer.phoneNumber},
+            data-email=${customer.email},
+            data-username=${customer.username},
+            data-password=${customer.password},
+            data-street=${customer.street},
+            data-ward=${customer.ward},
+            data-district=${customer.district},
+            data-city=${customer.city},
+            data-status=${customer.status},
+            data-note=${customer.note}
+        ">
+                    <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Customer Information -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body text-center">
+                        <div class="customer-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <h4 class="mb-1" th:text="${customer.name}">Nguyễn Văn A</h4>
+                        <p class="text-muted mb-3">
+                            <span th:class="${
+                                customer.status == 'active' ? 'status-badge status-active' :
+                                customer.status == 'inactive' ? 'status-badge status-inactive' :
+                                customer.status == 'banned' ? 'status-badge status-banned' :
+                                'status-badge'
+                            }" th:text="${
+                                customer.status == 'active' ? 'Hoạt động' :
+                                customer.status == 'inactive' ? 'Không hoạt động' :
+                                customer.status == 'banned' ? 'Bị cấm' :
+                                customer.status
+                            }">Hoạt động</span>
+                        </p>
+
+                        <div class="d-flex justify-content-center mb-3">
+                            <button class="btn btn-outline-primary me-2">
+                                <i class="fas fa-envelope me-1"></i> Gửi email
+                            </button>
+                            <button class="btn btn-outline-success">
+                                <i class="fas fa-phone me-1"></i> Gọi điện
+                            </button>
+                        </div>
+
+                        <hr>
+
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${customer.loyaltyPoints}">120</h5>
+                                <small class="text-muted">Điểm tích lũy</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${totalOrders}">5</h5>
+                                <small class="text-muted">Đơn hàng</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${customer.rating}">4.8</h5>
+                                <small class="text-muted">Đánh giá</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thông tin liên hệ</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Số điện thoại</p>
+                            <p class="mb-0" th:text="${customer.phoneNumber}">0912345678</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Email</p>
+                            <p class="mb-0" th:text="${customer.email}">nguyenvana@email.com</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Địa chỉ</p>
+                            <p class="mb-0" th:text="${customer.street + ', ' + customer.ward + ', ' + customer.district + ', ' + customer.city}">123 Đường Lê Lợi, Phường Bến Nghé, Quận 1, TP.HCM</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ghi chú</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-0" th:text="${customer.note}">Khách hàng VIP, ưu tiên xử lý đơn hàng nhanh.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order History -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Lịch sử đơn hàng</h5>
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#orderHistoryModal">
+                            Xem tất cả
+                        </button>
+
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Ngày đặt</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Trạng thái</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="order, iter : ${orderHistory}" th:if="${iter.index < 3}">
+                                <td>
+                                            <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="text-primary" th:text="'#ORD-' + ${order.orderId}">
+                                                #ORD-12345
+                                            </a>
+                                        </td>
+                                        <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">
+
+                                        <td th:text="${order.totalAmount}">₫850,000</td>
+                                        <td>
+                                            <span class="d-flex align-items-center">
+                                                <span th:class="${
+                                                    order.orderStatus == 'delivered' ? 'order-status-badge order-completed' :
+                                                    order.orderStatus == 'shipping' ? 'order-status-badge order-processing' :
+                                                    order.orderStatus == 'processing' ? 'order-status-badge order-processing' :
+                                                    order.orderStatus == 'pending' ? 'order-status-badge order-processing' :
+                                                    order.orderStatus == 'cancelled' ? 'order-status-badge order-cancelled' :
+                                                    'order-status-badge'
+                                                }"></span>
+                                                <span th:text="${
+                                                    order.orderStatus == 'delivered' ? 'Đã hoàn thành' :
+                                                    order.orderStatus == 'shipping' ? 'Đang giao' :
+                                                    order.orderStatus == 'processing' ? 'Đang xử lý' :
+                                                    order.orderStatus == 'pending' ? 'Chờ xử lý' :
+                                                    order.orderStatus == 'cancelled' ? 'Đã hủy' :
+                                                    order.orderStatus
+                                                }">Đã hoàn thành</span>
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <!-- If no orders, show a message -->
+                                    <tr th:if="${#lists.isEmpty(orderHistory)}">
+                                        <td colspan="5" class="text-center py-3">
+                                            <p class="mb-0 text-muted">Khách hàng chưa có đơn hàng nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spending Chart with Type & Year Selector -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Biểu đồ chi tiêu</h5>
+                        <form method="get" class="d-flex align-items-center">
+                            <!-- Truyền lại id khách hàng khi submit -->
+                            <input type="hidden" name="id" th:value="${customer.customerId}" />
+
+                            <!-- Chọn loại biểu đồ -->
+                            <select name="chartType" class="form-select form-select-sm me-2" onchange="this.form.submit()">
+                                <option value="month" th:selected="${chartType == 'month'}">Theo tháng</option>
+                                <option value="year" th:selected="${chartType == 'year'}">Theo năm</option>
+                            </select>
+
+                            <!-- Nếu là biểu đồ theo tháng, hiển thị thêm dropdown chọn năm -->
+                            <select name="selectedYear" class="form-select form-select-sm me-2" onchange="this.form.submit()"
+                                    th:if="${chartType == 'month'}">
+                                <option th:each="year : ${yearlySpending}"
+                                        th:value="${year.year}"
+                                        th:text="${year.year}"
+                                        th:selected="${year.year == selectedYear}">
+                                </option>
+                            </select>
+
+                            <noscript><button class="btn btn-sm btn-outline-primary">Xem</button></noscript>
+                        </form>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="spendingChart" height="100"></canvas>
+                    </div>
+                </div>
+
+                <!-- Purchased Products -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Sản phẩm đã mua</h5>
+                    </div>
+                </div><div class="row">
+                <!-- Wrapper để ẩn/hiện -->
+                <div id="purchasedProductWrapper" class="row">
+                    <div class="col-md-4 mb-3"
+                         th:each="product, iter : ${purchasedProducts}"
+                         th:classappend="${iter.index >= 3} ? ' d-none purchased-hidden' : ''">
+                        <div class="card h-100">
+                            <img th:src="${product.imageUrl}" class="card-img-top" alt="Product" />
+                            <div class="card-body">
+                                <h6 class="card-title" th:text="${product.productName}">Tên sản phẩm</h6>
+                                <p class="card-text text-muted" th:text="${product.volume + 'ml'}">50ml</p>
+                                <p class="card-text" th:text="${T(java.lang.String).format('%,.0f ₫', product.price)}">2,000,000 ₫</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút xem tất cả / ẩn bớt -->
+                <div class="text-center mt-3" th:if="${purchasedProducts.size() > 3}">
+                    <button id="togglePurchasedBtn" class="btn btn-sm btn-outline-primary" onclick="togglePurchasedProducts()">Xem tất cả</button>
+                </div>
+            </div>
+
+            </div>
+        </div>
+
+        <!-- Modal hiển thị toàn bộ đơn hàng -->
+        <div class="modal fade" id="orderHistoryModal" tabindex="-1" aria-labelledby="orderHistoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="orderHistoryModalLabel">Tất cả đơn hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Mã đơn</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="order : ${orderHistory}">
+                                    <td>
+                                        <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="text-primary"
+                                           th:text="'#ORD-' + ${order.orderId}">#ORD-12345</a>
+                                    </td>
+                                    <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}"></td>
+                                    <td th:text="${order.totalAmount}">₫850,000</td>
+                                    <td>
+                  <span class="d-flex align-items-center">
+                    <span th:class="${
+                        order.orderStatus == 'delivered' ? 'order-status-badge order-completed' :
+                        order.orderStatus == 'shipping' ? 'order-status-badge order-processing' :
+                        order.orderStatus == 'processing' ? 'order-status-badge order-processing' :
+                        order.orderStatus == 'pending' ? 'order-status-badge order-processing' :
+                        order.orderStatus == 'cancelled' ? 'order-status-badge order-cancelled' :
+                        'order-status-badge'
+                    }"></span>
+                    <span th:text="${
+                        order.orderStatus == 'delivered' ? 'Đã hoàn thành' :
+                        order.orderStatus == 'shipping' ? 'Đang giao' :
+                        order.orderStatus == 'processing' ? 'Đang xử lý' :
+                        order.orderStatus == 'pending' ? 'Chờ xử lý' :
+                        order.orderStatus == 'cancelled' ? 'Đã hủy' :
+                        order.orderStatus
+                    }">Đã hoàn thành</span>
+                  </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(orderHistory)}">
+                                    <td colspan="5" class="text-center py-3 text-muted">Khách hàng chưa có đơn hàng nào</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal chỉnh sửa thông tin khách hàng -->
+        <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form th:action="@{/admin/customers/update}" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCustomerModalLabel">Chỉnh sửa khách hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="customerId" id="edit_customer_id">
+
+                        <div class="mb-3">
+                            <label class="form-label">Họ tên</label>
+                            <input type="text" name="name" id="edit_name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Số điện thoại</label>
+                            <input type="text" name="phoneNumber" id="edit_phone" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" id="edit_email" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tên đăng nhập</label>
+                            <input type="text" name="username" id="edit_username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu</label>
+                            <div class="input-group">
+                                <input type="password" name="password" id="edit_password" class="form-control" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="far fa-eye" id="togglePasswordIcon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Địa chỉ</label>
+                            <input type="text" name="street" id="edit_street" class="form-control" placeholder="Số nhà, tên đường">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <input type="text" name="ward" id="edit_ward" class="form-control" placeholder="Phường/Xã">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="text" name="district" id="edit_district" class="form-control" placeholder="Quận/Huyện">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <input type="text" name="city" id="edit_city" class="form-control" placeholder="Tỉnh/Thành">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="status" id="edit_status" class="form-select">
+                                <option value="active">Hoạt động</option>
+                                <option value="inactive">Không hoạt động</option>
+                                <option value="banned">Bị cấm</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea name="note" id="edit_note" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </content>
+
+    <additionalJs>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            const chartType = /*[[${chartType}]]*/ 'month';
+            const monthlyData = /*[[${monthlySpending}]]*/ [];
+            const yearlyData = /*[[${yearlySpending}]]*/ [];
+
+            const labels = chartType === 'month'
+                ? monthlyData.map(item => 'Tháng ' + item.month)
+                : yearlyData.map(item => item.year);
+
+            const data = chartType === 'month'
+                ? monthlyData.map(item => item.totalSpent)
+                : yearlyData.map(item => item.totalSpent);
+
+            const ctx = document.getElementById('spendingChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: chartType === 'month' ? 'Chi tiêu theo tháng (₫)' : 'Chi tiêu theo năm (₫)',
+                        data: data,
+                        borderWidth: 2,
+                        borderColor: '#4e73df',
+                        fill: true,
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString() + ' ₫';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            /*]]>*/
+        </script>
+        <script>
+            function togglePurchasedProducts() {
+                const hiddenItems = document.querySelectorAll('.purchased-hidden');
+                const button = document.getElementById('togglePurchasedBtn');
+                const isHidden = hiddenItems[0]?.classList.contains('d-none');
+
+                hiddenItems.forEach(item => {
+                    item.classList.toggle('d-none', !isHidden);
+                });
+
+                button.textContent = isHidden ? 'Ẩn bớt' : 'Xem tất cả';
+            }
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const modal = document.getElementById('editCustomerModal');
+                if (!modal) return;
+
+                modal.addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    if (!button) return;
+
+                    document.getElementById('edit_customer_id').value = button.getAttribute('data-id') || '';
+                    document.getElementById('edit_name').value = button.getAttribute('data-name') || '';
+                    document.getElementById('edit_phone').value = button.getAttribute('data-phone') || '';
+                    document.getElementById('edit_email').value = button.getAttribute('data-email') || '';
+                    document.getElementById('edit_username').value = button.getAttribute('data-username') || '';
+                    document.getElementById('edit_password').value = button.getAttribute('data-password') || '';
+                    document.getElementById('edit_street').value = button.getAttribute('data-street') || '';
+                    document.getElementById('edit_ward').value = button.getAttribute('data-ward') || '';
+                    document.getElementById('edit_district').value = button.getAttribute('data-district') || '';
+                    document.getElementById('edit_city').value = button.getAttribute('data-city') || '';
+                    document.getElementById('edit_note').value = button.getAttribute('data-note') || '';
+                    document.getElementById('edit_status').value = button.getAttribute('data-status') || 'active';
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const toggleBtn = document.getElementById("togglePassword");
+                const icon = document.getElementById("togglePasswordIcon");
+                const passwordInput = document.getElementById("edit_password");
+
+                toggleBtn.addEventListener("click", function () {
+                    const isPassword = passwordInput.type === "password";
+                    passwordInput.type = isPassword ? "text" : "password";
+
+                    icon.classList.toggle("fa-eye");
+                    icon.classList.toggle("fa-eye-slash");
+                });
+            });
+        </script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener("DOMContentLoaded", function () {
+                const successMessage = /*[[${successMessage}]]*/ null;
+                const errorMessage = /*[[${errorMessage}]]*/ null;
+
+                if (successMessage && successMessage !== 'null') {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: successMessage,
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        background: '#e6f4ea',
+                        color: '#2e7d32',
+                        iconColor: '#2e7d32',
+                        customClass: {
+                            popup: 'swal2-rounded swal2-shadow'
+                        },
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+                }
+
+                if (errorMessage && errorMessage !== 'null') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonText: 'Đã hiểu',
+                        background: '#fef0f0',
+                        color: '#b71c1c',
+                        iconColor: '#b71c1c',
+                        customClass: {
+                            popup: 'swal2-rounded swal2-shadow'
+                        }
+                    });
+                }
+            });
+            /*]]>*/
+        </script>
+    </additionalJs>
+</body>
+</html>

@@ -1,0 +1,20 @@
+172.25.143.37
+# ===========================
+# SQL Server Configuration
+# ===========================
+
+MSSQL_DATABASE=EnterpriseLFSDB
+MSSQL_SA_PASSWORD=Luxury@Fragrance
+MSSQL_USERNAME=admin
+MSSQL_PASSWORD=Luxury@Fragrance
+
+# ===========================
+# Docker Configuration
+# ===========================
+
+MSSQL_PORT=1433
+CONTAINER_NAME=lfs_mssql
+PLATFORM=linux
+MSSQL_PID=Express
+
+DB_FOLDER=.

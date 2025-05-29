@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Quản lý marketing - Shop Nước Hoa Xa Xỉ',
+        activeMenu='marketing',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-active {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-upcoming {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .status-completed {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .campaign-card {
+                transition: transform 0.3s;
+                height: 100%;
+            }
+            
+            .campaign-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .campaign-icon {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.5rem;
+                color: white;
+            }
+            
+            .campaign-icon-active {
+                background-color: #2e7d32;
+            }
+            
+            .campaign-icon-upcoming {
+                background-color: #1565c0;
+            }
+            
+            .campaign-icon-completed {
+                background-color: #616161;
+            }
+            
+            .date-range {
+                font-size: 0.85rem;
+                color: #6c757d;
+            }
+            
+            .progress-thin {
+                height: 5px;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Quản lý chiến dịch marketing</h2>
+            <button class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i> Tạo chiến dịch mới
+            </button>
+        </div>
+        
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <form th:action="@{/admin/marketing}" method="get" class="d-flex">
+                            <input type="text" class="form-control me-2" name="search" placeholder="Tìm kiếm chiến dịch...">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary active">Tất cả</button>
+                            <button type="button" class="btn btn-outline-secondary">Đang diễn ra</button>
+                            <button type="button" class="btn btn-outline-secondary">Sắp diễn ra</button>
+                            <button type="button" class="btn btn-outline-secondary">Đã kết thúc</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Campaign Cards -->
+        <div class="row">
+            <div th:each="campaign : ${campaigns}" class="col-md-6 col-lg-4 mb-4">
+                <div class="card campaign-card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div th:class="${
+                                campaign.status == 'active' ? 'campaign-icon campaign-icon-active' :
+                                campaign.status == 'upcoming' ? 'campaign-icon campaign-icon-upcoming' :
+                                campaign.status == 'completed' ? 'campaign-icon campaign-icon-completed' :
+                                'campaign-icon'
+                            }" class="me-3">
+                                <i th:class="${
+                                    campaign.status == 'active' ? 'fas fa-bullhorn' :
+                                    campaign.status == 'upcoming' ? 'fas fa-calendar-alt' :
+                                    campaign.status == 'completed' ? 'fas fa-check' :
+                                    'fas fa-bullhorn'
+                                }"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-1" th:text="${campaign.name}">Khuyến mãi mùa hè</h5>
+                                <span th:class="${
+                                    campaign.status == 'active' ? 'status-badge status-active' :
+                                    campaign.status == 'upcoming' ? 'status-badge status-upcoming' :
+                                    campaign.status == 'completed' ? 'status-badge status-completed' :
+                                    'status-badge'
+                                }" th:text="${
+                                    campaign.status == 'active' ? 'Đang diễn ra' :
+                                    campaign.status == 'upcoming' ? 'Sắp diễn ra' :
+                                    campaign.status == 'completed' ? 'Đã kết thúc' :
+                                    campaign.status
+                                }">Đang diễn ra</span>
+                            </div>
+                        </div>
+                        
+                        <p class="date-range mb-3">
+                            <i class="fas fa-calendar-day me-1"></i>
+                            <span th:text="${#temporals.format(campaign.startDate, 'dd/MM/yyyy')}">01/05/2025</span>
+                            <span> - </span>
+                            <span th:text="${#temporals.format(campaign.endDate, 'dd/MM/yyyy')}">15/05/2025</span>
+                        </p>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small>Tiến độ</small>
+                                <small>50%</small>
+                            </div>
+                            <div class="progress progress-thin">
+                                <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a th:href="@{/admin/marketing/{id}(id=${campaign.id})}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-eye me-1"></i> Chi tiết
+                            </a>
+                            <div>
+                                <button class="btn btn-sm btn-outline-secondary me-1">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- If no campaigns, show a message -->
+            <div th:if="${#lists.isEmpty(campaigns)}" class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-bullhorn fa-3x text-muted mb-3"></i>
+                        <h5>Không có chiến dịch nào</h5>
+                        <p class="text-muted">Bạn chưa có chiến dịch marketing nào. Hãy tạo chiến dịch mới để bắt đầu.</p>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i> Tạo chiến dịch mới
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        <nav th:if="${totalPages > 1}" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li th:class="${currentPage == 0 ? 'page-item disabled' : 'page-item'}">
+                    <a class="page-link" th:href="@{/admin/marketing(page=${currentPage - 1}, status=${status})}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+                
+                <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                    th:class="${currentPage == i ? 'page-item active' : 'page-item'}">
+                    <a class="page-link" th:href="@{/admin/marketing(page=${i}, status=${status})}" th:text="${i + 1}">1</a>
+                </li>
+                
+                <li th:class="${currentPage == totalPages - 1 ? 'page-item disabled' : 'page-item'}">
+                    <a class="page-link" th:href="@{/admin/marketing(page=${currentPage + 1}, status=${status})}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Additional JavaScript if needed
+        </script>
+    </additionalJs>
+</body>
+</html>

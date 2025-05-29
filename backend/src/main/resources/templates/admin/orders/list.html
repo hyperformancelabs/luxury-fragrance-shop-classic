@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Quản lý đơn hàng - Shop Nước Hoa Xa Xỉ',
+        activeMenu='orders',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .stats-card {
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                color: white;
+                transition: transform 0.3s;
+            }
+            
+            .stats-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .stats-card-blue {
+                background: linear-gradient(45deg, #4e73df, #224abe);
+            }
+            
+            .stats-card-yellow {
+                background: linear-gradient(45deg, #f6c23e, #dda20a);
+            }
+            
+            .stats-card-green {
+                background: linear-gradient(45deg, #1cc88a, #13855c);
+            }
+            
+            .stats-card-purple {
+                background: linear-gradient(45deg, #9c27b0, #7b1fa2);
+            }
+            
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-completed {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-shipping {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .status-processing {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .status-pending {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .status-cancelled {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Quản lý đơn hàng</h2>
+            <div>
+                <button class="btn btn-outline-primary me-2">
+                    <i class="fas fa-download me-1"></i> Xuất báo cáo
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Tạo đơn hàng mới
+                </button>
+            </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card stats-card-blue">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">TỔNG ĐƠN HÀNG</h6>
+                            <h4 class="mb-0" th:text="${stats.totalOrders}">256</h4>
+                        </div>
+                        <i class="fas fa-shopping-bag fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card stats-card-yellow">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">ĐƠN CHỜ XỬ LÝ</h6>
+                            <h4 class="mb-0" th:text="${stats.pendingOrders}">18</h4>
+                        </div>
+                        <i class="fas fa-clock fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card stats-card-green">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">ĐƠN ĐÃ HOÀN THÀNH</h6>
+                            <h4 class="mb-0" th:text="${stats.completedOrders}">198</h4>
+                        </div>
+                        <i class="fas fa-check fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="stats-card stats-card-purple">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-white-50">TỶ LỆ CHUYỂN ĐỔI</h6>
+                            <h4 class="mb-0" th:text="${stats.conversionRate}">78%</h4>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x text-white-50"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filters and Search -->
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="get" th:action="@{/admin/orders}">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm đơn hàng...">
+                                <button class="btn btn-outline-primary" type="submit">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select" name="status" th:value="${status}">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="pending">Chờ xử lý</option>
+                                <option value="processing">Đang xử lý</option>
+                                <option value="shipping">Đang giao</option>
+                                <option value="completed">Đã hoàn thành</option>
+                                <option value="cancelled">Đã hủy</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select" name="range" id="rangeSelect" th:value="${range}">
+                            <option value="">Tất cả thời gian</option>
+                                <option value="today">Hôm nay</option>
+                                <option value="yesterday">Hôm qua</option>
+                                <option value="week">7 ngày qua</option>
+                                <option value="month">30 ngày qua</option>
+                                <option value="custom">Tùy chỉnh...</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-2 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-filter me-1"></i> Lọc
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>Mã đơn</th>
+                                <th>Khách hàng</th>
+                                <th>Email</th>
+                                <th>Số điện thoại</th>
+                                <th>Tổng tiền</th>
+                                <th>Trạng thái</th>
+                                <th>Ngày đặt</th>
+                                <th>Số lượng</th>
+                                <th>Thanh toán</th>
+                                <th style="width: 100px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="order : ${orders}">
+                                <td>
+                                    <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="text-primary" th:text="'#ORD-' + ${order.orderId}">
+                                        #ORD-XXXXX
+                                    </a>
+                                </td>
+                                <td th:text="${order.customerName}">Nguyễn Văn A</td>
+                                <td th:text="${order.email}">nguyenvana@email.com</td>
+                                <td th:text="${order.phone}">0912345678</td>
+                                <td th:text="${order.totalAmount}">₫850,000</td>
+                                <td>
+                                    <span th:class="${
+                                        order.orderStatus == 'delivered' ? 'status-badge status-completed' :
+                                        order.orderStatus == 'shipping' ? 'status-badge status-shipping' :
+                                        order.orderStatus == 'processing' ? 'status-badge status-processing' :
+                                        order.orderStatus == 'pending' ? 'status-badge status-pending' :
+                                        order.orderStatus == 'cancelled' ? 'status-badge status-cancelled' :
+                                        'status-badge'
+                                    }" th:text="${
+                                        order.orderStatus == 'delivered' ? 'Đã hoàn thành' :
+                                        order.orderStatus == 'shipping' ? 'Đang giao' :
+                                        order.orderStatus == 'processing' ? 'Đang xử lý' :
+                                        order.orderStatus == 'pending' ? 'Chờ xử lý' :
+                                        order.orderStatus == 'cancelled' ? 'Đã hủy' :
+                                        order.orderStatus
+                                    }">Đã hoàn thành</span>
+                                </td>
+                                <td th:text="${order.orderDate}">12/04/2025</td>
+                                <td th:text="${order.itemCount}">3</td>
+                                <td th:text="${order.paymentMethod}">COD</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{/admin/orders/{id}(id=${order.orderId})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-print"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- If no orders, show a message -->
+                            <tr th:if="${#lists.isEmpty(orders)}">
+                                <td colspan="10" class="text-center py-4">
+                                    <p class="mb-0 text-muted">Không tìm thấy đơn hàng nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    <span>Hiển thị <span th:text="${#lists.size(orders)}">3</span> / <span>256</span> đơn hàng</span>
+                </div>
+                
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination mb-0">
+                        <li th:class="${currentPage == 0 ? 'page-item disabled' : 'page-item'}">
+                            <a class="page-link"
+                               th:href="@{'/admin/orders?page=' + ${currentPage - 1} + ${queryParams}}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            th:class="${currentPage == i ? 'page-item active' : 'page-item'}">
+                            <a class="page-link"
+                               th:href="@{'/admin/orders?page=' + ${i} + ${queryParams}}"
+                               th:text="${i + 1}">1</a>
+                        </li>
+                        
+                        <li th:class="${currentPage == totalPages - 1 ? 'page-item disabled' : 'page-item'}">
+                            <a class="page-link"
+                               th:href="@{'/admin/orders?page=' + ${currentPage + 1} + ${queryParams}}"
+                               aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Modal chọn khoảng thời gian -->
+        <div class="modal fade" id="customOrderDateModal" tabindex="-1" aria-labelledby="customOrderDateModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="get" action="/admin/orders" class="modal-content">
+                    <input type="hidden" name="range" value="custom" />
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="customOrderDateModalLabel">Chọn khoảng thời gian</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="startDate" class="form-label">Từ ngày:</label>
+                            <input type="date" class="form-control" id="startDate" name="startDate">
+                        </div>
+                        <div class="mb-3">
+                            <label for="endDate" class="form-label">Đến ngày:</label>
+                            <input type="date" class="form-control" id="endDate" name="endDate">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Xác nhận</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </content>
+    
+    <additionalJs>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.querySelector("form[method='get']");
+                form.addEventListener("submit", function () {
+                    form.querySelectorAll("input[name], select[name]").forEach(el => {
+                        if (!el.value.trim()) {
+                            el.removeAttribute("name");
+                        }
+                    });
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const form = document.querySelector("form[method='get']");
+                const rangeSelect = document.getElementById("rangeSelect");
+
+                // Remove empty input names
+                form.addEventListener("submit", function () {
+                    form.querySelectorAll("input[name], select[name]").forEach(el => {
+                        if (!el.value.trim()) {
+                            el.removeAttribute("name");
+                        }
+                    });
+                });
+
+                // Hiện modal nếu chọn "custom"
+                rangeSelect.addEventListener("change", function () {
+                    if (this.value === "custom") {
+                        this.value = ""; // reset select để tránh gửi luôn form
+                        const modal = new bootstrap.Modal(document.getElementById("customOrderDateModal"));
+                        modal.show();
+                    }
+                });
+            });
+        </script>
+
+    </additionalJs>
+</body>
+</html>

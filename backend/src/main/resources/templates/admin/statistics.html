@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: html(
+        title='Thống kê - Shop Nước Hoa Xa Xỉ',
+        activeMenu='statistics',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .stats-card {
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                color: white;
+                transition: transform 0.3s;
+            }
+            
+            .stats-card:hover {
+                transform: translateY(-5px);
+            }
+            
+            .stats-card-blue {
+                background: linear-gradient(45deg, #4e73df, #224abe);
+            }
+            
+            .stats-card-green {
+                background: linear-gradient(45deg, #1cc88a, #13855c);
+            }
+            
+            .stats-card-yellow {
+                background: linear-gradient(45deg, #f6c23e, #dda20a);
+            }
+            
+            .stats-card-red {
+                background: linear-gradient(45deg, #e74a3b, #be2617);
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .product-image {
+                width: 40px;
+                height: 40px;
+                object-fit: cover;
+                border-radius: 0.25rem;
+            }
+            
+            .category-badge {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 5px;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+<content>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Thống kê</h2>
+        <div class="d-flex align-items-center">
+            <div class="input-group me-2 shadow-sm"
+                 style="width: auto; min-width: 380px; border: 1px solid #ced4da; border-radius: 0.375rem;">
+        <span class="input-group-text bg-white border-0" style="border-right: 1px solid #ced4da;">
+            <i class="fas fa-clock me-1"></i> Thời gian
+        </span>
+
+                <!-- Vẫn giữ để JS lấy/hiển thị -->
+                <input type="hidden" id="startDate" name="startDate" th:value="${startDateRaw}">
+                <input type="hidden" id="endDate" name="endDate" th:value="${endDateRaw}">
+
+                <!-- Hiển thị khoảng thời gian -->
+                <span class="form-control bg-white border-0 text-center" readonly
+                      style="padding-top: 0.475rem; padding-bottom: 0.475rem;"
+                      id="displayDate">
+            [[${startDate}]] đến [[${endDate}]]
+        </span>
+
+                <!-- Nút mở modal -->
+                <button type="button" class="btn bg-white border-0"
+                        data-bs-toggle="modal" data-bs-target="#customDateModal"
+                        style="padding-top: 0.475rem; padding-bottom: 0.475rem;">
+                    <i class="fas fa-calendar-alt"></i>
+                </button>
+
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-download me-1"></i> Xuất báo cáo
+        </button>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card stats-card-blue">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50">TỔNG DOANH THU</h6>
+                        <h4 class="mb-0" th:text="${#numbers.formatDecimal(revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0
+                            ₫</h4>
+                    </div>
+                    <i class="fas fa-dollar-sign fa-2x text-white-50"></i>
+                </div>
+                <div class="mt-2 text-white-50">
+    <span th:if="${revenueChange >= 0}" class="text-success">
+        <i class="fas fa-arrow-up me-1"></i>
+        <span th:text="'+' + ${revenueChangeStr} + '%'"></span>
+    </span>
+                    <span th:unless="${revenueChange >= 0}" class="text-danger">
+        <i class="fas fa-arrow-down me-1"></i>
+        <span th:text="${revenueChangeStr + '%'}"></span>
+    </span>
+                    <small>so với kỳ trước</small>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card stats-card-green">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50">TỔNG ĐƠN HÀNG</h6>
+                        <h4 class="mb-0" th:text="${totalOrders}">0</h4>
+                    </div>
+                    <i class="fas fa-shopping-cart fa-2x text-white-50"></i>
+                </div>
+                <div class="mt-2 text-white-50">
+    <span th:if="${orderChange >= 0}" class="text-success">
+        <i class="fas fa-arrow-up me-1"></i>
+        <span th:text="'+' + ${orderChangeStr} + '%'"></span>
+    </span>
+                    <span th:unless="${orderChange >= 0}" class="text-danger">
+        <i class="fas fa-arrow-down me-1"></i>
+        <span th:text="${orderChangeStr + '%'}"></span>
+    </span>
+                    <small>so với kỳ trước</small>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card stats-card-yellow">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50">KHÁCH HÀNG MỚI</h6>
+                        <h4 class="mb-0" th:text="${newCustomers}">0</h4>
+                    </div>
+                    <i class="fas fa-user-plus fa-2x text-white-50"></i>
+                </div>
+                <div class="mt-2 text-white-50">
+                        <span th:if="${customerChange >= 0}" class="text-success">
+                            <i class="fas fa-arrow-up me-1"></i>
+                            <span th:text="'+' + ${customerChangeStr} + '%'"></span>
+                        </span>
+                    <span th:unless="${customerChange >= 0}" class="text-danger">
+                            <i class="fas fa-arrow-down me-1"></i>
+                            <span th:text="${customerChangeStr + '%'}"></span>
+                        </span>
+
+                    <small>so với kỳ trước</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="stats-card stats-card-red">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-white-50">TỶ LỆ HOÀN ĐƠN</h6>
+                        <h4 class="mb-0">2.5%</h4>
+                    </div>
+                    <i class="fas fa-undo-alt fa-2x text-white-50"></i>
+                </div>
+                <div class="mt-2 text-white-50">
+                        <span th:if="${customerChange >= 0}" class="text-success">
+                            <i class="fas fa-arrow-up me-1"></i>
+                            <span th:text="'+' + ${customerChangeStr} + '%'"></span>
+                        </span>
+                    <span th:unless="${customerChange >= 0}" class="text-danger">
+                            <i class="fas fa-arrow-down me-1"></i>
+                            <span th:text="${customerChangeStr + '%'}"></span>
+                        </span>
+
+                    <small>so với kỳ trước</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Doanh thu theo thời gian</h5>
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary active">Ngày</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Tuần</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Tháng</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary">Năm</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Sales by Category -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Doanh số theo danh mục</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sales by Payment Method -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="mb-0">Doanh số theo thương hiệu sản phẩm</h5>
+                </div>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Top Products -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Sản phẩm bán chạy</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th>Đã bán</th>
+                                <th>Doanh thu</th>
+                                <th>Tỷ lệ</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="product : ${topSellingProducts}">
+                                <td>
+                                    <div class="d-flex align-items-center">
+<!--                                        <img th:src="${product.imageUrl}" alt="Product"-->
+<!--                                             class="product-image me-2">-->
+                                        <div>
+                                            <h6 class="mb-0" th:text="${product.productName}">Tên sản phẩm</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${product.quantitySold}">0</td>
+                                <td th:text="${#numbers.formatDecimal(product.revenue, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1" style="height: 5px;">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 th:style="'width: ' + ${product.percentage}" th:aria-valuenow="${product.percentage.replace('%','')}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <span class="ms-2" th:text="${product.percentage}">0%</span>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Nếu không có sản phẩm -->
+                            <tr th:if="${#lists.isEmpty(topSellingProducts)}">
+                                <td colspan="4" class="text-center text-muted py-3">Không có dữ liệu sản phẩm bán chạy</td>
+                            </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Demographics -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Thông tin khách hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Phân bố độ tuổi</h6>
+                            <div style="height: 200px;">
+                                <canvas id="ageChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <h6 class="mb-3">Phân bố giới tính</h6>
+                            <div style="height: 200px;">
+                                <canvas id="genderChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal chọn khoảng thời gian -->
+    <div class="modal fade" id="customDateModal" tabindex="-1" aria-labelledby="customDateModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <form method="get" th:action="@{/admin/statistics}" class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="customDateModalLabel">Chọn khoảng thời gian</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="startDateModal" class="form-label">Từ ngày:</label>
+                        <input type="date" class="form-control" id="startDateModal" name="startDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="endDateModal" class="form-label">Đến ngày:</label>
+                        <input type="date" class="form-control" id="endDateModal" name="endDate" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Xác nhận</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</content>
+
+<additionalJs>
+    <script>
+        // Initialize date range picker
+        document.addEventListener('DOMContentLoaded', function() {
+            // This is just a placeholder. In a real implementation, you would use a date range picker library
+            const dateRangePicker = document.getElementById('dateRangePicker');
+            dateRangePicker.value = '01/01/2025 - 31/12/2025';
+        });
+
+        // Age Chart
+        const ageCtx = document.getElementById('ageChart').getContext('2d');
+        const ageChart = new Chart(ageCtx, {
+            type: 'bar',
+            data: {
+                labels: ['18-24', '25-34', '35-44', '45-54', '55+'],
+                datasets: [{
+                    label: 'Khách hàng',
+                    data: [15, 35, 25, 15, 10],
+                    backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed.y + '%';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gender Chart
+        const genderCtx = document.getElementById('genderChart').getContext('2d');
+        const genderChart = new Chart(genderCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Nam', 'Nữ', 'Khác'],
+                datasets: [{
+                    data: [45, 52, 3],
+                    backgroundColor: [
+                        'rgba(78, 115, 223, 0.8)',
+                        'rgba(231, 74, 59, 0.8)',
+                        'rgba(246, 194, 62, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(78, 115, 223, 1)',
+                        'rgba(231, 74, 59, 1)',
+                        'rgba(246, 194, 62, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                label += context.parsed + '%';
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script th:inline="javascript">
+        // Lấy dữ liệu từ Thymeleaf
+        const salesDailyData = /*[[${salesDailyData}]]*/ {};
+        const salesWeeklyData = /*[[${salesWeeklyData}]]*/ {};
+        const salesMonthlyData = /*[[${salesMonthlyData}]]*/ {};
+        const salesYearlyData = /*[[${salesYearlyData}]]*/ {};
+
+        // Hàm tách dữ liệu labels và values
+        function parseData(dataMap) {
+            const labels = Object.keys(dataMap);
+            const values = Object.values(dataMap);
+            return { labels, values };
+        }
+
+        let currentChart = null;
+
+        // Hàm cập nhật biểu đồ theo loại dữ liệu
+        function updateChart(type) {
+            const ctx = document.getElementById("revenueChart").getContext("2d");
+
+            // Xóa chart cũ nếu có
+            if (currentChart) currentChart.destroy();
+
+            // Lấy dữ liệu theo loại
+            let data;
+            switch (type) {
+                case 'day':
+                    data = parseData(salesDailyData);
+                    break;
+                case 'week':
+                    data = parseData(salesWeeklyData);
+                    break;
+                case 'month':
+                    data = parseData(salesMonthlyData);
+                    break;
+                case 'year':
+                    data = parseData(salesYearlyData);
+                    break;
+            }
+
+            // Khởi tạo biểu đồ mới
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: data.values,
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ": " + context.parsed.y.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Bắt sự kiện click nút lọc
+        document.addEventListener("DOMContentLoaded", function () {
+            updateChart('day'); // Mặc định là ngày
+
+            const buttons = document.querySelectorAll(".btn-group button");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    buttons.forEach(b => b.classList.remove("active"));
+                    this.classList.add("active");
+
+                    const type = this.textContent.trim().toLowerCase(); // ngày, tuần, tháng, năm
+                    const chartType = type === 'ngày' ? 'day' : type === 'tuần' ? 'week' : type === 'tháng' ? 'month' : 'year';
+                    updateChart(chartType);
+                });
+            });
+        });
+    </script>
+
+    <script th:inline="javascript">
+        const salesByGenderData = /*[[${salesByGender}]]*/ {};
+
+        const genderLabelMap = {
+            "Men": "Nam",
+            "Women": "Nữ",
+            "Unisex": "Unisex"
+        };
+
+        // Lọc các mục có giá trị > 0
+        const genderLabels = [];
+        const genderValues = [];
+        const genderPercentages = [];
+
+        let totalRevenue = 0;
+
+        for (const [key, value] of Object.entries(salesByGenderData)) {
+            const amount = parseFloat(value);
+            if (amount > 0) {
+                genderLabels.push(genderLabelMap[key] || key);
+                genderValues.push(amount);
+                totalRevenue += amount;
+            }
+        }
+
+        // Tính phần trăm
+        genderValues.forEach(val => {
+            genderPercentages.push(((val / totalRevenue) * 100).toFixed(2));
+        });
+
+        // Nếu có dữ liệu > 0 thì render
+        if (totalRevenue > 0) {
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: genderLabels,
+                    datasets: [{
+                        data: genderValues,
+                        backgroundColor: [
+                            'rgba(78, 115, 223, 0.8)',
+                            'rgba(231, 74, 59, 0.8)',
+                            'rgba(246, 194, 62, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(78, 115, 223, 1)',
+                            'rgba(231, 74, 59, 1)',
+                            'rgba(246, 194, 62, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const index = context.dataIndex;
+                                    const label = context.label || '';
+                                    const value = context.parsed.toLocaleString('vi-VN');
+                                    const percent = genderPercentages[index];
+                                    return `${label}: ${value} ₫ (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            // Hiển thị fallback nếu không có dữ liệu
+            document.getElementById('categoryChart').parentElement.innerHTML =
+                "<p class='text-center text-muted mt-5'>Không có dữ liệu doanh số theo danh mục.</p>";
+        }
+    </script>
+
+    <script th:inline="javascript">
+        const salesByBrandData = /*[[${salesByBrand}]]*/ {};
+
+        const brandLabels = [];
+        const brandValues = [];
+        const brandPercentages = [];
+
+        const paymentColors = [
+            'rgba(78, 115, 223, 0.8)',
+            'rgba(28, 200, 138, 0.8)',
+            'rgba(246, 194, 62, 0.8)',
+            'rgba(231, 74, 59, 0.8)',
+            'rgba(54, 185, 204, 0.8)',
+            'rgba(133, 135, 150, 0.8)',
+            'rgba(255, 99, 132, 0.8)'
+        ];
+
+        const paymentBorderColors = paymentColors.map(c => c.replace("0.8", "1"));
+
+        let totalBrandRevenue = 0;
+
+        // Lọc và tính tổng doanh thu
+        for (const [brand, value] of Object.entries(salesByBrandData)) {
+            const amount = parseFloat(value);
+            if (amount > 0) {
+                brandLabels.push(brand);
+                brandValues.push(amount);
+                totalBrandRevenue += amount;
+            }
+        }
+
+        // Tính phần trăm doanh thu
+        brandValues.forEach(val => {
+            brandPercentages.push(((val / totalBrandRevenue) * 100).toFixed(2));
+        });
+
+        if (totalBrandRevenue > 0) {
+            const paymentCtx = document.getElementById('paymentChart').getContext('2d');
+            new Chart(paymentCtx, {
+                type: 'pie',
+                data: {
+                    labels: brandLabels,
+                    datasets: [{
+                        data: brandValues,
+                        backgroundColor: paymentColors.slice(0, brandLabels.length),
+                        borderColor: paymentBorderColors.slice(0, brandLabels.length),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    const index = context.dataIndex;
+                                    const label = context.label || '';
+                                    const value = context.parsed.toLocaleString('vi-VN');
+                                    const percent = brandPercentages[index];
+                                    return `${label}: ${value} ₫ (${percent}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            document.getElementById('paymentChart').parentElement.innerHTML =
+                "<p class='text-center text-muted mt-5'>Không có dữ liệu doanh thu theo thương hiệu.</p>";
+        }
+    </script>
+
+
+
+</additionalJs>
+
+</body>
+</html>

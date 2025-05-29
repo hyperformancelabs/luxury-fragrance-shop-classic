@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Chi tiết vật tư - Shop Nước Hoa Xa Xỉ',
+        activeMenu='materials',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-normal {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-low {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .status-out {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+            
+            .material-icon {
+                width: 80px;
+                height: 80px;
+                border-radius: 0.5rem;
+                background-color: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                color: #6c757d;
+                margin: 0 auto 1rem;
+            }
+            
+            .info-label {
+                font-weight: 600;
+                color: #6c757d;
+            }
+            
+            .transaction-type-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .transaction-purchase {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .transaction-use {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .transaction-adjust {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .stock-chart-container {
+                height: 300px;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Chi tiết vật tư</h2>
+            <div>
+                <a href="/admin/materials" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+                <button class="btn btn-outline-primary me-2">
+                    <i class="fas fa-file-import me-1"></i> Nhập kho
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Material Information -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="material-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <h4 class="mb-1" th:text="${material.name}">Hộp đựng nước hoa 50ml</h4>
+                            <p class="text-muted mb-3" th:text="${material.category}">Bao bì</p>
+                            
+                            <span th:class="${
+                                material.quantityInStock > material.reorderLevel * 1.5 ? 'status-badge status-normal' :
+                                material.quantityInStock > 0 ? 'status-badge status-low' :
+                                'status-badge status-out'
+                            }" th:text="${
+                                material.quantityInStock > material.reorderLevel * 1.5 ? 'Bình thường' :
+                                material.quantityInStock > 0 ? 'Sắp hết' :
+                                'Hết hàng'
+                            }">Bình thường</span>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="row text-center mb-4">
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${material.quantityInStock}">150</h5>
+                                <small class="text-muted">Tồn kho</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${material.reorderLevel}">50</h5>
+                                <small class="text-muted">Ngưỡng đặt hàng</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0" th:text="${#numbers.formatDecimal(material.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">15,000 ₫</h5>
+                                <small class="text-muted">Giá</small>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Mô tả</p>
+                            <p class="mb-0" th:text="${material.description}">Hộp đựng nước hoa cao cấp, màu đen, kích thước 10x10x15cm</p>
+                        </div>
+                        
+                        <div class="progress mb-3" style="height: 10px;">
+                            <div class="progress-bar" role="progressbar" 
+                                 th:style="'width: ' + ${material.quantityInStock * 100 / (material.reorderLevel * 2)} + '%'" 
+                                 th:classappend="${
+                                     material.quantityInStock > material.reorderLevel * 1.5 ? 'bg-success' :
+                                     material.quantityInStock > 0 ? 'bg-warning' :
+                                     'bg-danger'
+                                 }"
+                                 aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-file-import me-1"></i> Nhập kho
+                            </button>
+                            <button class="btn btn-outline-secondary">
+                                <i class="fas fa-file-export me-1"></i> Xuất kho
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thống kê sử dụng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-4">
+                            <h6 class="mb-2">Tổng số lần nhập kho</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                                <span class="ms-3 fw-bold">15</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <h6 class="mb-2">Tổng số lần xuất kho</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-warning" role="progressbar" style="width: 60%"></div>
+                                    </div>
+                                </div>
+                                <span class="ms-3 fw-bold">12</span>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h6 class="mb-2">Tổng số lần điều chỉnh</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                                <span class="ms-3 fw-bold">5</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Transaction History and Chart -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Biểu đồ tồn kho</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="stock-chart-container">
+                            <canvas id="stockChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Lịch sử giao dịch</h5>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-outline-secondary active">Tất cả</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Nhập kho</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">Xuất kho</button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Loại giao dịch</th>
+                                        <th>Số lượng</th>
+                                        <th>Ngày</th>
+                                        <th>Nhân viên</th>
+                                        <th>Ghi chú</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="transaction : ${transactions}">
+                                        <td th:text="${transaction.id}">1001</td>
+                                        <td>
+                                            <span th:class="${
+                                                transaction.type == 'purchase' ? 'transaction-type-badge transaction-purchase' :
+                                                transaction.type == 'use' ? 'transaction-type-badge transaction-use' :
+                                                'transaction-type-badge transaction-adjust'
+                                            }" th:text="${
+                                                transaction.type == 'purchase' ? 'Nhập kho' :
+                                                transaction.type == 'use' ? 'Xuất kho' :
+                                                'Điều chỉnh'
+                                            }">Nhập kho</span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${transaction.type == 'purchase' ? '+' : '-'} + ${transaction.quantity}">+50</span>
+                                        </td>
+                                        <td th:text="${transaction.date}">12/04/2025</td>
+                                        <td th:text="${transaction.employee}">Admin User</td>
+                                        <td>Nhập kho định kỳ</td>
+                                    </tr>
+                                    <!-- If no transactions, show a message -->
+                                    <tr th:if="${#lists.isEmpty(transactions)}">
+                                        <td colspan="6" class="text-center py-3">
+                                            <p class="mb-0 text-muted">Không có giao dịch nào</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <nav>
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Stock Chart
+            const stockCtx = document.getElementById('stockChart').getContext('2d');
+            const stockChart = new Chart(stockCtx, {
+                type: 'line',
+                data: {
+                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                    datasets: [{
+                        label: 'Tồn kho',
+                        data: [120, 140, 130, 150, 120, 110, 100, 130, 150, 140, 160, 150],
+                        backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        fill: true
+                    }, {
+                        label: 'Ngưỡng đặt hàng',
+                        data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
+                        borderColor: 'rgba(246, 194, 62, 1)',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 50
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y;
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

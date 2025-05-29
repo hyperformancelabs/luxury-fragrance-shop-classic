@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách yêu thích - APH Perfume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/wishlist.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">APH Perfume</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/shop">Sản phẩm</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/shop/top-selling">Bán chạy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Nếu đã đăng nhập -->
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                    <span class="text-dark">
+                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <strong sec:authentication="name">Tên người dùng</strong>
+                         </a>
+
+                     </span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                        </button>
+
+                        <!-- Form logout POST -->
+                        <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+                            <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+                        </form>
+                    </div>
+
+
+                    <!-- Nếu chưa đăng nhập -->
+                    <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                        <a href="/auth/login" class="btn btn-outline-dark">
+                            <i class="fas fa-user me-1"></i> Đăng nhập
+                        </a>
+                    </div>
+
+                    <!-- Giỏ hàng luôn hiển thị -->
+                    <a href="/cart" class="btn btn-dark">
+                        <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <header class="breadcrumb-section">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <span>DANH SÁCH YÊU THÍCH</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="wishlist-container">
+            <div class="wishlist-header">
+                <h2>Danh Sách Yêu Thích</h2>
+                <span class="wishlist-count" th:text="${wishlistItems.size() + ' sản phẩm'}">4 sản phẩm</span>
+            </div>
+
+            <div th:if="${!wishlistItems.isEmpty()}">
+                <div th:each="item : ${wishlistItems}" class="wishlist-item" th:data-product-id="${item.productId}">
+                    <img th:src="${item.imageUrl}" class="wishlist-item-image" alt="Product Image">
+
+                    <div class="wishlist-item-details">
+                        <h5 class="wishlist-item-name" th:text="${item.productName}">Tên sản phẩm</h5>
+                        <div class="wishlist-item-status" th:class="${item.inStock ? 'in-stock' : 'out-of-stock'}">
+                            <span th:if="${item.inStock}"><i class="fas fa-check-circle"></i> Còn hàng</span>
+                            <span th:unless="${item.inStock}"><i class="fas fa-times-circle"></i> Hết hàng</span>
+                        </div>
+
+                        <div class="size-options">
+    <span th:each="vol, iterStat : ${item.variantVolumes}"
+          th:data-value="${vol}"
+          th:data-variant-id="${item.volumeVariantIdMap[vol.toString()]}"
+          th:class="'size-option' + (iterStat.index == 0 ? ' active' : '')"
+          th:text="${vol + 'ml'}">50ml</span>
+                        </div>
+
+
+
+                        <div class="quantity-selector">
+                            <button class="quantity-btn quantity-decrease">-</button>
+                            <input type="number" class="quantity-input" value="1" min="1">
+                            <button class="quantity-btn quantity-increase">+</button>
+                        </div>
+
+                        <div class="wishlist-item-price">
+                            <span th:if="${item.minPrice == item.maxPrice}"
+                                  th:text="${#numbers.formatDecimal(item.minPrice, 0, 'POINT', 3, 'COMMA') + 'đ'}">
+                                2.400.000đ
+                            </span>
+                            <span th:unless="${item.minPrice == item.maxPrice}"
+                                  th:text="${#numbers.formatDecimal(item.minPrice, 0, 'POINT', 3, 'COMMA') + 'đ'} + ' - ' + ${#numbers.formatDecimal(item.maxPrice, 0, 'POINT', 3, 'COMMA') + 'đ'}">
+                                2.400.000đ - 3.500.000đ
+                            </span>
+                        </div>
+
+                    </div>
+
+                    <div class="wishlist-item-actions">
+                        <form th:action="@{/cart/add}" method="post" class="wishlist-add-to-cart-form" th:if="${item.inStock}">
+                            <input type="hidden" name="productVariantId" th:value="${item.productVariantId}" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                            <button type="submit" class="add-to-cart-btn">
+                                <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                            </button>
+                        </form>
+
+                        <!-- Nếu hết hàng thì show nút "Hết hàng" -->
+                        <button class="add-to-cart-btn disabled-like" disabled th:if="${!item.inStock}">
+                            <i class="fas fa-ban me-1"></i> Hết hàng
+                        </button>
+
+
+                        <form th:action="@{/wishlist/remove}" method="post" class="d-inline">
+                            <input type="hidden" name="productVariantId" th:value="${item.productVariantId}" />
+                            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                            <button type="submit" class="remove-btn" title="Xóa khỏi danh sách yêu thích">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${wishlistItems.isEmpty()}" class="empty-wishlist">
+                <div class="empty-wishlist-icon">
+                    <i class="fas fa-heart"></i>
+                </div>
+                <h3 class="empty-wishlist-message">Danh sách yêu thích trống</h3>
+                <p class="text-muted mb-4">Bạn chưa thêm sản phẩm nào vào danh sách yêu thích</p>
+                <a href="/shop" class="btn btn-dark">Tiếp tục mua sắm</a>
+            </div>
+        </div>
+
+        <div th:if="${!wishlistItems.isEmpty()}" class="wishlist-footer">
+            <form th:action="@{/wishlist/clear}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả không?')">
+                <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                <button type="submit" id="clear-all-btn" class="clear-all-btn">
+                    <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
+                </button>
+            </form>
+
+            <button id="add-all-to-cart-btn"
+                    class="add-all-to-cart-btn"
+                    th:classappend="${!hasInStock} ? ' disabled-like' : ''"
+                    onclick="handleAddAllToCartClick(event)">
+                <i class="fas fa-shopping-cart me-1"></i> Thêm tất cả vào giỏ hàng
+            </button>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>APH Perfume</h5>
+                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Liên Kết Nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Trang chủ</a></li>
+                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Dịch Vụ Khách Hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Kết Nối Với Chúng Tôi</h5>
+                    <div class="d-flex gap-3 fs-4 mb-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/wishlist.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const addToCartForms = document.querySelectorAll(".wishlist-add-to-cart-form");
+
+            addToCartForms.forEach(form => {
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault(); // ⛔ Ngăn submit ngay lập tức
+
+                    const wishlistItem = form.closest(".wishlist-item");
+
+                    const quantityInput = wishlistItem.querySelector(".quantity-input");
+                    const quantity = quantityInput ? quantityInput.value : 1;
+
+                    const selectedSize = wishlistItem.querySelector(".size-option.active");
+                    const productVariantIdInput = form.querySelector("input[name='productVariantId']");
+
+                    if (selectedSize) {
+                        const selectedVariantId = selectedSize.getAttribute("data-variant-id");
+                        const volume = selectedSize.getAttribute("data-value");
+
+                        // ✅ In ra để debug
+                        console.log("✅ Selected Volume (ml):", volume);
+                        console.log("✅ Selected Quantity:", quantity);
+                        console.log("✅ Selected Variant ID:", selectedVariantId);
+
+                        if (selectedVariantId && productVariantIdInput) {
+                            productVariantIdInput.value = selectedVariantId;
+                        }
+                    } else {
+                        console.warn("⚠️ Chưa chọn kích thước (volume) cho sản phẩm.");
+                    }
+
+                    form.querySelector("input[name='quantity']").value = quantity;
+
+                    // ✅ Chờ JS hoàn thành cập nhật trước khi submit
+                    setTimeout(() => {
+                        form.submit();
+                    }, 0);
+                });
+            });
+
+            // Xử lý chọn volume
+            document.querySelectorAll('.size-option').forEach(option => {
+                option.addEventListener('click', function () {
+                    const container = option.closest('.size-options');
+                    container.querySelectorAll('.size-option').forEach(el => el.classList.remove('active'));
+                    option.classList.add('active');
+                });
+            });
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function handleAddAllToCartClick(event) {
+            const button = document.getElementById("add-all-to-cart-btn");
+            if (button.classList.contains("disabled-like")) {
+                event.preventDefault();
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Không thể thêm vào giỏ hàng',
+                    text: 'Tất cả sản phẩm trong danh sách đều đã hết hàng.',
+                    confirmButtonText: 'Đã hiểu'
+                });
+            } else {
+                proceedAddAllToCart();
+            }
+        }
+
+        function proceedAddAllToCart() {
+            const wishlistItems = document.querySelectorAll('.wishlist-item');
+
+            wishlistItems.forEach(item => {
+                const productId = item.getAttribute('data-product-id');
+                const quantity = item.querySelector('.quantity-input').value;
+                const selectedSize = item.querySelector('.size-option.active');
+
+                if (selectedSize) {
+                    const size = selectedSize.getAttribute('data-value');
+                    console.log(`Thêm sản phẩm ${productId} vào giỏ hàng, kích thước: ${size}, số lượng: ${quantity}`);
+                } else {
+                    console.log(`Vui lòng chọn kích thước cho sản phẩm ${productId}`);
+                }
+            });
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ hàng',
+                text: 'Tất cả sản phẩm còn hàng đã được thêm!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get("wishlistRemoved") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã xóa khỏi danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                // Xóa query khỏi URL để không hiện lại sau khi reload
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.reload();
+            });
+
+            }
+        });
+    </script>
+    <script>
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
+
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("wishlistAdded") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("wishlistCleared") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã xóa toàn bộ danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>

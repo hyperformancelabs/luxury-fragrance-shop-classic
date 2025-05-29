@@ -1,0 +1,268 @@
+.quickview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    overflow-y: auto;
+    padding: 30px 0;
+}
+
+.quickview-container {
+    background-color: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 1000px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: quickviewFadeIn 0.3s ease-out;
+}
+
+@keyframes quickviewFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.quickview-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #212529;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.quickview-content {
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .quickview-content {
+        flex-direction: row;
+    }
+}
+
+.quickview-images {
+    flex: 1;
+    padding: 20px;
+}
+
+.quickview-main-image {
+    width: 100%;
+    height: 300px;
+    object-fit: contain;
+    margin-bottom: 15px;
+}
+
+.quickview-thumbnails {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+}
+
+.quickview-thumbnail {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quickview-thumbnail.active {
+    border-color: #212529;
+}
+
+.quickview-details {
+    flex: 1;
+    padding: 20px;
+    border-left: 1px solid #dee2e6;
+}
+
+.quickview-brand {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.quickview-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.quickview-rating {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.quickview-stars {
+    color: #ffc107;
+    margin-right: 10px;
+}
+
+.quickview-price {
+    margin-bottom: 20px;
+}
+
+.quickview-original-price {
+    text-decoration: line-through;
+    color: #6c757d;
+    margin-right: 10px;
+}
+
+.quickview-sale-price {
+    font-size: 24px;
+    font-weight: 600;
+    color: #dc3545;
+}
+
+.quickview-description {
+    margin-bottom: 20px;
+    color: #6c757d;
+}
+
+.quickview-sizes {
+    margin-bottom: 20px;
+}
+
+.quickview-size-label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.quickview-size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.quickview-size {
+    padding: 8px 15px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quickview-size.active {
+    background-color: #212529;
+    color: white;
+    border-color: #212529;
+}
+
+.quickview-quantity {
+    margin-bottom: 20px;
+}
+
+.quickview-quantity-label {
+    font-weight: 600;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.quickview-quantity-selector {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+}
+
+.quickview-quantity-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.quickview-quantity-input {
+    width: 50px;
+    height: 36px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+    border-left: none;
+    border-right: none;
+}
+
+.quickview-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.quickview-add-to-cart {
+    flex: 1;
+    padding: 10px 15px;
+    background-color: #212529;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quickview-add-to-cart:hover {
+    background-color: #343a40;
+}
+
+.quickview-wishlist {
+    padding: 10px 15px;
+    background-color: white;
+    color: #212529;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quickview-wishlist:hover {
+    background-color: #f8f9fa;
+}
+
+.quickview-meta {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dee2e6;
+}
+
+.quickview-meta-item {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.quickview-meta-item span {
+    font-weight: 600;
+    color: #212529;
+    margin-right: 5px;
+}
+
+@media (max-width: 767px) {
+    .quickview-details {
+        border-left: none;
+        border-top: 1px solid #dee2e6;
+    }
+}

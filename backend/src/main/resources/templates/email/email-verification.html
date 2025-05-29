@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác thực email - Shop Nước Hoa Xa Xỉ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .logo {
+            max-width: 150px;
+            height: auto;
+        }
+        .verification-code {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 5px;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777;
+            text-align: center;
+        }
+        .note {
+            font-style: italic;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Shop Nước Hoa Xa Xỉ</h2>
+        </div>
+        
+        <p>Kính chào Quý khách,</p>
+        
+        <p>Cảm ơn bạn đã đăng ký tài khoản tại Shop Nước Hoa Xa Xỉ. Để hoàn tất quá trình đăng ký, vui lòng sử dụng mã xác thực sau để xác minh địa chỉ email của bạn:</p>
+        
+        <div class="verification-code" th:text="${code}">123456</div>
+        
+        <p>Mã xác thực này sẽ hết hạn sau <span th:text="${#temporals.format(expiresAt, 'HH:mm')} + ' ngày ' + ${#temporals.format(expiresAt, 'dd/MM/yyyy')}">15 phút</span>.</p>
+        
+        <p class="note">Nếu bạn không tạo tài khoản tại Shop Nước Hoa Xa Xỉ, vui lòng bỏ qua email này.</p>
+        
+        <p>Trân trọng,<br>Đội ngũ Shop Nước Hoa Xa Xỉ</p>
+        
+        <div class="footer">
+            <p>© 2025 Shop Nước Hoa Xa Xỉ. Tất cả các quyền được bảo lưu.</p>
+            <p>Email này được gửi tự động, vui lòng không trả lời.</p>
+        </div>
+    </div>
+</body>
+</html>

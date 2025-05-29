@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} ?: 'Admin Dashboard - Shop Nước Hoa Xa Xỉ'">Admin Dashboard</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        .sidebar {
+            min-height: 100vh;
+            background-color: #343a40;
+            color: white;
+        }
+        
+        .sidebar .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.5rem 1rem;
+            margin: 0.2rem 0;
+            border-radius: 0.25rem;
+        }
+        
+        .sidebar .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar .nav-link.active {
+            color: white;
+            background-color: #007bff;
+        }
+        
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .content-wrapper {
+            min-height: 100vh;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+            font-weight: 600;
+        }
+        
+        .table th {
+            font-weight: 600;
+            background-color: #f8f9fa;
+        }
+    </style>
+    
+    <!-- Additional CSS -->
+    <th:block th:replace="${additionalCss} ?: ~{}"></th:block>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="position-sticky pt-3">
+                    <div class="d-flex align-items-center justify-content-center mb-4">
+                        <h4 class="mb-0">APH PERFUME</h4>
+                    </div>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'dashboard' ? 'nav-link active' : 'nav-link'}" href="/admin/dashboard">
+                                <i class="fas fa-home"></i> Tổng quan
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'statistics' ? 'nav-link active' : 'nav-link'}" href="/admin/statistics">
+                                <i class="fas fa-chart-bar"></i> Thống kê
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin') or roles.contains('Order Staff')}">
+                            <a th:class="${activeMenu == 'orders' ? 'nav-link active' : 'nav-link'}" href="/admin/orders">
+                                <i class="fas fa-box"></i> Đơn hàng
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin') or roles.contains('Material Staff')}">
+                            <a th:class="${activeMenu == 'products' ? 'nav-link active' : 'nav-link'}" href="/admin/products">
+                                <i class="fas fa-tag"></i> Sản phẩm
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'customers' ? 'nav-link active' : 'nav-link'}" href="/admin/customers">
+                                <i class="fas fa-users"></i> Khách hàng
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'materials' ? 'nav-link active' : 'nav-link'}" href="/admin/materials">
+                                <i class="fas fa-shopping-bag"></i> Vật tư
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'marketing' ? 'nav-link active' : 'nav-link'}" href="/admin/marketing">
+                                <i class="fas fa-bullhorn"></i> Marketing
+                            </a>
+                        </li>
+
+                        <li class="nav-item"
+                            th:if="${roles.contains('System Admin')}">
+                            <a th:class="${activeMenu == 'employees' ? 'nav-link active' : 'nav-link'}" href="/admin/employees">
+                                <i class="fas fa-user-tie"></i> Nhân viên
+                            </a>
+                        </li>
+                    </ul>
+
+                    <hr>
+
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <form th:action="@{/admin/logout}" method="post">
+                                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                <button type="submit" class="btn btn-link nav-link text-start">
+                                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Main content -->
+            <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content-wrapper">
+                <!-- Header -->
+                <header class="navbar navbar-light sticky-top flex-md-nowrap p-0 mb-4">
+                    <div class="container-fluid">
+                        <button class="navbar-toggler d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target=".sidebar">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        
+                        <div class="d-flex align-items-center">
+                            <div class="dropdown">
+                                <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://via.placeholder.com/32" alt="User" width="32" height="32" class="rounded-circle me-2">
+                                    <span sec:authentication="name">Tên người dùng</span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end text-small shadow" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="/admin/profile">Hồ sơ</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="/admin/logout">Đăng xuất</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+                
+                <!-- Page content -->
+                <main class="container-fluid">
+                    <th:block th:replace="${content}"></th:block>
+                </main>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Additional JavaScript -->
+    <th:block th:replace="${additionalJs} ?: ~{}"></th:block>
+</body>
+</html>

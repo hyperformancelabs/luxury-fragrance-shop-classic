@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Quản lý vật tư - Shop Nước Hoa Xa Xỉ',
+        activeMenu='materials',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-normal {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-low {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .status-out {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+            
+            .material-icon {
+                width: 40px;
+                height: 40px;
+                border-radius: 0.25rem;
+                background-color: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.2rem;
+                color: #6c757d;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Quản lý vật tư</h2>
+            <div>
+                <button class="btn btn-outline-primary me-2">
+                    <i class="fas fa-file-import me-1"></i> Nhập kho
+                </button>
+                <button class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i> Thêm vật tư mới
+                </button>
+            </div>
+        </div>
+        
+        <!-- Filters and Search -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <form th:action="@{/admin/materials}" method="get" class="d-flex">
+                            <input type="text" class="form-control me-2" name="search" th:value="${search}" placeholder="Tìm kiếm vật tư...">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="btn-group me-2">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-filter me-1"></i> Lọc
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Tất cả vật tư</a></li>
+                                <li><a class="dropdown-item" href="#">Vật tư sắp hết</a></li>
+                                <li><a class="dropdown-item" href="#">Vật tư hết hàng</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">Bao bì</a></li>
+                                <li><a class="dropdown-item" href="#">Trang trí</a></li>
+                                <li><a class="dropdown-item" href="#">Khác</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-sort me-1"></i> Sắp xếp
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="#">Tên (A-Z)</a></li>
+                                <li><a class="dropdown-item" href="#">Tên (Z-A)</a></li>
+                                <li><a class="dropdown-item" href="#">Tồn kho (Thấp-Cao)</a></li>
+                                <li><a class="dropdown-item" href="#">Tồn kho (Cao-Thấp)</a></li>
+                                <li><a class="dropdown-item" href="#">Giá (Thấp-Cao)</a></li>
+                                <li><a class="dropdown-item" href="#">Giá (Cao-Thấp)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Materials Table -->
+        <div class="card">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Tên vật tư</th>
+                                <th>Danh mục</th>
+                                <th>Tồn kho</th>
+                                <th>Ngưỡng đặt hàng</th>
+                                <th>Giá</th>
+                                <th>Trạng thái</th>
+                                <th style="width: 100px;">Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="material, stat : ${materials}">
+                                <td th:text="${stat.count + currentPage * 10}">1</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="material-icon me-3">
+                                            <i class="fas fa-box"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0" th:text="${material.name}">Hộp đựng nước hoa 50ml</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td th:text="${material.category}">Bao bì</td>
+                                <td th:text="${material.quantityInStock}">150</td>
+                                <td th:text="${material.reorderLevel}">50</td>
+                                <td th:text="${#numbers.formatDecimal(material.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">15,000 ₫</td>
+                                <td>
+                                    <span th:class="${
+                                        material.quantityInStock > material.reorderLevel * 1.5 ? 'status-badge status-normal' :
+                                        material.quantityInStock > 0 ? 'status-badge status-low' :
+                                        'status-badge status-out'
+                                    }" th:text="${
+                                        material.quantityInStock > material.reorderLevel * 1.5 ? 'Bình thường' :
+                                        material.quantityInStock > 0 ? 'Sắp hết' :
+                                        'Hết hàng'
+                                    }">Bình thường</span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a th:href="@{/admin/materials/{id}(id=${material.id})}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- If no materials, show a message -->
+                            <tr th:if="${#lists.isEmpty(materials)}">
+                                <td colspan="8" class="text-center py-4">
+                                    <p class="mb-0 text-muted">Không tìm thấy vật tư nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <div>
+                    <span>Hiển thị <span th:text="${#lists.size(materials)}">5</span> / <span>50</span> vật tư</span>
+                </div>
+                
+                <nav th:if="${totalPages > 1}">
+                    <ul class="pagination mb-0">
+                        <li th:class="${currentPage == 0 ? 'page-item disabled' : 'page-item'}">
+                            <a class="page-link" th:href="@{/admin/materials(page=${currentPage - 1}, search=${search})}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        
+                        <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" 
+                            th:class="${currentPage == i ? 'page-item active' : 'page-item'}">
+                            <a class="page-link" th:href="@{/admin/materials(page=${i}, search=${search})}" th:text="${i + 1}">1</a>
+                        </li>
+                        
+                        <li th:class="${currentPage == totalPages - 1 ? 'page-item disabled' : 'page-item'}">
+                            <a class="page-link" th:href="@{/admin/materials(page=${currentPage + 1}, search=${search})}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Additional JavaScript if needed
+        </script>
+    </additionalJs>
+</body>
+</html>

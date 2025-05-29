@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Chi tiết chiến dịch - Shop Nước Hoa Xa Xỉ',
+        activeMenu='marketing',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-active {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-upcoming {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .status-completed {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .campaign-header {
+                background-color: #f8f9fa;
+                border-radius: 0.5rem;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .campaign-icon {
+                width: 60px;
+                height: 60px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.8rem;
+                color: white;
+            }
+            
+            .campaign-icon-active {
+                background-color: #2e7d32;
+            }
+            
+            .campaign-icon-upcoming {
+                background-color: #1565c0;
+            }
+            
+            .campaign-icon-completed {
+                background-color: #616161;
+            }
+            
+            .info-label {
+                font-weight: 600;
+                color: #6c757d;
+            }
+            
+            .promotion-type-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .promotion-discount {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .promotion-buy-one-get-one {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .promotion-gift {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                height: 100%;
+                width: 2px;
+                background-color: #e0e0e0;
+            }
+            
+            .timeline-item {
+                position: relative;
+                padding-bottom: 1.5rem;
+            }
+            
+            .timeline-item:last-child {
+                padding-bottom: 0;
+            }
+            
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -30px;
+                top: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #fff;
+                border: 2px solid #4e73df;
+            }
+            
+            .timeline-item.completed::before {
+                background-color: #1cc88a;
+                border-color: #1cc88a;
+            }
+            
+            .timeline-date {
+                font-size: 0.8rem;
+                color: #6c757d;
+            }
+            
+            .progress-thin {
+                height: 5px;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Chi tiết chiến dịch</h2>
+            <div>
+                <a href="/admin/marketing" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+                <button class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                </button>
+            </div>
+        </div>
+        
+        <!-- Campaign Header -->
+        <div class="campaign-header">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="d-flex align-items-center">
+                        <div th:class="${
+                            campaign.status == 'active' ? 'campaign-icon campaign-icon-active' :
+                            campaign.status == 'upcoming' ? 'campaign-icon campaign-icon-upcoming' :
+                            campaign.status == 'completed' ? 'campaign-icon campaign-icon-completed' :
+                            'campaign-icon'
+                        }" class="me-3">
+                            <i th:class="${
+                                campaign.status == 'active' ? 'fas fa-bullhorn' :
+                                campaign.status == 'upcoming' ? 'fas fa-calendar-alt' :
+                                campaign.status == 'completed' ? 'fas fa-check' :
+                                'fas fa-bullhorn'
+                            }"></i>
+                        </div>
+                        <div>
+                            <h3 class="mb-1" th:text="${campaign.name}">Khuyến mãi mùa hè</h3>
+                            <div>
+                                <span th:class="${
+                                    campaign.status == 'active' ? 'status-badge status-active' :
+                                    campaign.status == 'upcoming' ? 'status-badge status-upcoming' :
+                                    campaign.status == 'completed' ? 'status-badge status-completed' :
+                                    'status-badge'
+                                }" th:text="${
+                                    campaign.status == 'active' ? 'Đang diễn ra' :
+                                    campaign.status == 'upcoming' ? 'Sắp diễn ra' :
+                                    campaign.status == 'completed' ? 'Đã kết thúc' :
+                                    campaign.status
+                                }">Đang diễn ra</span>
+                                <span class="ms-2 text-muted">
+                                    <i class="fas fa-calendar-day me-1"></i>
+                                    <span th:text="${#temporals.format(campaign.startDate, 'dd/MM/yyyy')}">01/05/2025</span>
+                                    <span> - </span>
+                                    <span th:text="${#temporals.format(campaign.endDate, 'dd/MM/yyyy')}">15/05/2025</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mt-3 mt-md-0">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Tiến độ chiến dịch</small>
+                            <small>50%</small>
+                        </div>
+                        <div class="progress progress-thin">
+                            <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Campaign Information -->
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thông tin chiến dịch</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Mô tả</p>
+                            <p class="mb-0" th:text="${campaign.description}">Chương trình khuyến mãi mùa hè với nhiều ưu đãi hấp dẫn</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Ngân sách</p>
+                            <p class="mb-0" th:text="${#numbers.formatDecimal(campaign.budget, 0, 'COMMA', 0, 'POINT')} + ' ₫'">10,000,000 ₫</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Đối tượng</p>
+                            <p class="mb-0" th:text="${campaign.targetAudience}">Khách hàng từ 18-35 tuổi</p>
+                        </div>
+                        <div class="mb-3">
+                            <p class="info-label mb-1">Ngày bắt đầu</p>
+                            <p class="mb-0" th:text="${#temporals.format(campaign.startDate, 'dd/MM/yyyy')}">01/05/2025</p>
+                        </div>
+                        <div>
+                            <p class="info-label mb-1">Ngày kết thúc</p>
+                            <p class="mb-0" th:text="${#temporals.format(campaign.endDate, 'dd/MM/yyyy')}">15/05/2025</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thống kê</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h5 class="mb-0">2</h5>
+                                <small class="text-muted">Khuyến mãi</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0">15</h5>
+                                <small class="text-muted">Đơn hàng</small>
+                            </div>
+                            <div class="col-4">
+                                <h5 class="mb-0">5.2M</h5>
+                                <small class="text-muted">Doanh thu</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Hoạt động</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline">
+                            <div class="timeline-item completed">
+                                <h6 class="mb-0">Tạo chiến dịch</h6>
+                                <p class="timeline-date">15/04/2025 08:30</p>
+                                <p class="mb-0 text-muted">Chiến dịch đã được tạo thành công</p>
+                            </div>
+                            
+                            <div class="timeline-item completed">
+                                <h6 class="mb-0">Thêm khuyến mãi</h6>
+                                <p class="timeline-date">16/04/2025 14:15</p>
+                                <p class="mb-0 text-muted">Đã thêm 2 khuyến mãi vào chiến dịch</p>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <h6 class="mb-0">Bắt đầu chiến dịch</h6>
+                                <p class="timeline-date">01/05/2025 00:00</p>
+                                <p class="mb-0 text-muted">Chiến dịch sẽ bắt đầu tự động</p>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <h6 class="mb-0">Kết thúc chiến dịch</h6>
+                                <p class="timeline-date">15/05/2025 23:59</p>
+                                <p class="mb-0 text-muted">Chiến dịch sẽ kết thúc tự động</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Promotions and Performance -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Khuyến mãi</h5>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-plus me-1"></i> Thêm khuyến mãi
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Tên khuyến mãi</th>
+                                        <th>Loại</th>
+                                        <th>Giá trị</th>
+                                        <th>Áp dụng cho</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="promotion : ${promotions}">
+                                        <td th:text="${promotion.id}">101</td>
+                                        <td th:text="${promotion.name}">Giảm 10% cho nước hoa nam</td>
+                                        <td>
+                                            <span th:class="${
+                                                promotion.type == 'discount' ? 'promotion-type-badge promotion-discount' :
+                                                promotion.type == 'buy_one_get_one' ? 'promotion-type-badge promotion-buy-one-get-one' :
+                                                promotion.type == 'gift' ? 'promotion-type-badge promotion-gift' :
+                                                'promotion-type-badge'
+                                            }" th:text="${
+                                                promotion.type == 'discount' ? 'Giảm giá' :
+                                                promotion.type == 'buy_one_get_one' ? 'Mua 1 tặng 1' :
+                                                promotion.type == 'gift' ? 'Quà tặng' :
+                                                promotion.type
+                                            }">Giảm giá</span>
+                                        </td>
+                                        <td th:text="${promotion.value}">10%</td>
+                                        <td th:text="${promotion.products}">Tất cả nước hoa nam</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <button type="button" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button type="button" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <!-- If no promotions, show a message -->
+                                    <tr th:if="${#lists.isEmpty(promotions)}">
+                                        <td colspan="6" class="text-center py-3">
+                                            <p class="mb-0 text-muted">Chưa có khuyến mãi nào trong chiến dịch này</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Hiệu suất chiến dịch</h5>
+                    </div>
+                    <div class="card-body">
+                        <div style="height: 300px;">
+                            <canvas id="campaignChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Đơn hàng từ chiến dịch</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Mã đơn</th>
+                                        <th>Khách hàng</th>
+                                        <th>Ngày</th>
+                                        <th>Khuyến mãi</th>
+                                        <th>Tổng tiền</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <a href="/admin/orders/12345" class="text-primary">#ORD-12345</a>
+                                        </td>
+                                        <td>Nguyễn Văn A</td>
+                                        <td>12/04/2025</td>
+                                        <td>Giảm 10% cho nước hoa nam</td>
+                                        <td>850,000 ₫</td>
+                                        <td>
+                                            <a href="/admin/orders/12345" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <a href="/admin/orders/12346" class="text-primary">#ORD-12346</a>
+                                        </td>
+                                        <td>Trần Thị B</td>
+                                        <td>11/04/2025</td>
+                                        <td>Mua 1 tặng 1 cho nước hoa mini</td>
+                                        <td>1,200,000 ₫</td>
+                                        <td>
+                                            <a href="/admin/orders/12346" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <!-- If no orders, show a message -->
+                                    <tr th:if="${false}">
+                                        <td colspan="6" class="text-center py-3">
+                                            <p class="mb-0 text-muted">Chưa có đơn hàng nào từ chiến dịch này</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <nav>
+                            <ul class="pagination justify-content-center mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <script>
+            // Campaign Performance Chart
+            const campaignCtx = document.getElementById('campaignChart').getContext('2d');
+            const campaignChart = new Chart(campaignCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['01/05', '02/05', '03/05', '04/05', '05/05', '06/05', '07/05'],
+                    datasets: [{
+                        label: 'Doanh thu (VNĐ)',
+                        data: [850000, 1200000, 950000, 1500000, 1800000, 1300000, 1600000],
+                        backgroundColor: 'rgba(78, 115, 223, 0.5)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 1
+                    }, {
+                        label: 'Số đơn hàng',
+                        data: [2, 3, 2, 4, 5, 3, 4],
+                        backgroundColor: 'rgba(28, 200, 138, 0.5)',
+                        borderColor: 'rgba(28, 200, 138, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Doanh thu (VNĐ)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString('vi-VN') + ' ₫';
+                                }
+                            }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Số đơn hàng'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.dataset.yAxisID === 'y1') {
+                                        label += context.parsed.y;
+                                    } else {
+                                        label += context.parsed.y.toLocaleString('vi-VN') + ' ₫';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+    </additionalJs>
+</body>
+</html>

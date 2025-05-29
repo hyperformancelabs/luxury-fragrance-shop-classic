@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - APH Perfume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/auth.css">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">APH Perfume</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop">Sản phẩm</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop/top-selling">Bán chạy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+            </ul>
+            <div class="d-flex">
+                <a href="/auth/login" class="btn btn-dark me-2"><i class="fas fa-user me-1"></i> Đăng nhập</a>
+                <a href="/cart" class="btn btn-outline-dark me-2"><i class="fas fa-shopping-cart me-1"></i> Giỏ hàng</a>
+<!--                <a href="/wishlist" class="btn btn-outline-danger"><i class="fas fa-heart me-1"></i> Yêu thích</a>-->
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Breadcrumb -->
+<header class="breadcrumb-section">
+    <div class="container">
+        <nav class="d-flex">
+            <a href="/" class="me-2">TRANG CHỦ</a>
+            <span class="mx-2">/</span>
+            <span>ĐĂNG NHẬP</span>
+        </nav>
+    </div>
+</header>
+
+<main class="container py-5">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">Đăng nhập</h1>
+                <p class="auth-subtitle">Chào mừng bạn quay trở lại!</p>
+            </div>
+
+            <div class="social-login">
+                <button type="button" class="social-btn" onclick="showFeatureToast()">
+                    <i class="fab fa-google social-btn-icon"></i> Google
+                </button>
+                <button type="button" class="social-btn" onclick="showFeatureToast()">
+                    <i class="fab fa-facebook-f social-btn-icon"></i> Facebook
+                </button>
+            </div>
+
+            <div class="divider">
+                <span class="divider-text">HOẶC</span>
+            </div>
+
+            <!-- FORM gửi về /auth/precheck -->
+            <form th:action="@{/auth/precheck}" method="post">
+                <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                <div th:if="${info}" class="alert alert-info" th:text="${info}"></div>
+
+                <div th:if="${param.error}" class="alert alert-danger">Tên đăng nhập hoặc mật khẩu không đúng.</div>
+                <div th:if="${param.logout}" class="alert alert-success">Bạn đã đăng xuất thành công.</div>
+                <div th:if="${info}" class="alert alert-info" th:text="${info}"></div>
+
+                <div class="form-group">
+                    <label for="phoneOrEmail" class="form-label">Số điện thoại hoặc email</label>
+                    <input type="text" id="phoneOrEmail" name="phoneOrEmail" class="form-control" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Mật khẩu</label>
+                    <div class="password-input-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <button type="button" class="password-toggle" onclick="togglePassword()">
+                            <i class="far fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-check">
+                    <input type="checkbox" id="remember-me" name="remember-me" class="form-check-input">
+                    <label for="remember-me" class="form-check-label">Ghi nhớ đăng nhập</label>
+                </div>
+
+                <button type="submit" class="auth-btn">Đăng nhập</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Chưa có tài khoản? <a href="/auth/register" class="auth-link">Đăng ký ngay</a></p>
+                <p><a href="#" class="auth-link">Quên mật khẩu?</a></p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-3 mb-4 mb-md-0">
+                <h5>APH Perfume</h5>
+                <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <h5>Liên Kết Nhanh</h5>
+                <ul class="list-unstyled">
+                    <li><a href="/" class="text-white">Trang chủ</a></li>
+                    <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                    <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                    <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3 mb-4 mb-md-0">
+                <h5>Dịch Vụ Khách Hàng</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                    <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                    <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                </ul>
+            </div>
+            <div class="col-md-3">
+                <h5>Kết Nối Với Chúng Tôi</h5>
+                <div class="d-flex gap-3 fs-4 mb-3">
+                    <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="my-4">
+        <div class="text-center">
+            <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Toast Notification (Top Right) -->
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 9999">
+    <div id="featureToast" class="toast align-items-center bg-light text-dark border border-secondary shadow-sm" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body">
+                <i class="fas fa-circle-info text-primary me-2"></i>
+                Tính năng này hiện đang được phát triển. Vui lòng quay lại sau!
+            </div>
+            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const icon = document.querySelector('.password-toggle i');
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function showFeatureToast() {
+        const toastEl = document.getElementById('featureToast');
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        let successMessage = /*[[${success}]]*/ null;
+        let errorMessage = /*[[${error}]]*/ null;
+        let infoMessage = /*[[${info}]]*/ null;
+
+        if (successMessage) {
+            Swal.fire({
+                icon: 'success',
+                title: successMessage,
+                showConfirmButton: false,
+                timer: 2500
+            });
+        }
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Lỗi',
+                text: errorMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+
+        if (infoMessage) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Thông báo',
+                text: infoMessage,
+                confirmButtonText: 'Đóng'
+            });
+        }
+    });
+</script>
+</body>
+</html>

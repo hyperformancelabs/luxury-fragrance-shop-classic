@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Chi tiết đơn hàng - Shop Nước Hoa Xa Xỉ',
+        activeMenu='orders',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-completed {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-shipping {
+                background-color: #e3f2fd;
+                color: #1565c0;
+            }
+            
+            .status-processing {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .status-pending {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .status-cancelled {
+                background-color: #ffebee;
+                color: #c62828;
+            }
+            
+            .timeline {
+                position: relative;
+                padding-left: 30px;
+            }
+            
+            .timeline::before {
+                content: '';
+                position: absolute;
+                left: 10px;
+                top: 0;
+                height: 100%;
+                width: 2px;
+                background-color: #e0e0e0;
+            }
+            
+            .timeline-item {
+                position: relative;
+                padding-bottom: 1.5rem;
+            }
+            
+            .timeline-item:last-child {
+                padding-bottom: 0;
+            }
+            
+            .timeline-item::before {
+                content: '';
+                position: absolute;
+                left: -30px;
+                top: 0;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: #fff;
+                border: 2px solid #4e73df;
+            }
+            
+            .timeline-item.completed::before {
+                background-color: #1cc88a;
+                border-color: #1cc88a;
+            }
+            
+            .timeline-date {
+                font-size: 0.8rem;
+                color: #6c757d;
+            }
+            
+            .product-image {
+                width: 60px;
+                height: 60px;
+                object-fit: cover;
+                border-radius: 0.25rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2>Chi tiết đơn hàng <span class="text-primary" th:text="${'#' + order.orderId}">12345</span></h2>
+                <p class="text-muted mb-0" th:text="'Ngày đặt: ' + ${order.orderDate}">Ngày đặt: 12/04/2025</p>
+            </div>
+            <div>
+                <a href="/admin/orders" class="btn btn-outline-secondary me-2">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+                <button class="btn btn-outline-primary me-2">
+                    <i class="fas fa-print me-1"></i> In hóa đơn
+                </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-1"></i> Thao tác
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <!-- Xác nhận đơn hàng -->
+                        <li>
+                            <form th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                                <input type="hidden" name="status" value="processing" />
+                                <button type="submit"
+                                        class="dropdown-item"
+                                        th:disabled="${order.orderStatus != 'pending'}">
+                                    <i class="fas fa-check me-1"></i> Xác nhận đơn hàng
+                                </button>
+                            </form>
+                        </li>
+
+                        <!-- Cập nhật vận chuyển -->
+                        <li>
+                            <form th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                                <input type="hidden" name="status" value="shipping" />
+                                <button type="submit"
+                                        class="dropdown-item"
+                                        th:disabled="${order.orderStatus != 'processing'}">
+                                    <i class="fas fa-truck me-1"></i> Cập nhật vận chuyển
+                                </button>
+                            </form>
+                        </li>
+
+                        <!-- Chỉnh sửa đơn hàng -->
+                        <li>
+                            <a class="dropdown-item" th:href="@{'/admin/orders/edit/' + ${order.orderId}}">
+                                <i class="fas fa-edit me-1"></i> Chỉnh sửa đơn hàng
+                            </a>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Hủy đơn hàng -->
+                        <li>
+                            <form id="cancel-order-form" th:action="@{/admin/orders/update-status}" method="post">
+                                <input type="hidden" name="orderId" th:value="${order.orderId}" />
+                                <input type="hidden" name="status" value="cancelled" />
+                                <button type="submit"
+                                        class="dropdown-item text-danger"
+                                        th:disabled="${order.orderStatus == 'cancelled' or order.orderStatus == 'delivered'}">
+                                    <i class="fas fa-times me-1"></i> Hủy đơn hàng
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Order Details -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Thông tin đơn hàng</h5>
+                        <span th:class="${
+                            order.orderStatus == 'delivered' ? 'status-badge status-completed' :
+                            order.orderStatus == 'shipping' ? 'status-badge status-shipping' :
+                            order.orderStatus == 'processing' ? 'status-badge status-processing' :
+                            order.orderStatus == 'pending' ? 'status-badge status-pending' :
+                            order.orderStatus == 'cancelled' ? 'status-badge status-cancelled' :
+                            'status-badge'
+                        }" th:text="${
+                            order.orderStatus == 'delivered' ? 'Đã hoàn thành' :
+                            order.orderStatus == 'shipping' ? 'Đang giao' :
+                            order.orderStatus == 'processing' ? 'Đang xử lý' :
+                            order.orderStatus == 'pending' ? 'Chờ xử lý' :
+                            order.orderStatus == 'cancelled' ? 'Đã hủy' :
+                            order.orderStatus
+                        }">Đã hoàn thành</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Thông tin khách hàng</h6>
+                                <p class="mb-1"><strong>Tên:</strong> <span th:text="${order.customerName}">Nguyễn Văn A</span></p>
+                                <p class="mb-1"><strong>Email:</strong> <span th:text="${order.email}">nguyenvana@email.com</span></p>
+                                <p class="mb-1"><strong>Điện thoại:</strong> <span th:text="${order.phone}">0912345678</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="text-muted mb-2">Thông tin giao hàng</h6>
+                                <p class="mb-1"><strong>Địa chỉ:</strong> <span th:text="${order.shippingAddress}">123 Đường Lê Lợi, Quận 1, TP.HCM</span></p>
+                                <p class="mb-1"><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentMethod}">COD</span></p>
+                                <p class="mb-1"><strong>Ghi chú:</strong> <span>Gọi trước khi giao hàng</span></p>
+                            </div>
+                        </div>
+                        
+                        <h6 class="text-muted mb-3">Sản phẩm</h6>
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th>Đơn giá</th>
+                                        <th>Số lượng</th>
+                                        <th class="text-end">Thành tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Sample product items -->
+                                    <tr th:each="item : ${orderItems}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${item.imageUrl}" alt="Product" class="product-image me-3">
+                                                <div>
+                                                    <h6 class="mb-0" th:text="${item.name}">Tên sản phẩm</h6>
+                                                    <small class="text-muted" th:text="${item.volume + 'ml'}">100ml</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                                        <td th:text="${item.quantity}">1</td>
+                                        <td class="text-end"
+                                            th:text="${#numbers.formatDecimal(item.price.multiply(item.quantity), 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                            0 ₫
+                                        </td>
+                                    </tr>
+
+                                </tbody>
+                                <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Tạm tính:</strong></td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Phí vận chuyển:</strong></td>
+                                    <td class="text-end" th:text="${#numbers.formatDecimal(shippingFee, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Giảm giá:</strong></td>
+                                    <td class="text-end text-danger"
+                                        th:text="${#numbers.formatDecimal(subtotal.add(shippingFee).subtract(order.totalAmount), 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                                        -0 ₫
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>Tổng cộng:</strong></td>
+                                    <td class="text-end">
+                                        <strong th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">0 ₫</strong>
+                                    </td>
+                                </tr>
+                                </tfoot>
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Payment Information -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thông tin thanh toán</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Phương thức:</strong> <span th:text="${order.paymentMethod}">COD</span></p>
+                                <p class="mb-1"><strong>Trạng thái:</strong> <span class="badge bg-success">Đã thanh toán</span></p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Ngày thanh toán:</strong> <span th:text="${order.orderDate}">12/04/2025</span></p>
+                                <p class="mb-1"><strong>Mã giao dịch:</strong> <span>TRANS123456789</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Timeline and Customer Info -->
+            <div class="col-lg-4">
+                <!-- Order Timeline -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Trạng thái đơn hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="timeline" th:switch="${order.orderStatus}">
+                            <!-- Chờ xác nhận -->
+                            <div class="timeline-item completed">
+                                <h6 class="mb-0">Chờ xác nhận</h6>
+                                <p class="timeline-date" th:text="${order.orderDate}">12/04/2025 08:30</p>
+                                <p class="mb-0 text-muted">Đơn hàng đã được tạo và chờ xác nhận</p>
+                            </div>
+
+                            <!-- Đang xử lý -->
+                            <div th:if="${order.orderStatus == 'processing' or order.orderStatus == 'shipping' or order.orderStatus == 'delivered' or order.orderStatus == 'cancelled'}"
+                                 th:class="'timeline-item ' + (${order.orderStatus == 'cancelled'} ? 'cancelled' : 'completed')">
+                                <h6 class="mb-0">Đang xử lý</h6>
+                                <p class="timeline-date">Đang cập nhật...</p>
+                                <p class="mb-0 text-muted">Chuẩn bị sản phẩm để giao</p>
+                            </div>
+
+                            <!-- Đang giao -->
+                            <div th:if="${order.orderStatus == 'shipping' or order.orderStatus == 'delivered' or order.orderStatus == 'cancelled'}"
+                                 th:class="'timeline-item ' + (${order.orderStatus == 'cancelled'} ? 'cancelled' : 'completed')">
+                                <h6 class="mb-0">Đang giao</h6>
+                                <p class="timeline-date">Đang cập nhật...</p>
+                                <p class="mb-0 text-muted">Sản phẩm đang được giao</p>
+                            </div>
+
+                            <!-- Đã hoàn thành -->
+                            <div th:if="${order.orderStatus == 'delivered'}" class="timeline-item completed">
+                                <h6 class="mb-0">Đã hoàn thành</h6>
+                                <p class="timeline-date">Đang cập nhật...</p>
+                                <p class="mb-0 text-muted">Giao hàng thành công</p>
+                            </div>
+
+                            <!-- Đã hủy -->
+                            <div th:if="${order.orderStatus == 'cancelled'}" class="timeline-item cancelled">
+                                <h6 class="mb-0 text-danger">Đã hủy</h6>
+                                <p class="timeline-date text-danger">Đang cập nhật...</p>
+                                <p class="mb-0 text-danger">Đơn hàng đã bị hủy</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <!-- Customer Information -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Thông tin khách hàng</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <img src="https://via.placeholder.com/80" alt="Customer" class="rounded-circle" width="80" height="80">
+                            <h5 class="mt-2 mb-0" th:text="${order.customerName}">Nguyễn Văn A</h5>
+                            <p class="text-muted">Khách hàng thân thiết</p>
+                        </div>
+                        
+                        <div class="row mb-2">
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Tổng đơn hàng</p>
+                                <h5 class="mb-0">5</h5>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1 text-muted">Tổng chi tiêu</p>
+                                <h5 class="mb-0">12,500,000 ₫</h5>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-grid">
+                            <a href="/admin/customers/1" class="btn btn-outline-primary">
+                                <i class="fas fa-user me-1"></i> Xem hồ sơ khách hàng
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}">Cập nhật thành công</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+    </content>
+
+    <additionalJs>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const cancelForm = document.getElementById("cancel-order-form");
+
+                if (cancelForm) {
+                    cancelForm.addEventListener("submit", function (e) {
+                        e.preventDefault(); // Ngăn form submit ngay
+
+                        Swal.fire({
+                            title: 'Bạn có chắc?',
+                            text: "Hành động này sẽ hủy đơn hàng!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Có, hủy đơn!',
+                            cancelButtonText: 'Không'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                cancelForm.submit();
+                            }
+                        });
+                    });
+                }
+            });
+        </script>
+    </additionalJs>
+
+</body>
+</html>

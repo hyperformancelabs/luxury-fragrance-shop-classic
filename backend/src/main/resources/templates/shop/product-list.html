@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/head :: head(${currentBrand != null ? currentBrand : (currentSearch != null ? 'Tìm kiếm: ' + currentSearch : 'Danh sách sản phẩm')}, ~{::link})">
+    <link rel="stylesheet" href="/css/product-list.css">
+    <link rel="stylesheet" href="/css/quickview.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="bg-light">
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container">
+        <a class="navbar-brand" href="/">APH Perfume</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop">Sản phẩm</a></li>
+                <li class="nav-item"><a class="nav-link" href="/shop/top-selling">Bán chạy</a></li>
+                <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-2">
+                <!-- Nếu đã đăng nhập -->
+                <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                    <span class="text-dark">
+                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <strong sec:authentication="name">Tên người dùng</strong>
+                         </a>
+
+                     </span>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                        <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                    </button>
+
+                    <!-- Form logout POST -->
+                    <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+                        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+                    </form>
+
+                    <!-- Nút yêu thích chỉ hiển thị khi đã đăng nhập -->
+                    <a href="/wishlist" class="btn btn-outline-danger">
+                        <i class="fas fa-heart me-1"></i> Yêu thích
+                    </a>
+                </div>
+
+
+                <!-- Nếu chưa đăng nhập -->
+                <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                    <a href="/auth/login" class="btn btn-outline-dark">
+                        <i class="fas fa-user me-1"></i> Đăng nhập
+                    </a>
+                </div>
+
+                <!-- Giỏ hàng luôn hiển thị -->
+                <a href="/cart" class="btn btn-dark">
+                    <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                </a>
+            </div>
+
+        </div>
+    </div>
+</nav>
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-section">
+    <div class="container">
+        <div class="d-flex align-items-center">
+            <a href="/" class="me-2">TRANG CHỦ</a>
+            <span class="mx-2">/</span>
+            <span th:text="${currentBrand != null ? currentBrand : (currentSearch != null ? 'Tìm kiếm: ' + currentSearch : 'Sản phẩm')}">Sản phẩm</span>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-lg-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <button type="button" id="applyFilterBtn" class="btn btn-dark w-100 mb-3 d-flex justify-content-between align-items-center">
+                        <span>Lọc sản phẩm</span>
+                        <i class="fas fa-filter"></i>
+                    </button>
+
+                    <form id="filterForm" method="get" th:action="@{${currentUri}}">
+                    <input type="hidden" id="brandsInput" name="brands">
+                        <input type="hidden" id="gendersInput" name="genders">
+                        <input type="hidden" id="seasonsInput" name="seasons">
+                        <input type="hidden" id="minInput" name="min">
+                        <input type="hidden" id="maxInput" name="max">
+                    </form>
+
+                    <!-- Brand Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-title">Thương hiệu</h5>
+                        <input type="text" class="form-control mb-2" placeholder="Tìm thương hiệu..." oninput="filterBrands(this.value)">
+
+                        <div id="brand-list" style="max-height: 250px; overflow-y: auto">
+                            <div class="filter-option" th:each="brand : ${brands}">
+                                <input type="checkbox" th:id="${'brand-' + brand.brandId}"
+                                       th:value="${brand.brandName}" class="me-2">
+                                <label th:for="${'brand-' + brand.brandId}">
+                                    <span th:text="${brand.brandName}">Tên thương hiệu</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-title">Danh mục</h5>
+
+                        <div class="filter-option">
+                            <input type="checkbox" id="category-unisex" value="Unisex" class="me-2">
+                            <label for="category-unisex">
+                                <span>Nước hoa unisex</span>
+                                <span class="option-count">(265)</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-option">
+                            <input type="checkbox" id="category-men" value="Men" class="me-2">
+                            <label for="category-men">
+                                <span>Nước hoa nam</span>
+                                <span class="option-count">(459)</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-option">
+                            <input type="checkbox" id="category-women" value="Women" class="me-2">
+                            <label for="category-women">
+                                <span>Nước hoa nữ</span>
+                                <span class="option-count">(634)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Price Range Filter -->
+                    <div class="filter-section">
+                        <h5 class="filter-title">Khoảng giá</h5>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span id="minPriceDisplay" th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + '₫'}">0₫</span>
+                            <span id="maxPriceDisplay" th:text="${#numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT') + '₫'}">30.000.000₫</span>
+                        </div>
+                        <input id="minRange" type="range" class="form-range"
+                               th:min="${minPrice}" th:max="${maxPrice}" th:value="${param.min != null ? param.min : minPrice}" step="50000">
+
+                        <input id="maxRange" type="range" class="form-range"
+                               th:min="${minPrice}" th:max="${maxPrice}" th:value="${param.max != null ? param.max : maxPrice}" step="50000">
+
+                    </div>
+
+                    <!-- Rating Filter -->
+                        <div class="filter-section">
+                            <h5 class="filter-title">Đánh giá</h5>
+                            <div class="filter-option">
+                                <input type="checkbox" id="rating-5" class="me-2">
+                                <label for="rating-5">
+                                    <div>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                    </div>
+                                    <span class="option-count">(1394)</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="rating-4" class="me-2">
+                                <label for="rating-4">
+                                    <div>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-empty"></i>
+                                    </div>
+                                    <span class="option-count">(90)</span>
+                                </label>
+                            </div>
+                            <div class="filter-option">
+                                <input type="checkbox" id="rating-3" class="me-2">
+                                <label for="rating-3">
+                                    <div>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-rating"></i>
+                                        <i class="fas fa-star star-empty"></i>
+                                        <i class="fas fa-star star-empty"></i>
+                                    </div>
+                                    <span class="option-count">(18)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Season Filter -->
+                        <div class="filter-section">
+                            <h5 class="filter-title">Theo mùa</h5>
+
+                            <div class="filter-option">
+                                <input type="checkbox" id="season-spring" value="spring" class="me-2">
+                                <label for="season-spring">
+                                    <span>Mùa xuân</span>
+                                    <span class="option-count">(261)</span>
+                                </label>
+                            </div>
+
+                            <div class="filter-option">
+                                <input type="checkbox" id="season-summer" value="summer" class="me-2">
+                                <label for="season-summer">
+                                    <span>Mùa hạ</span>
+                                    <span class="option-count">(211)</span>
+                                </label>
+                            </div>
+
+                            <div class="filter-option">
+                                <input type="checkbox" id="season-autumn" value="autumn" class="me-2">
+                                <label for="season-autumn">
+                                    <span>Mùa thu</span>
+                                    <span class="option-count">(123)</span>
+                                </label>
+                            </div>
+
+                            <div class="filter-option">
+                                <input type="checkbox" id="season-winter" value="winter" class="me-2">
+                                <label for="season-winter">
+                                    <span>Mùa đông</span>
+                                    <span class="option-count">(186)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product List -->
+            <div class="col-lg-9">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h2 class="text-center mb-4" th:text="${currentBrand != null ? currentBrand : (currentSearch != null ? 'Kết quả tìm kiếm: ' + currentSearch : 'Sản phẩm')}">Sản phẩm</h2>
+
+                        <!-- Sort Options -->
+                        <div class="d-flex justify-content-center align-items-center mb-4">
+                            <span class="me-2">Sắp xếp theo:</span>
+                            <div>
+                                <button class="sort-btn" th:classappend="${currentSort} == null ? 'active'" th:onclick="|window.location='/shop'|">Mới nhất</button>
+                                <button class="sort-btn" th:classappend="${currentSort} == 'top-selling' ? 'active'" th:onclick="|window.location='/shop/sort/top-selling'|">Bán chạy</button>
+                                <button class="sort-btn" th:classappend="${currentSort} == 'min-price' ? 'active'" th:onclick="|window.location='/shop/sort/min-price'|">Giá thấp đến cao</button>
+                                <button class="sort-btn" th:classappend="${currentSort} == 'max-price' ? 'active'" th:onclick="|window.location='/shop/sort/max-price'|">Giá cao đến thấp</button>
+
+                            </div>
+                        </div>
+
+                        <!-- Products Grid -->
+                        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+                            <div class="col" th:each="product : ${products}">
+                                <div class="card product-card h-100"
+                                     th:data-product-id="${product.productId}"
+                                     th:data-variants="${productVariantsMap.containsKey(product.productId) ? productVariantsMap.get(product.productId) : '[]'}"
+                                     th:data-original-price="${productPriceRangeMap.containsKey(product.productId) ? productPriceRangeMap.get(product.productId)[0] : '0'}"
+                                     th:data-sale-price="${productPriceRangeMap.containsKey(product.productId) ? productPriceRangeMap.get(product.productId)[1] : '0'}"
+                                     th:data-brand="${product.brandName}">
+
+                                    <!-- Hình ảnh sản phẩm -->
+                                    <a th:href="@{'/shop/product/' + ${product.productId}}">
+                                        <img th:src="${product.imageUrl}" class="card-img-top product-img" alt="Product Image">
+                                    </a>
+
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title" th:text="${product.productName}">Tên sản phẩm</h5>
+
+                                        <!-- Giá sản phẩm -->
+                                        <div class="product-price">
+                                            <!-- Hiển thị khoảng giá nếu có chênh lệch -->
+                                            <span class="sale-price"
+                                                  th:if="${productPriceRangeMap.containsKey(product.productId) and
+                                                           !productPriceRangeMap.get(product.productId)[0].equals(productPriceRangeMap.get(product.productId)[1])}"
+                                                  th:text="${#numbers.formatDecimal(productPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + '₫ - ' +
+                                                            #numbers.formatDecimal(productPriceRangeMap.get(product.productId)[1], 0, 'COMMA', 0, 'POINT') + '₫'}">
+                                                1.950.000₫ - 2.950.000₫
+                                            </span>
+
+                                            <!-- Hiển thị một mức giá nếu giá min = max -->
+                                            <span class="sale-price"
+                                                  th:if="${productPriceRangeMap.containsKey(product.productId) and
+                                                           productPriceRangeMap.get(product.productId)[0].equals(productPriceRangeMap.get(product.productId)[1])}"
+                                                  th:text="${#numbers.formatDecimal(productPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + '₫'}">
+                                                2.450.000₫
+                                            </span>
+                                        </div>
+
+                                        <!-- Nút Yêu thích và Xem nhanh -->
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <!-- Nếu đã đăng nhập -->
+                                            <div sec:authorize="isAuthenticated()">
+                                                <form th:action="@{/wishlist/add}" method="post" class="d-inline">
+                                                    <input type="hidden" name="productId" th:value="${product.productId}" />
+                                                    <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                                                    <button type="submit" class="wishlist-btn" title="Yêu thích">
+                                                        Yêu thích
+                                                    </button>
+                                                </form>
+                                            </div>
+
+                                            <!-- Nếu chưa đăng nhập -->
+                                            <div sec:authorize="isAnonymous()">
+                                                <button class="wishlist-btn" title="Yêu thích" onclick="showLoginReminder()">
+                                                    Yêu thích
+                                                </button>
+                                            </div>
+
+                                            <button class="quick-view-btn" title="Xem nhanh"
+                                                    th:onclick="'javascript:openQuickView(' + ${product.productId} + ');'">
+                                                Xem nhanh
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <!-- Empty State -->
+                        <div th:if="${#lists.isEmpty(products)}" class="text-center py-5">
+                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                            <h3>Không tìm thấy sản phẩm</h3>
+                            <p class="text-muted">Vui lòng thử lại với các bộ lọc khác hoặc xem tất cả sản phẩm của chúng tôi.</p>
+                            <a href="/shop" class="btn btn-primary mt-2">Xem tất cả sản phẩm</a>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav class="mt-4" th:if="${totalPages > 0}">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/shop(page=${currentPage - 1},
+                                                  brands=${param.brands},
+                                                  genders=${param.genders},
+                                                  seasons=${param.seasons},
+                                                  min=${param.min},
+                                                  max=${param.max})}">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item"
+                                    th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                                    th:if="${i < 5 || i > totalPages - 2 || (i >= currentPage - 1 && i <= currentPage + 1)}"
+                                    th:classappend="${i == currentPage} ? 'active'">
+                                    <a class="page-link" th:href="@{/shop(page=${i},
+                                                  brands=${param.brands},
+                                                  genders=${param.genders},
+                                                  seasons=${param.seasons},
+                                                  min=${param.min},
+                                                  max=${param.max})}"
+                                       th:text="${i + 1}"></a>
+                                </li>
+                                <li class="page-item disabled"
+                                    th:if="${totalPages > 7 && currentPage > 3 && currentPage < totalPages - 3}">
+                                    <span class="page-link">...</span>
+                                </li>
+                                <li class="page-item" th:classappend="${currentPage == totalPages - 1} ? 'disabled'">
+                                    <a class="page-link" th:href="@{/shop(page=${currentPage + 1},
+                                                  brands=${param.brands},
+                                                  genders=${param.genders},
+                                                  seasons=${param.seasons},
+                                                  min=${param.min},
+                                                  max=${param.max})}">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>APH Perfume</h5>
+                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Liên kết nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Trang chủ</a></li>
+                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Dịch vụ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">FAQ</a></li>
+                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Kết nối với chúng tôi</h5>
+                    <div class="d-flex gap-3 fs-4 mb-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <th:block th:replace="fragments/scripts :: scripts(~{::script})">
+        <script src="/js/product-list.js"></script>
+        <script src="/js/quickview.js"></script>
+    </th:block>
+
+    <!-- Tìm kiếm thương hiệu theo từ khóa -->
+    <script>
+        function filterBrands(query) {
+            console.log('Đang lọc theo:', query);
+            const items = document.querySelectorAll('#brand-list .filter-option');
+            query = query.toLowerCase();
+
+            items.forEach(item => {
+                const brandText = item.querySelector('span')?.innerText?.toLowerCase() || '';
+                item.style.display = brandText.includes(query) ? '' : 'none';
+            });
+        }
+    </script>
+
+    <!-- Cập nhật giá hiển thị khi kéo range -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const minRange = document.getElementById('minRange');
+            const maxRange = document.getElementById('maxRange');
+            const minDisplay = document.getElementById('minPriceDisplay');
+            const maxDisplay = document.getElementById('maxPriceDisplay');
+
+            function updateDisplay() {
+                const minVal = parseInt(minRange.value);
+                const maxVal = parseInt(maxRange.value);
+
+                if (minVal > maxVal) {
+                    if (event.target === minRange) {
+                        maxRange.value = minVal;
+                    } else {
+                        minRange.value = maxVal;
+                    }
+                }
+
+                minDisplay.textContent = parseInt(minRange.value).toLocaleString('vi-VN') + '₫';
+                maxDisplay.textContent = parseInt(maxRange.value).toLocaleString('vi-VN') + '₫';
+            }
+
+            minRange.addEventListener('input', updateDisplay);
+            maxRange.addEventListener('input', updateDisplay);
+            updateDisplay();
+        });
+    </script>
+
+    <!-- Xử lý lọc sản phẩm và submit form -->
+    <script>
+        function getCheckedValues(checkboxes) {
+            const values = Array.from(checkboxes)
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            return values.length > 0 ? values.join(',') : null;
+        }
+
+        function submitFilterForm() {
+            const brandCheckboxes = document.querySelectorAll('#brand-list input[type="checkbox"]');
+            const genderCheckboxes = document.querySelectorAll('input[id^="category-"]');
+            const seasonCheckboxes = document.querySelectorAll('input[id^="season-"]');
+            const minRange = document.getElementById('minRange');
+            const maxRange = document.getElementById('maxRange');
+
+            const brands = getCheckedValues(brandCheckboxes);
+            const genders = getCheckedValues(genderCheckboxes);
+            const seasons = getCheckedValues(seasonCheckboxes);
+
+            // Gán giá trị nếu có, nếu không thì xóa input khỏi form
+            if (brands !== null) {
+                document.getElementById('brandsInput').value = brands;
+            } else {
+                document.getElementById('brandsInput').remove();
+            }
+
+            if (genders !== null) {
+                document.getElementById('gendersInput').value = genders;
+            } else {
+                document.getElementById('gendersInput').remove();
+            }
+
+            if (seasons !== null) {
+                document.getElementById('seasonsInput').value = seasons;
+            } else {
+                document.getElementById('seasonsInput').remove();
+            }
+
+            document.getElementById('minInput').value = minRange.value;
+            document.getElementById('maxInput').value = maxRange.value;
+
+            document.getElementById('filterForm').submit();
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            document.getElementById('applyFilterBtn').addEventListener('click', submitFilterForm);
+        });
+    </script>
+
+    <script>
+    function confirmLogout() {
+        Swal.fire({
+            title: 'Xác nhận đăng xuất',
+            text: 'Bạn có chắc chắn muốn đăng xuất không?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Đăng xuất',
+            cancelButtonText: 'Hủy',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.getElementById('logout-form').submit();
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("logout") === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng xuất thành công!',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+            window.history.replaceState({}, document.title, window.location.pathname);
+            window.location.reload();
+        });
+
+        }
+    });
+</script>
+    <script>
+    function showLoginReminder() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Vui lòng đăng nhập',
+            text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+            confirmButtonText: 'Đăng nhập',
+            showCancelButton: true,
+            cancelButtonText: 'Hủy',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "/auth/login";
+            }
+        });
+    }
+</script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const params = new URLSearchParams(window.location.search);
+
+        if (params.get("logout") === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đăng xuất thành công!',
+                timer: 2000,
+                showConfirmButton: false
+            }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.reload();
+            });
+        }
+
+        if (params.get("addedToCart") === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào giỏ hàng!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        if (params.get("wishlistAdded") === "success") {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã thêm vào danh sách yêu thích!',
+                timer: 2000,
+                showConfirmButton: false
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+</script>
+</body>
+</html>

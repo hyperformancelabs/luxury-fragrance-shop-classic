@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/head :: head('Giỏ hàng', ~{::link})">
+    <link rel="stylesheet" href="/css/cart.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">APH Perfume</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/shop">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/shop/top-selling">Bán chạy</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/about">Giới thiệu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Liên hệ</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Nếu đã đăng nhập -->
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                    <span class="text-dark">
+                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <strong sec:authentication="name">Tên người dùng</strong>
+                         </a>
+
+                     </span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                        </button>
+
+                        <!-- Form logout POST -->
+                        <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+                            <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+                        </form>
+
+                        <!-- Nút yêu thích chỉ hiển thị khi đã đăng nhập -->
+                        <a href="/wishlist" class="btn btn-outline-danger">
+                            <i class="fas fa-heart me-1"></i> Yêu thích
+                        </a>
+                    </div>
+
+
+                    <!-- Nếu chưa đăng nhập -->
+                    <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                        <a href="/auth/login" class="btn btn-outline-dark">
+                            <i class="fas fa-user me-1"></i> Đăng nhập
+                        </a>
+                    </div>
+
+                    <!-- Giỏ hàng luôn hiển thị -->
+                    <a href="/cart" class="btn btn-dark">
+                        <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <header class="breadcrumb-section">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <span>GIỎ HÀNG</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <h1 class="mb-4">Giỏ hàng của bạn</h1>
+        
+        <div th:if="${itemCount > 0}" class="row">
+            <!-- Cart Items -->
+            <div class="col-lg-8 mb-4 mb-lg-0">
+                <div class="cart-container">
+                    <div class="cart-header">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5>Sản phẩm</h5>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <h5>Giá</h5>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <h5>Số lượng</h5>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <h5>Tổng</h5>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div th:each="item : ${cartItems}" class="cart-item" th:data-id="${item.cartItemId}">
+                        <div class="row w-100 align-items-center">
+                            <div class="col-md-6 d-flex align-items-center">
+                                <img th:src="${item.imageUrl}" class="cart-item-image" alt="Product Image">
+                                <div class="cart-item-details">
+                                    <h5 class="cart-item-name" th:text="${item.productName}">Tên sản phẩm</h5>
+                                    <div class="cart-item-brand" th:text="${item.brandName}">Thương hiệu</div>
+                                    <div class="cart-item-size" th:text="${'Dung tích: ' + item.volume + 'ml'}">Dung tích: 50ml</div>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div th:text="${#numbers.formatDecimal(item.unitPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">2.400.000đ</div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <form class="update-form" th:action="@{/cart/update}" method="post">
+                                    <input type="hidden" name="cartItemId" th:value="${item.cartItemId}">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
+                                    <div class="quantity-selector">
+                                        <button type="button" class="quantity-btn quantity-decrease">-</button>
+                                        <input type="number" name="quantity" class="quantity-input" th:value="${item.quantity}" value="1" min="1">
+                                        <button type="button" class="quantity-btn quantity-increase">+</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="cart-item-price" th:text="${#numbers.formatDecimal(item.totalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">4.800.000đ</div>
+                                <form class="remove-form" th:action="@{/cart/remove}" method="post">
+                                    <input type="hidden" name="cartItemId" th:value="${item.cartItemId}">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
+                                    <button type="submit" class="remove-btn mt-2">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="/shop" class="continue-shopping mt-3">
+                    <i class="fas fa-arrow-left"></i> Tiếp tục mua sắm
+                </a>
+            </div>
+            
+            <!-- Cart Summary -->
+            <div class="col-lg-4">
+                <div class="cart-summary">
+                    <h4 class="mb-4">Tóm tắt đơn hàng</h4>
+                    
+                    <div class="summary-row">
+                        <span>Tạm tính:</span>
+                        <span id="subtotal" th:text="${#numbers.formatDecimal(subtotal, 0, 'COMMA', 0, 'POINT') + 'đ'}">5.600.000đ</span>
+                    </div>
+                    
+                    <div class="summary-row">
+                        <span>Phí vận chuyển:</span>
+                        <span id="shipping" th:text="${shipping == 0 ? 'Miễn phí' : #numbers.formatDecimal(shipping, 0, 'COMMA', 0, 'POINT') + 'đ'}">0đ</span>
+                    </div>
+                    
+                    <div class="summary-row summary-total">
+                        <span>Tổng cộng:</span>
+                        <span id="total" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT') + 'đ'}">5.600.000đ</span>
+                    </div>
+                    
+                    <a href="/checkout" id="checkout-btn" class="checkout-btn mt-3">
+                        Tiến hành thanh toán
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty Cart -->
+        <div th:if="${itemCount == 0}" class="empty-cart">
+            <div class="empty-cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <h3 class="empty-cart-message">Giỏ hàng của bạn đang trống</h3>
+            <a href="/shop" class="btn btn-dark">Tiếp tục mua sắm</a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>APH Perfume</h5>
+                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Liên Kết Nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Trang chủ</a></li>
+                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Dịch Vụ Khách Hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Kết Nối Với Chúng Tôi</h5>
+                    <div class="d-flex gap-3 fs-4 mb-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <th:block th:replace="fragments/scripts :: scripts(~{::script})">
+        <script src="/js/cart.js"></script>
+    </th:block>
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

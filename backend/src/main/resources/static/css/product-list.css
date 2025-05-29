@@ -1,0 +1,130 @@
+.product-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+    height: 100%;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+.product-img {
+    height: 200px;
+    object-fit: contain;
+}
+.filter-section {
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+.filter-title {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.filter-option {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+}
+.filter-option label {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.875rem;
+}
+.option-count {
+    color: #6c757d;
+}
+.sort-btn {
+    border: 1px solid #dee2e6;
+    background-color: white;
+    padding: 0.25rem 0.75rem;
+    margin: 0 0.25rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+.sort-btn.active {
+    background-color: #212529;
+    color: white;
+}
+.quick-view-btn, .wishlist-btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.wishlist-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.wishlist-btn:hover {
+    background-color: #c82333;
+}
+
+.quick-view-btn {
+    background-color: #212529;
+    color: white;
+    border: none;
+}
+
+.quick-view-btn:hover {
+    background-color: #343a40;
+}
+
+.wishlist-btn.active {
+    background-color: #c82333;
+    color: white;
+}
+.breadcrumb-section {
+    background-color: #212529;
+    color: white;
+    padding: 1rem 0;
+}
+.breadcrumb-section a {
+    color: white;
+    text-decoration: none;
+}
+.breadcrumb-section a:hover {
+    text-decoration: underline;
+}
+.star-rating {
+    color: #ffc107;
+}
+.star-empty {
+    color: #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .sort-btn {
+        padding: 0.2rem 0.5rem;
+        font-size: 0.75rem;
+    }
+
+    .product-img {
+        height: 150px;
+    }
+}
+
+/* Animation for product cards */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.product-card {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Hover effects */
+.product-card .card-title {
+    transition: color 0.3s;
+}
+
+.product-card:hover .card-title {
+    color: #dc3545;
+}
+
+/* Hover effects already defined above */

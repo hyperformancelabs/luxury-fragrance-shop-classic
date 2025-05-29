@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin tài khoản - APH Perfume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/profile.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">APH Perfume</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" href="/">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/shop">Sản phẩm</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/shop/top-selling">Bán chạy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/about">Giới thiệu</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/contact">Liên hệ</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Nếu đã đăng nhập -->
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                    <span class="text-dark">
+                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <strong sec:authentication="name">Tên người dùng</strong>
+                         </a>
+
+                     </span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                        </button>
+
+                        <!-- Form logout POST -->
+                        <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+                            <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+                        </form>
+
+                        <!-- Nút yêu thích chỉ hiển thị khi đã đăng nhập -->
+                        <a href="/wishlist" class="btn btn-outline-danger">
+                            <i class="fas fa-heart me-1"></i> Yêu thích
+                        </a>
+                    </div>
+
+
+                    <!-- Nếu chưa đăng nhập -->
+                    <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                        <a href="/auth/login" class="btn btn-outline-dark">
+                            <i class="fas fa-user me-1"></i> Đăng nhập
+                        </a>
+                    </div>
+
+                    <!-- Giỏ hàng luôn hiển thị -->
+                    <a href="/cart" class="btn btn-dark">
+                        <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <header class="breadcrumb-section">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <span>TÀI KHOẢN</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="profile-container">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-menu">
+                    <div class="profile-menu-header">
+<!--                        <img th:src="${user.avatar}" class="profile-avatar" alt="Avatar">-->
+                        <div>
+                            <div class="profile-name" th:text="${user.name}">Nguyễn Văn A</div>
+                            <div class="profile-email" th:text="${user.email}">nguyenvana@example.com</div>
+                        </div>
+                    </div>
+                    
+                    <ul class="profile-menu-items">
+                        <li class="profile-menu-item">
+                            <a href="/profile" class="profile-menu-link active">
+                                <i class="fas fa-user profile-menu-icon"></i> Thông tin tài khoản
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/profile/orders" class="profile-menu-link">
+                                <i class="fas fa-shopping-bag profile-menu-icon"></i> Đơn hàng của tôi
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/wishlist" class="profile-menu-link">
+                                <i class="fas fa-heart profile-menu-icon"></i> Danh sách yêu thích
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/profile/edit" class="profile-menu-link">
+                                <i class="fas fa-cog profile-menu-icon"></i> Chỉnh sửa thông tin
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/logout" class="profile-menu-link">
+                                <i class="fas fa-sign-out-alt profile-menu-icon"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <div class="profile-card">
+                    <div class="profile-card-header">
+                        <h2 class="profile-card-title">Thông tin tài khoản</h2>
+                        <a href="/profile/edit" class="edit-profile-btn">
+                            <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                        </a>
+                    </div>
+
+                    <div class="profile-info">
+                        <div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Tên đăng nhập</div>
+                                <div class="profile-info-value" th:text="${user.username}">username</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Họ và tên</div>
+                                <div class="profile-info-value" th:text="${user.name}">Nguyễn Văn A</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Email</div>
+                                <div class="profile-info-value" th:text="${user.email}">email@example.com</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Số điện thoại</div>
+                                <div class="profile-info-value" th:text="${user.phoneNumber}">0987654321</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Trạng thái</div>
+                                <div class="profile-info-value" th:text="${user.status}">active</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Điểm tích lũy</div>
+                                <div class="profile-info-value" th:text="${user.loyaltyPoints}">100</div>
+                            </div>
+<!--                            <div class="profile-info-item">-->
+<!--                                <div class="profile-info-label">Thời gian tạo</div>-->
+<!--                                <div class="profile-info-value" th:text="${#dates.format(user.createAt, 'dd/MM/yyyy HH:mm')}">01/01/2023 09:00</div>-->
+<!--                            </div>-->
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Địa chỉ</div>
+                                <div class="profile-info-value"
+                                     th:text="${user.street + ', ' + user.ward + ', ' + user.district + ', ' + user.city}">
+                                    123 Nguyễn Văn Linh, Tân Phong, Quận 7, TP. HCM
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>APH Perfume</h5>
+                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Liên Kết Nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Trang chủ</a></li>
+                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Dịch Vụ Khách Hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Kết Nối Với Chúng Tôi</h5>
+                    <div class="d-flex gap-3 fs-4 mb-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.reload();
+            });
+
+            }
+        });
+    </script>
+    <script>
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
+
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("wishlistAdded") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+
+    <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            /*[[${success}]]*/
+            /*[[${error}]]*/
+            let successMessage = /*[[${success}]]*/ null;
+            let errorMessage = /*[[${error}]]*/ null;
+
+            if (successMessage) {
+                Swal.fire({
+                    icon: 'success',
+                    title: successMessage,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: errorMessage,
+                    confirmButtonText: 'Đóng'
+                });
+            }
+        });
+    </script>
+</body>
+</html>

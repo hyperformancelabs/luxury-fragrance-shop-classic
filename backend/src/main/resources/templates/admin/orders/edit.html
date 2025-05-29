@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: html(
+        title='Chỉnh sửa đơn hàng',
+        activeMenu='orders',
+        content=~{::content}
+      )}">
+<body>
+<content>
+    <h2>Chỉnh sửa đơn hàng <span th:text="${'#' + order.orderId}">#12345</span></h2>
+
+    <form th:action="@{/admin/orders/update-info}" method="post">
+        <input type="hidden" name="orderId" th:value="${order.orderId}" />
+        <input type="hidden" name="customerId" th:value="${customer.customerId}" />
+
+        <label>Tên khách hàng</label>
+        <input type="text" class="form-control" name="name" th:value="${customer.name}" required />
+
+        <label>Email</label>
+        <input type="email" class="form-control" name="email" th:value="${customer.email}" required />
+
+        <label>Điện thoại</label>
+        <input type="text" class="form-control" name="phoneNumber" th:value="${customer.phoneNumber}" required />
+
+        <label>Địa chỉ giao hàng</label>
+        <input type="text" class="form-control" name="shippingAddress" th:value="${order.shippingAddress}" required />
+
+<!--        <label>Phương thức thanh toán</label>-->
+<!--        <input type="text" class="form-control" name="paymentMethod" th:value="${order.paymentMethod}" />-->
+
+        <button type="submit" class="btn btn-primary mt-3">Cập nhật</button>
+    </form>
+
+</content>
+</body>
+</html>

@@ -1,0 +1,18 @@
+package com.hyperformancelabs.backend.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class OrderItemDisplayDTO {
+    private String imageUrl;
+    private String name;
+    private Integer volume;
+    private BigDecimal price;
+    private Integer quantity;
+}

@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: html(
+        title='Chi tiết nhân viên - Shop Nước Hoa Xa Xỉ',
+        activeMenu='employees',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<head>
+    <additionalCss>
+        <style>
+            .status-badge {
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                font-size: 0.75rem;
+                font-weight: 600;
+            }
+            
+            .status-active {
+                background-color: #e8f5e9;
+                color: #2e7d32;
+            }
+            
+            .status-inactive {
+                background-color: #f5f5f5;
+                color: #616161;
+            }
+            
+            .status-on-leave {
+                background-color: #fff8e1;
+                color: #f57f17;
+            }
+            
+            .employee-avatar {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                background-color: #f5f5f5;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 3rem;
+                color: #6c757d;
+                margin: 0 auto 1rem;
+            }
+            
+            .info-label {
+                font-weight: 600;
+                color: #6c757d;
+            }
+            
+            .role-badge {
+                font-size: 0.8rem;
+                padding: 0.25rem 0.5rem;
+                border-radius: 0.25rem;
+                background-color: #e3f2fd;
+                color: #1565c0;
+                margin-right: 0.5rem;
+                margin-bottom: 0.5rem;
+                display: inline-block;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+<content>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Chi tiết nhân viên</h2>
+        <div>
+            <a href="/admin/employees" class="btn btn-outline-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i> Quay lại
+            </a>
+            <button class="btn btn-primary" onclick="toggleEditMode()">
+                <i class="fas fa-edit me-1"></i> Chỉnh sửa
+            </button>
+        </div>
+    </div>
+
+    <div class="row justify-content-center" id="employeeContainer">
+        <!-- THÔNG TIN NHÂN VIÊN -->
+        <div class="col-lg-6" id="employeeInfo">
+            <div class="card">
+                <div class="card-body text-center">
+                    <div class="employee-avatar mb-3">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4 th:text="${employee.fullName}">Admin User</h4>
+                    <p class="text-muted" th:text="'@' + ${employee.username}">@admin</p>
+                    <p>
+                        <span th:class="${
+                            employee.status == 'active' ? 'status-badge status-active' :
+                            employee.status == 'inactive' ? 'status-badge status-inactive' :
+                            employee.status == 'on_leave' ? 'status-badge status-on-leave' : 'status-badge'
+                        }" th:text="${
+                            employee.status == 'active' ? 'Đang làm việc' :
+                            employee.status == 'inactive' ? 'Không hoạt động' :
+                            employee.status == 'on_leave' ? 'Nghỉ phép' :
+                            employee.status
+                        }">Đang làm việc</span>
+                    </p>
+                    <hr>
+                    <p><strong>Email:</strong> <span th:text="${employee.email}">admin@shop.com</span></p>
+                    <p><strong>SĐT:</strong> <span th:text="${employee.phoneNumber}">0912345678</span></p>
+                    <p><strong>Địa chỉ:</strong> <span th:text="${employee.address}">123 Lê Lợi</span></p>
+                    <p><strong>Ngày sinh:</strong>
+                        <span th:text="${#dates.format(employee.dateOfBirth, 'dd/MM/yyyy')}">01/01/1990</span>
+                    </p>
+                    <p><strong>Ngày bắt đầu:</strong>
+                        <span th:text="${#dates.format(employee.startDate, 'dd/MM/yyyy')}">01/01/2020</span>
+                    </p>
+                    <p><strong>Vai trò:</strong>
+                        <span th:each="role : ${employeeRoles}" class="badge bg-primary me-1" th:text="${role}">ADMIN</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM CHỈNH SỬA -->
+        <div class="col-lg-6 d-none" id="editFormWrapper">
+            <form th:action="@{/admin/employees/update}" method="post" class="card p-4">
+                <input type="hidden" name="employeeId" th:value="${employee.employeeId}" />
+                <h5 class="mb-3">Chỉnh sửa thông tin</h5>
+
+                <div class="mb-3">
+                    <label class="form-label">Họ và tên</label>
+                    <input type="text" name="fullName" class="form-control" th:value="${employee.fullName}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Tên đăng nhập</label>
+                    <input type="text" name="username" class="form-control" th:value="${employee.username}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control" th:value="${employee.email}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Số điện thoại</label>
+                    <input type="text" name="phoneNumber" class="form-control" th:value="${employee.phoneNumber}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Địa chỉ</label>
+                    <input type="text" name="address" class="form-control" th:value="${employee.address}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngày sinh</label>
+                    <input type="date" name="dateOfBirth" class="form-control"
+                           th:value="${#dates.format(employee.dateOfBirth, 'yyyy-MM-dd')}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ngày bắt đầu làm việc</label>
+                    <input type="date" name="startDate" class="form-control"
+                           th:value="${#dates.format(employee.startDate, 'yyyy-MM-dd')}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Trạng thái</label>
+                    <select name="status" class="form-select">
+                        <option value="active" th:selected="${employee.status == 'active'}">Đang làm việc</option>
+                        <option value="inactive" th:selected="${employee.status == 'inactive'}">Không hoạt động</option>
+                        <option value="on_leave" th:selected="${employee.status == 'on_leave'}">Nghỉ phép</option>
+                    </select>
+                </div>
+<!--                <div class="mb-3">-->
+<!--                    <label class="form-label">Vai trò</label>-->
+<!--                    <select name="role" class="form-select">-->
+<!--                        <option value="Material Staff" th:selected="${roles.contains('Material Staff')}">Nhân viên quản lý sản phẩm</option>-->
+<!--                        <option value="Order Staff" th:selected="${roles.contains('Order Staff')}">Nhân viên xử lý đơn hàng</option>-->
+<!--                        <option value="Admin" th:selected="${roles.contains('Admin')}">Quản trị viên</option>-->
+<!--                    </select>-->
+<!--                </div>-->
+                <div class="mb-3">
+                    <label class="form-label">Mật khẩu mới</label>
+                    <div class="input-group">
+                        <input type="password" name="password" id="editPassword" class="form-control">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility()">
+                            <i class="fas fa-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-success">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</content>
+<additionalJs>
+    <script>
+        function toggleEditMode() {
+            const info = document.getElementById('employeeInfo');
+            const form = document.getElementById('editFormWrapper');
+            const container = document.getElementById('employeeContainer');
+
+            form.classList.toggle('d-none');
+
+            if (!form.classList.contains('d-none')) {
+                container.classList.remove('justify-content-center');
+            } else {
+                container.classList.add('justify-content-center');
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const input = document.getElementById("editPassword");
+            const icon = document.getElementById("togglePasswordIcon");
+
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function () {
+            const successMessage = /*[[${successMessage}]]*/ null;
+            const errorMessage = /*[[${errorMessage}]]*/ null;
+
+            if (successMessage && successMessage !== 'null') {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: successMessage,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    background: '#e6f4ea',
+                    color: '#2e7d32',
+                    iconColor: '#2e7d32',
+                    customClass: {
+                        popup: 'swal2-rounded swal2-shadow'
+                    },
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    }
+                });
+            }
+
+            if (errorMessage && errorMessage !== 'null') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Lỗi',
+                    text: errorMessage,
+                    confirmButtonText: 'Đã hiểu',
+                    background: '#fef0f0',
+                    color: '#b71c1c',
+                    iconColor: '#b71c1c',
+                    customClass: {
+                        popup: 'swal2-rounded swal2-shadow'
+                    }
+                });
+            }
+        });
+        /*]]>*/
+    </script>
+</additionalJs>
+</body>
+</html>

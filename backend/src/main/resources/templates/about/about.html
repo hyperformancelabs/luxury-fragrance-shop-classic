@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giới thiệu - APH Perfume</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/about.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand" href="/">APH Perfume</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/shop">Sản phẩm</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/shop/top-selling">Bán chạy</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/about">Giới thiệu</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/contact">Liên hệ</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Nếu đã đăng nhập -->
+                    <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+                    <span class="text-dark">
+                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                            <i class="fas fa-user-circle me-1"></i>
+                            <strong sec:authentication="name">Tên người dùng</strong>
+                         </a>
+
+                     </span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
+                            <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                        </button>
+
+                        <!-- Form logout POST -->
+                        <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+                            <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+                        </form>
+
+                        <!-- Nút yêu thích chỉ hiển thị khi đã đăng nhập -->
+                        <a href="/wishlist" class="btn btn-outline-danger">
+                            <i class="fas fa-heart me-1"></i> Yêu thích
+                        </a>
+                    </div>
+
+
+                    <!-- Nếu chưa đăng nhập -->
+                    <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
+                        <a href="/auth/login" class="btn btn-outline-dark">
+                            <i class="fas fa-user me-1"></i> Đăng nhập
+                        </a>
+                    </div>
+
+                    <!-- Giỏ hàng luôn hiển thị -->
+                    <a href="/cart" class="btn btn-dark">
+                        <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <header class="breadcrumb-section">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <span>GIỚI THIỆU</span>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="about-hero" style="background-image: url('/images/about-hero.jpg');">
+        <div class="container">
+            <div class="about-hero-content">
+                <h1 class="about-hero-title">Về APH Perfume</h1>
+                <p class="about-hero-subtitle">Chúng tôi mang đến những mùi hương xa xỉ và nước hoa cao cấp từ khắp nơi trên thế giới.</p>
+            </div>
+        </div>
+    </section>
+
+    <main class="container">
+        <!-- Our Story Section -->
+        <section class="about-section">
+            <h2 class="about-section-title">Câu chuyện của chúng tôi</h2>
+            <div class="row align-items-center">
+                <div class="col-md-6 mb-4 mb-md-0">
+                    <div class="about-image">
+                        <img src="/images/about-story.jpg" alt="Our Story" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="about-text">
+                        <p>APH Perfume được thành lập vào năm 2015 với niềm đam mê mãnh liệt về nghệ thuật nước hoa. Chúng tôi bắt đầu từ một cửa hàng nhỏ tại Hà Nội và dần phát triển thành một trong những điểm đến hàng đầu cho những người yêu thích nước hoa cao cấp tại Việt Nam.</p>
+                        <p>Với sứ mệnh mang đến những mùi hương độc đáo và xa xỉ từ khắp nơi trên thế giới, chúng tôi luôn tìm kiếm và lựa chọn những sản phẩm chất lượng cao từ các thương hiệu nổi tiếng và uy tín.</p>
+                        <p>Chúng tôi tin rằng mỗi mùi hương đều kể một câu chuyện riêng và có thể gợi lên những cảm xúc, ký ức đặc biệt. Vì vậy, chúng tôi không chỉ bán nước hoa mà còn chia sẻ những câu chuyện, kiến thức và trải nghiệm về thế giới hương thơm đầy quyến rũ này.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Mission Section -->
+        <section class="about-section">
+            <h2 class="about-section-title">Sứ mệnh của chúng tôi</h2>
+            <div class="row align-items-center">
+                <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+                    <div class="about-image">
+                        <img src="/images/about-mission.jpg" alt="Our Mission" class="img-fluid">
+                    </div>
+                </div>
+                <div class="col-md-6 order-md-1">
+                    <div class="about-text">
+                        <p>Sứ mệnh của APH Perfume là mang đến cho khách hàng những trải nghiệm tuyệt vời nhất về nước hoa cao cấp, từ việc lựa chọn sản phẩm đến dịch vụ chăm sóc khách hàng.</p>
+                        <p>Chúng tôi cam kết:</p>
+                        <ul>
+                            <li>Cung cấp các sản phẩm nước hoa chính hãng với chất lượng tốt nhất</li>
+                            <li>Mang đến sự đa dạng về thương hiệu, mùi hương để đáp ứng nhu cầu của mọi khách hàng</li>
+                            <li>Chia sẻ kiến thức, tư vấn chuyên sâu để giúp khách hàng tìm được mùi hương phù hợp nhất</li>
+                            <li>Không ngừng cập nhật các xu hướng, sản phẩm mới nhất từ các thương hiệu hàng đầu thế giới</li>
+                            <li>Xây dựng một cộng đồng yêu thích nước hoa tại Việt Nam</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3 col-6 mb-4 mb-md-0">
+                        <div class="stat">
+                            <div class="stat-value">8+</div>
+                            <div class="stat-label">Năm kinh nghiệm</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-4 mb-md-0">
+                        <div class="stat">
+                            <div class="stat-value">50+</div>
+                            <div class="stat-label">Thương hiệu</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat">
+                            <div class="stat-value">500+</div>
+                            <div class="stat-label">Sản phẩm</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <div class="stat">
+                            <div class="stat-value">10,000+</div>
+                            <div class="stat-label">Khách hàng</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Our Team Section -->
+        <section class="about-section">
+            <h2 class="about-section-title">Đội ngũ của chúng tôi</h2>
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="team-member">
+                        <img src="/images/team/team1.jpg" alt="Team Member" class="team-member-image">
+                        <h4 class="team-member-name">Nguyễn Văn A</h4>
+                        <div class="team-member-position">Founder & CEO</div>
+                        <div class="team-member-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="team-member">
+                        <img src="/images/team/team2.jpg" alt="Team Member" class="team-member-image">
+                        <h4 class="team-member-name">Trần Thị B</h4>
+                        <div class="team-member-position">Marketing Director</div>
+                        <div class="team-member-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="team-member">
+                        <img src="/images/team/team3.jpg" alt="Team Member" class="team-member-image">
+                        <h4 class="team-member-name">Lê Văn C</h4>
+                        <div class="team-member-position">Product Specialist</div>
+                        <div class="team-member-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="team-member">
+                        <img src="/images/team/team4.jpg" alt="Team Member" class="team-member-image">
+                        <h4 class="team-member-name">Phạm Thị D</h4>
+                        <div class="team-member-position">Customer Service</div>
+                        <div class="team-member-social">
+                            <a href="#"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#"><i class="fab fa-twitter"></i></a>
+                            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials Section -->
+        <section class="about-section">
+            <h2 class="about-section-title">Khách hàng nói gì về chúng tôi</h2>
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"Tôi đã mua nước hoa từ APH Perfume nhiều lần và luôn hài lòng với chất lượng sản phẩm cũng như dịch vụ tuyệt vời. Đội ngũ tư vấn rất nhiệt tình và chuyên nghiệp, giúp tôi tìm được những mùi hương phù hợp nhất."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="/images/testimonials/testimonial1.jpg" alt="Testimonial Author" class="testimonial-author-image">
+                            <div>
+                                <div class="testimonial-author-name">Nguyễn Thị Hương</div>
+                                <div class="testimonial-author-position">Khách hàng thân thiết</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="testimonial">
+                        <div class="testimonial-content">
+                            <p>"APH Perfume là điểm đến lý tưởng cho những ai yêu thích nước hoa cao cấp. Họ có bộ sưu tập đa dạng từ các thương hiệu nổi tiếng và luôn cập nhật những sản phẩm mới nhất. Tôi đặc biệt ấn tượng với kiến thức chuyên sâu của nhân viên tư vấn."</p>
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="/images/testimonials/testimonial2.jpg" alt="Testimonial Author" class="testimonial-author-image">
+                            <div>
+                                <div class="testimonial-author-name">Trần Minh Đức</div>
+                                <div class="testimonial-author-position">Blogger</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>APH Perfume</h5>
+                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Liên Kết Nhanh</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="/" class="text-white">Trang chủ</a></li>
+                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
+                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
+                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4 mb-md-0">
+                    <h5>Dịch Vụ Khách Hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
+                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
+                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
+                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h5>Kết Nối Với Chúng Tôi</h5>
+                    <div class="d-flex gap-3 fs-4 mb-3">
+                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="my-4">
+            <div class="text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                window.location.reload();
+            });
+
+            }
+        });
+    </script>
+    <script>
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
+
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("wishlistAdded") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
+</body>
+</html>
