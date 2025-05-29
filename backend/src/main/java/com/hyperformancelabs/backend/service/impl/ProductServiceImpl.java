@@ -1,9 +1,9 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.FlashSaleProductDTO;
-import com.hyperformancelabs.backend.dto.ProductAdminDisplayDTO;
-import com.hyperformancelabs.backend.dto.ProductDTO;
-import com.hyperformancelabs.backend.dto.TopSellingProductDTO;
+import com.hyperformancelabs.backend.dto.common.response.FlashSaleProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.ProductAdminDisplayDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.TopSellingProductDTO;
 import com.hyperformancelabs.backend.model.Product;
 import com.hyperformancelabs.backend.repository.BrandRepository;
 import com.hyperformancelabs.backend.repository.ProductRepository;
@@ -210,7 +210,9 @@ public class ProductServiceImpl implements ProductService {
                 product.getBrand().getBrandName(),
                 product.getProductName(),
                 product.getDescription(),
-                product.getImageUrl()
+                product.getImageUrl(),
+                null, // averageRating
+                null  // totalReviews
         );
     }
 

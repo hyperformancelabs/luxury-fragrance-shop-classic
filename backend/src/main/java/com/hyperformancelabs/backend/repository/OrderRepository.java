@@ -1,7 +1,7 @@
 package com.hyperformancelabs.backend.repository;
 
-import com.hyperformancelabs.backend.dto.ProductPurchaseInfoDTO;
-import com.hyperformancelabs.backend.dto.TopSellingDisplayDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductPurchaseInfoDTO;
+import com.hyperformancelabs.backend.dto.admin.response.TopSellingDisplayDTO;
 import com.hyperformancelabs.backend.model.Customer;
 import com.hyperformancelabs.backend.model.Order;
 import org.springframework.data.domain.Page;

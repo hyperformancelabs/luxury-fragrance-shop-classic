@@ -1,6 +1,11 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.*;
+import com.hyperformancelabs.backend.dto.common.response.BrandDTO;
+import com.hyperformancelabs.backend.dto.admin.response.ProductAdminDisplayDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductVariantDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductDetailDTO;
+
 import com.hyperformancelabs.backend.repository.BrandRepository;
 import com.hyperformancelabs.backend.service.BrandService;
 import com.hyperformancelabs.backend.service.ProductDetailService;

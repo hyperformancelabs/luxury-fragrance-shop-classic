@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.ProductDetailDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductDetailDTO;
 import com.hyperformancelabs.backend.model.ProductDetail;
 import com.hyperformancelabs.backend.repository.ProductDetailRepository;
 import com.hyperformancelabs.backend.repository.ProductRepository;

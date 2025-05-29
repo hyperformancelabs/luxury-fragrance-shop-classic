@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.repository;
 
-import com.hyperformancelabs.backend.dto.RoleDTO;
+import com.hyperformancelabs.backend.dto.admin.common.RoleDTO;
 import com.hyperformancelabs.backend.model.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

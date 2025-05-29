@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.RoleDTO;
+import com.hyperformancelabs.backend.dto.admin.common.RoleDTO;
 
 public interface RoleService {
 

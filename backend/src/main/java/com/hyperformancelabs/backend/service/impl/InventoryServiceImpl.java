@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.LowStockProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.LowStockProductDTO;
 import com.hyperformancelabs.backend.repository.ProductRepository;
 import com.hyperformancelabs.backend.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;

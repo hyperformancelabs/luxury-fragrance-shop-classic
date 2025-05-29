@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.WishlistDTO;
+import com.hyperformancelabs.backend.dto.user.response.WishlistDTO;
 
 import java.util.List;
 

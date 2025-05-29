@@ -1,9 +1,9 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.FlashSaleProductDTO;
-import com.hyperformancelabs.backend.dto.ProductAdminDisplayDTO;
-import com.hyperformancelabs.backend.dto.ProductDTO;
-import com.hyperformancelabs.backend.dto.TopSellingProductDTO;
+import com.hyperformancelabs.backend.dto.common.response.FlashSaleProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.ProductAdminDisplayDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.TopSellingProductDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

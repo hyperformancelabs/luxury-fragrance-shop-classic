@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.LowStockProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.LowStockProductDTO;
 
 import java.util.List;
 

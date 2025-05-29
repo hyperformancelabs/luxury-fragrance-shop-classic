@@ -1,8 +1,8 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.LowStockProductDTO;
-import com.hyperformancelabs.backend.dto.RecentOrderDTO;
-import com.hyperformancelabs.backend.dto.TopSellingProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.LowStockProductDTO;
+import com.hyperformancelabs.backend.dto.admin.response.RecentOrderDTO;
+import com.hyperformancelabs.backend.dto.admin.response.TopSellingProductDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.InventoryService;
 import com.hyperformancelabs.backend.service.OrderService;

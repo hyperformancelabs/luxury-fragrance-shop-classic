@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.InventoryTransactionDTO;
+import com.hyperformancelabs.backend.dto.admin.common.InventoryTransactionDTO;
 import com.hyperformancelabs.backend.model.InventoryTransaction;
 import com.hyperformancelabs.backend.model.ProductVariant;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.CustomerDTO;
-import com.hyperformancelabs.backend.dto.OrderDTO;
-import com.hyperformancelabs.backend.dto.ProductPurchaseInfoDTO;
+import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
+import com.hyperformancelabs.backend.dto.common.response.OrderDTO;
+import com.hyperformancelabs.backend.dto.common.response.ProductPurchaseInfoDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.OrderService;
 import org.flywaydb.core.internal.util.ExceptionUtils;

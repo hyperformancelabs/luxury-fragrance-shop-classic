@@ -1,6 +1,13 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.*;
+import com.hyperformancelabs.backend.dto.admin.common.EmployeeDTO;
+import com.hyperformancelabs.backend.dto.admin.response.EmployeeAdminDisplayDTO;
+// For commented out code, if uncommented:
+// import com.hyperformancelabs.backend.dto.admin.request.EmployeeRegisterRequest;
+// import com.hyperformancelabs.backend.dto.admin.response.LoginResponse;
+// import com.hyperformancelabs.backend.dto.admin.response.EmployeeProfileResponse;
+// import com.hyperformancelabs.backend.dto.admin.request.EmployeeUpdateRequest;
+
 import com.hyperformancelabs.backend.model.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

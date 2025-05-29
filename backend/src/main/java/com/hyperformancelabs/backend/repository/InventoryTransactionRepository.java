@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.repository;
 
-import com.hyperformancelabs.backend.dto.SellTransactionSummaryDTO;
+import com.hyperformancelabs.backend.dto.admin.response.SellTransactionSummaryDTO;
 import com.hyperformancelabs.backend.model.InventoryTransaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.CustomerDTO;
+import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
 import com.hyperformancelabs.backend.model.Customer;
 import com.hyperformancelabs.backend.repository.CustomerRepository;
 import com.hyperformancelabs.backend.service.CustomerService;

@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.CustomerDTO;
+import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

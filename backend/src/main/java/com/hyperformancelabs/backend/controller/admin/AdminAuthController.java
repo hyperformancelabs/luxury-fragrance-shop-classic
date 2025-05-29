@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.EmployeeDTO;
+import com.hyperformancelabs.backend.dto.admin.common.EmployeeDTO;
 import com.hyperformancelabs.backend.service.EmployeeService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

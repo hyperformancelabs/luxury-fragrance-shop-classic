@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.OrderItemDTO;
+import com.hyperformancelabs.backend.dto.common.response.OrderItemDTO;
 import com.hyperformancelabs.backend.model.OrderItem;
 import com.hyperformancelabs.backend.repository.OrderItemRepository;
 import com.hyperformancelabs.backend.repository.OrderRepository;

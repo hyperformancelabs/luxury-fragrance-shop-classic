@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.RoleDTO;
+import com.hyperformancelabs.backend.dto.admin.common.RoleDTO;
 import com.hyperformancelabs.backend.model.Role;
 import com.hyperformancelabs.backend.repository.RoleRepository;
 import com.hyperformancelabs.backend.service.RoleService;

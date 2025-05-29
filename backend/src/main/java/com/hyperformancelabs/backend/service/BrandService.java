@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.BrandDTO;
+import com.hyperformancelabs.backend.dto.common.response.BrandDTO;
 
 import java.util.List;
 

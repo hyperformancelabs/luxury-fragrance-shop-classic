@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.CartItemDTO;
+import com.hyperformancelabs.backend.dto.user.response.CartItemDTO;
 import com.hyperformancelabs.backend.model.Cart;
 import com.hyperformancelabs.backend.model.CartItem;
 import com.hyperformancelabs.backend.model.ProductVariant;

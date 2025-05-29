@@ -1,7 +1,7 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.EmployeeAdminDisplayDTO;
-import com.hyperformancelabs.backend.dto.EmployeeDTO;
+import com.hyperformancelabs.backend.dto.admin.response.EmployeeAdminDisplayDTO;
+import com.hyperformancelabs.backend.dto.admin.common.EmployeeDTO;
 import com.hyperformancelabs.backend.service.EmployeeRoleService;
 import com.hyperformancelabs.backend.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;

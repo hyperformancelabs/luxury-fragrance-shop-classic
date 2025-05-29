@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.repository;
 
-import com.hyperformancelabs.backend.dto.EmployeeDTO;
+import com.hyperformancelabs.backend.dto.admin.common.EmployeeDTO;
 import com.hyperformancelabs.backend.model.Employee;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

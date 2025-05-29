@@ -1,8 +1,8 @@
 package com.hyperformancelabs.backend.service;
 
-import com.hyperformancelabs.backend.dto.CartDTO;
-import com.hyperformancelabs.backend.dto.CartItemDTO;
-import com.hyperformancelabs.backend.dto.request.AddToCartRequest;
+import com.hyperformancelabs.backend.dto.user.response.CartDTO;
+import com.hyperformancelabs.backend.dto.user.response.CartItemDTO;
+import com.hyperformancelabs.backend.dto.user.request.AddToCartRequest;
 
 import java.util.List;
 

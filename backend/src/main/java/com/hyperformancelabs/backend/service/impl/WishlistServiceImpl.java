@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.WishlistDTO;
+import com.hyperformancelabs.backend.dto.user.response.WishlistDTO;
 import com.hyperformancelabs.backend.exception.ResourceNotFoundException;
 import com.hyperformancelabs.backend.model.Customer;
 import com.hyperformancelabs.backend.model.Wishlist;

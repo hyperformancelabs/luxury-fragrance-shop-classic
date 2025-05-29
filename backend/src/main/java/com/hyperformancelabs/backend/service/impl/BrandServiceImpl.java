@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.BrandDTO;
+import com.hyperformancelabs.backend.dto.common.response.BrandDTO;
 import com.hyperformancelabs.backend.model.Brand;
 import com.hyperformancelabs.backend.repository.BrandRepository;
 import com.hyperformancelabs.backend.service.BrandService;

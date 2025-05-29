@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
-import com.hyperformancelabs.backend.dto.CustomerDTO;
+import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;

@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.controller.admin;
 
-import com.hyperformancelabs.backend.dto.TopSellingDisplayDTO;
+import com.hyperformancelabs.backend.dto.admin.response.TopSellingDisplayDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;

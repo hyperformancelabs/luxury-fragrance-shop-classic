@@ -1,6 +1,6 @@
 package com.hyperformancelabs.backend.repository;
 
-import com.hyperformancelabs.backend.dto.FlashSaleProductDTO;
+import com.hyperformancelabs.backend.dto.common.response.FlashSaleProductDTO;
 import com.hyperformancelabs.backend.model.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
