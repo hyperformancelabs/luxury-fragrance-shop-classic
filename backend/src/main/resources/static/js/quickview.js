@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
     quickviewCssLink.href = '/css/quickview-custom.css';
     document.head.appendChild(quickviewCssLink);
     console.log('QuickView CSS added to head');
+    
+    // Kiểm tra nếu QuickView đã được khởi tạo để tránh khởi tạo lại
+    if (document.getElementById('quickview-overlay')) {
+        console.log('QuickView already exists, skipping initialization');
+        return;
+    }
+    
     // Tạo HTML cho QuickView
     const quickviewHTML = `
         <div id="quickview-overlay" class="quickview-overlay">
@@ -211,56 +218,6 @@ document.addEventListener('DOMContentLoaded', function() {
         closeQuickView();
     });
 
-    // Xử lý thêm vào yêu thích
-    quickviewWishlist.addEventListener('click', function () {
-        const isLoggedIn = document.querySelector('meta[name="isLoggedIn"]')?.content === 'true';
-
-        if (!isLoggedIn) {
-            Swal.fire({
-                icon: 'info',
-                title: 'Vui lòng đăng nhập',
-                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
-                confirmButtonText: 'Đăng nhập',
-                showCancelButton: true,
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/auth/login";
-                }
-            });
-            return;
-        }
-
-        const productId = quickviewAddToCart.getAttribute('data-product-id');
-        const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-
-        // Tạo form ẩn
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/wishlist/add';
-
-        // Input productId
-        const inputProductId = document.createElement('input');
-        inputProductId.type = 'hidden';
-        inputProductId.name = 'productId';
-        inputProductId.value = productId;
-        form.appendChild(inputProductId);
-
-        // CSRF token
-        if (csrfToken) {
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = '_csrf';
-            csrfInput.value = csrfToken;
-            form.appendChild(csrfInput);
-        }
-
-        // Append và submit
-        document.body.appendChild(form);
-        form.submit();
-    });
-
     // Hàm mở QuickView
     function openQuickView(productId, productData) {
         console.log('openQuickView called with productId:', productId);
@@ -337,56 +294,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Kiểm tra nếu có dữ liệu biến thể được lưu trữ trong data-variants
                 const variantsJson = productCard.getAttribute('data-variants');
-                if (variantsJson) {
+                if (variantsJson && variantsJson !== '[]') {
                     try {
                         const parsedVariants = JSON.parse(variantsJson);
-                        parsedVariants.forEach(variant => {
-                            variantsData.push({
-                                value: variant.id.toString(),
-                                label: `${variant.volume}ml`,
-                                price: variant.price,
-                                discountPrice: variant.discountPrice,
-                                volume: variant.volume,
-                                quantityInStock: variant.stock
+                        if (Array.isArray(parsedVariants)) {
+                            parsedVariants.forEach(variant => {
+                                if (variant.id && variant.volume && variant.price) {
+                                    variantsData.push({
+                                        id: variant.id,
+                                        volume: variant.volume,
+                                        price: variant.price,
+                                        discountPrice: variant.discountPrice || 0,
+                                        stock: variant.stock || 0
+                                    });
+                                }
                             });
-                        });
+                        }
                     } catch (e) {
                         console.error('Lỗi khi phân tích dữ liệu biến thể:', e);
                     }
                 }
 
-                // Nếu không có dữ liệu biến thể, tìm các phần tử .variant-item
-                if (variantsData.length === 0) {
-                    const variantItems = productCard.querySelectorAll('.variant-item');
-                    variantItems.forEach((item, index) => {
-                        const variantId = item.getAttribute('data-variant-id') || (index + 1).toString();
-                        const volume = parseInt(item.getAttribute('data-volume') || '0');
-                        const price = parseFloat(item.getAttribute('data-price') || '0');
-                        const discountPrice = parseFloat(item.getAttribute('data-discount-price') || '0');
-                        const stock = parseInt(item.getAttribute('data-stock') || '10');
-
-                        variantsData.push({
-                            value: variantId,
-                            label: `${volume}ml`,
-                            price: price,
-                            discountPrice: discountPrice > 0 ? discountPrice : null,
-                            volume: volume,
-                            quantityInStock: stock
-                        });
-                    });
-                }
-
-                // Nếu vẫn không có dữ liệu biến thể, tạo dữ liệu mẫu
-                if (variantsData.length === 0) {
-                    // Tạo các biến thể mẫu với giá dựa trên giá gốc
-                    variantsData.push(
-                        { value: '1', label: '30ml', price: originalPrice * 0.5, volume: 30, quantityInStock: 10 },
-                        { value: '2', label: '50ml', price: originalPrice, volume: 50, quantityInStock: 8 },
-                        { value: '3', label: '100ml', price: originalPrice * 1.5, volume: 100, quantityInStock: 5 }
-                    );
-                }
-
-                // Tạo đối tượng sản phẩm
                 const product = {
                     id: productId,
                     name: productName,
@@ -399,11 +327,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     originalPrice: originalPrice,
                     salePrice: salePrice,
                     images: [imageUrl],
-                    sizes: variantsData
+                    sizes: []
                 };
 
-                // Thêm nhiều hình ảnh nếu có
-                const additionalImages = productCard.getAttribute('data-additional-images');
+                // Kiểm tra xem có hình ảnh bổ sung không
+                const additionalImages = productCard.getAttribute('data-images');
                 if (additionalImages) {
                     try {
                         const images = JSON.parse(additionalImages);
@@ -414,6 +342,26 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.error('Lỗi khi phân tích dữ liệu hình ảnh bổ sung:', e);
                     }
                 }
+
+                // Nếu vẫn không có dữ liệu, tạo dữ liệu mẫu dựa trên giá gốc
+                if (variantsData.length === 0) {
+                    variantsData = [
+                        { id: '1', volume: 30, price: originalPrice * 0.5, stock: 10 },
+                        { id: '2', volume: 50, price: originalPrice, stock: 8 },
+                        { id: '3', volume: 100, price: originalPrice * 1.5, stock: 5 }
+                    ];
+                    console.log('Tạo dữ liệu biến thể mẫu cho sản phẩm ID:', productId);
+                }
+
+                // Chuyển đổi dữ liệu biến thể thành định dạng sizes
+                product.sizes = variantsData.map(variant => ({
+                    value: variant.id.toString(),
+                    label: `${variant.volume}ml`,
+                    price: variant.price,
+                    discountPrice: variant.discountPrice,
+                    volume: variant.volume,
+                    quantityInStock: variant.stock
+                }));
 
                 resolve(product);
             } catch (error) {
@@ -589,192 +537,71 @@ document.addEventListener('DOMContentLoaded', function() {
         return price.toLocaleString('vi-VN') + 'đ';
     }
 
-    // Thêm sự kiện cho các nút "Xem nhanh" trên trang
+    // Sử dụng event delegation để xử lý các nút "Xem nhanh" - ngăn chặn loop
+    let isInitialized = false;
+    
     function setupQuickViewButtons() {
-        console.log('Bắt đầu thiết lập các nút Xem nhanh');
-
-        // Tìm tất cả các nút "Xem nhanh" trên trang với nhiều selector khác nhau
-        const quickViewButtons = document.querySelectorAll(
-            '.quick-view-btn, ' +
-            '[title="Xem nhanh"], ' +
-            '.action-btn[title="Xem nhanh"], ' +
-            '.btn-quick-view, ' +
-            '.quickview-button, ' +
-            '.product-quickview, ' +
-            'button.btn-eye, ' +
-            'a.btn-eye, ' +
-            '[data-action="quickview"]'
-        );
-
-        // Tìm thêm các nút có icon fa-eye
-        const buttonsWithEyeIcon = Array.from(document.querySelectorAll('button i.fa-eye, a i.fa-eye'))
-            .map(icon => icon.parentElement);
-
-        // Kết hợp các nút đã tìm được
-        const allQuickViewButtons = [...Array.from(quickViewButtons), ...buttonsWithEyeIcon];
-
-        // Loại bỏ các phần tử trùng lặp
-        const uniqueButtons = Array.from(new Set(allQuickViewButtons));
-
-        // In ra tất cả các nút được tìm thấy
-        console.log('Các nút Xem nhanh được tìm thấy:', uniqueButtons.map(btn => btn.outerHTML));
-        console.log('Tìm thấy các nút Xem nhanh:', uniqueButtons.length);
-
-        uniqueButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
+        if (isInitialized) {
+            console.log('Quick view buttons already initialized, skipping...');
+            return;
+        }
+        
+        console.log('Setting up quick view buttons with event delegation');
+        
+        // Sử dụng event delegation để bắt tất cả các click trên document
+        document.addEventListener('click', function(e) {
+            // Kiểm tra nếu phần tử được click có thuộc tính onclick với openQuickView
+            const onclickAttr = e.target.getAttribute('onclick');
+            if (onclickAttr && onclickAttr.includes('openQuickView')) {
                 e.preventDefault();
-
-                // Hiển thị trạng thái đang tải
-                const loadingOverlay = document.createElement('div');
-                loadingOverlay.className = 'loading-overlay';
-                loadingOverlay.innerHTML = '<div class="loading-spinner"></div>';
-                document.body.appendChild(loadingOverlay);
-
-                // Tìm phần tử cha chứa thông tin sản phẩm
-                const productCard = this.closest('.product-card, .product-item');
+                e.stopPropagation();
+                
+                // Trích xuất productId từ onclick attribute
+                const matches = onclickAttr.match(/openQuickView\((\d+)\)/);
+                if (matches && matches[1]) {
+                    const productId = matches[1];
+                    console.log('Quick view triggered for product ID:', productId);
+                    
+                    // Gọi hàm openQuickView
+                    openQuickView(productId);
+                }
+                return;
+            }
+            
+            // Kiểm tra các selector khác cho nút "Xem nhanh"
+            if (e.target.matches('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"]') ||
+                e.target.closest('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"]')) {
+                
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const button = e.target.matches('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"]') 
+                    ? e.target 
+                    : e.target.closest('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"]');
+                
+                const productCard = button.closest('.product-card, .product-item');
                 if (!productCard) {
                     console.error('Không tìm thấy phần tử chứa sản phẩm');
-                    document.body.removeChild(loadingOverlay);
                     return;
                 }
-
-                // Lấy ID sản phẩm
+                
                 const productId = productCard.getAttribute('data-product-id');
                 if (!productId) {
                     console.error('Không tìm thấy ID sản phẩm');
-                    document.body.removeChild(loadingOverlay);
                     return;
                 }
-
-                // Lấy thông tin cơ bản của sản phẩm từ phần tử HTML
-                const productName = productCard.querySelector('.product-name, .card-title')?.textContent || 'Sản phẩm';
-                const brandName = productCard.querySelector('.product-brand, .brand-name')?.textContent || productCard.getAttribute('data-brand') || 'Thương hiệu';
-                const imageUrl = productCard.querySelector('.product-image, .product-img')?.src || '/images/placeholder.jpg';
-                const description = productCard.getAttribute('data-description') || 'Mô tả sản phẩm';
-                const originalPrice = parseFloat(productCard.getAttribute('data-original-price') || '0');
-                const salePrice = parseFloat(productCard.getAttribute('data-sale-price') || originalPrice.toString());
-
-                // Lấy thông tin biến thể từ HTML thay vì gọi API
-                let variantsData = [];
-
-                // Kiểm tra nếu có dữ liệu biến thể được lưu trữ trong data-variants
-                const variantsJson = productCard.getAttribute('data-variants');
-                if (variantsJson) {
-                    try {
-                        variantsData = JSON.parse(variantsJson);
-                        console.log(`Đã tìm thấy ${variantsData.length} biến thể từ data-variants cho sản phẩm ID:`, productId);
-                    } catch (e) {
-                        console.error('Lỗi khi phân tích dữ liệu biến thể từ data-variants:', e);
-                    }
-                }
-
-                // Nếu không có dữ liệu từ data-variants, tìm các phần tử .variant-item
-                if (variantsData.length === 0) {
-                    const variantItems = productCard.querySelectorAll('.variant-item');
-                    variantItems.forEach((item, index) => {
-                        variantsData.push({
-                            id: item.getAttribute('data-variant-id') || (index + 1).toString(),
-                            volume: parseInt(item.getAttribute('data-volume') || '0'),
-                            price: parseFloat(item.getAttribute('data-price') || '0'),
-                            discountPrice: parseFloat(item.getAttribute('data-discount-price') || '0'),
-                            stock: parseInt(item.getAttribute('data-stock') || '10')
-                        });
-                    });
-                    console.log(`Đã tìm thấy ${variantItems.length} biến thể từ .variant-item cho sản phẩm ID:`, productId);
-                }
-
-                // Nếu vẫn không có dữ liệu, tạo dữ liệu mẫu dựa trên giá gốc
-                if (variantsData.length === 0) {
-                    variantsData = [
-                        { id: '1', volume: 30, price: originalPrice * 0.5, stock: 10 },
-                        { id: '2', volume: 50, price: originalPrice, stock: 8 },
-                        { id: '3', volume: 100, price: originalPrice * 1.5, stock: 5 }
-                    ];
-                    console.log('Tạo dữ liệu biến thể mẫu cho sản phẩm ID:', productId);
-                }
-
-                // Chuyển đổi dữ liệu biến thể thành định dạng sizes
-                const sizes = variantsData.map(variant => ({
-                    value: variant.id.toString(),
-                    label: `${variant.volume}ml`,
-                    price: variant.price,
-                    discountPrice: variant.discountPrice,
-                    volume: variant.volume,
-                    quantityInStock: variant.stock
-                }));
-
-                // Tạo đối tượng sản phẩm với ID duy nhất
-                const productData = {
-                    id: productId,
-                    name: productName,
-                    brand: brandName,
-                    category: productCard.getAttribute('data-category') || 'Nước hoa',
-                    sku: 'SKU-' + productId,
-                    description: description,
-                    rating: parseFloat(productCard.getAttribute('data-rating') || '4.5'),
-                    reviewCount: parseInt(productCard.getAttribute('data-review-count') || '0'),
-                    originalPrice: originalPrice,
-                    salePrice: salePrice,
-                    images: [imageUrl],
-                    sizes: sizes,
-                    // Thêm timestamp để đảm bảo mỗi lần mở là một đối tượng mới
-                    timestamp: new Date().getTime()
-                };
-
-                console.log('Mở QuickView cho sản phẩm ID:', productId, 'với dữ liệu:', productData);
-
-                // Xóa overlay đang tải
-                document.body.removeChild(loadingOverlay);
-
-                // Mở QuickView với dữ liệu đã lấy được
-                openQuickView(productId, JSON.parse(JSON.stringify(productData)));
-            });
-        });
-
-        console.log(`Đã thiết lập ${quickViewButtons.length} nút Xem nhanh`);
-    }
-
-    // Thiết lập các nút QuickView khi trang được tải
-    setupQuickViewButtons();
-
-    // Thiết lập lại các nút QuickView khi nội dung trang thay đổi (ví dụ: khi lọc sản phẩm)
-    // Bạn có thể gọi setupQuickViewButtons() sau khi cập nhật nội dung trang
-
-    // Sử dụng MutationObserver để tự động phát hiện khi có nút "Xem nhanh" mới được thêm vào trang
-    const observer = new MutationObserver(function(mutations) {
-        let shouldSetup = false;
-
-        mutations.forEach(function(mutation) {
-            // Kiểm tra nếu có phần tử mới được thêm vào DOM
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                for (let i = 0; i < mutation.addedNodes.length; i++) {
-                    const node = mutation.addedNodes[i];
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        // Kiểm tra nếu phần tử mới có thể là nút "Xem nhanh" hoặc chứa nút "Xem nhanh"
-                        if (node.matches('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"]') ||
-                            node.querySelector('.quick-view-btn, [title="Xem nhanh"], .action-btn[title="Xem nhanh"], .btn-quick-view, .quickview-button, .product-quickview, button.btn-eye, a.btn-eye, [data-action="quickview"], button i.fa-eye, a i.fa-eye')) {
-                            shouldSetup = true;
-                            break;
-                        }
-                    }
-                }
+                
+                console.log('Quick view triggered for product ID:', productId);
+                openQuickView(productId);
             }
         });
+        
+        isInitialized = true;
+        console.log('Quick view event delegation setup complete');
+    }
 
-        // Nếu có nút "Xem nhanh" mới, thiết lập lại các nút
-        if (shouldSetup) {
-            console.log('Phát hiện thay đổi DOM, thiết lập lại các nút Xem nhanh');
-            setupQuickViewButtons();
-        }
-    });
-
-    // Bắt đầu theo dõi thay đổi trong DOM
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true
-    });
-
-    console.log('Đã thiết lập MutationObserver để theo dõi các nút Xem nhanh mới');
+    // Thiết lập event delegation
+    setupQuickViewButtons();
 
     // Đăng ký hàm openQuickView vào window để có thể gọi từ bên ngoài
     window.openQuickView = openQuickView;

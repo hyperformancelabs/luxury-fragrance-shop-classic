@@ -24,43 +24,8 @@ document.addEventListener('DOMContentLoaded', function() {
     setInterval(updateCountdown, 1000);
     updateCountdown(); // Initial call
 
-    // Quick view and wishlist buttons
-    document.querySelectorAll('.action-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            const action = this.getAttribute('title');
-            const productCard = this.closest('.product-card');
-            const productName = productCard.querySelector('.card-title').textContent;
-
-//            if (action === 'Yêu thích') {
-//                console.log('Added to wishlist:', productName);
-//                // In a real implementation, this would add the product to the wishlist
-//            } else
-            if (action === 'Xem nhanh') {
-                        e.preventDefault();
-                console.log('Quick view for:', productName);
-                // In a real implementation, this would open a modal with product details
-            }
-        });
-    });
-
-    // Add to cart buttons
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const productId = this.getAttribute('data-product-id');
-
-            if (!productId) {
-                alert('Không tìm thấy ID sản phẩm');
-                return;
-            }
-
-            // Mở QuickView để người dùng chọn variant
-            if (typeof openQuickView === 'function') {
-                openQuickView(productId);
-            } else {
-                console.error('Hàm openQuickView không tồn tại');
-                alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
-            }
-        });
-    });
+    // NOTE: Quick view functionality is handled by quickview.js
+    // Removed conflicting event handlers to prevent loops
+    
+    console.log('Home page JavaScript initialized');
 });

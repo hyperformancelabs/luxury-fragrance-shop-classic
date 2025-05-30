@@ -3,53 +3,87 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <!-- Navigation fragment -->
-<nav th:fragment="navbar(activePage)" class="navbar navbar-expand-lg navbar-light bg-light">
+<nav th:fragment="navbar(activePage)" class="navbar navbar-expand-lg navbar-light bg-light sticky-top shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="/">APH Perfume</a>
+        <a class="navbar-brand fw-bold" href="/">APH Perfume</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'home'} ? 'active'" href="/">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'shop'} ? 'active'" href="/shop">Sản phẩm</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'about'} ? 'active'" href="/about">Giới thiệu</a></li>
-                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'contact'} ? 'active'" href="/contact">Liên hệ</a></li>
+                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'home'} ? 'active fw-bold'" href="/">Trang chủ</a></li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" th:classappend="${activePage == 'shop'} ? 'active fw-bold'" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Sản phẩm
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/shop">Tất cả sản phẩm</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/shop?genders=Nam">Nước hoa Nam</a></li>
+                        <li><a class="dropdown-item" href="/shop?genders=Nữ">Nước hoa Nữ</a></li>
+                        <li><a class="dropdown-item" href="/shop?genders=Unisex">Nước hoa Unisex</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/shop/sort/best-selling">Phổ biến nhất</a></li>
+                        <li><a class="dropdown-item" href="/shop">Mới nhất</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'about'} ? 'active fw-bold'" href="/about">Giới thiệu</a></li>
+                <li class="nav-item"><a class="nav-link" th:classappend="${activePage == 'contact'} ? 'active fw-bold'" href="/contact">Liên hệ</a></li>
             </ul>
-            <div class="d-flex align-items-center gap-2">
+            
+            <!-- Thanh tìm kiếm -->
+            <form class="d-flex me-auto" action="/shop" method="get">
+                <div class="input-group">
+                    <input class="form-control" type="search" placeholder="Tìm kiếm sản phẩm..." aria-label="Search" name="keyword">
+                    <button class="btn btn-outline-dark" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+            
+            <div class="d-flex align-items-center gap-2 ms-3">
                 <!-- Nếu đã đăng nhập -->
                 <div sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
-                    <span class="text-dark">
-                         <a href="/profile" class="text-dark text-decoration-none d-flex align-items-center">
+                    <div class="dropdown">
+                        <a href="#" class="text-dark text-decoration-none dropdown-toggle" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle me-1"></i>
                             <strong sec:authentication="name">Tên người dùng</strong>
-                         </a>
-                     </span>
-                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmLogout()">
-                        <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
-                    </button>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Tài khoản của tôi</a></li>
+                            <li><a class="dropdown-item" href="/profile/orders"><i class="fas fa-box me-2"></i>Đơn hàng của tôi</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="confirmLogout()"><i class="fas fa-sign-out-alt me-2"></i>Đăng xuất</a></li>
+                        </ul>
+                    </div>
 
                     <!-- Form logout POST -->
                     <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
                         <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
                     </form>
-
-                    <!-- Nút yêu thích chỉ hiển thị khi đã đăng nhập -->
-                    <a href="/wishlist" class="btn btn-outline-danger">
-                        <i class="fas fa-heart me-1"></i> Yêu thích
-                    </a>
                 </div>
 
                 <!-- Nếu chưa đăng nhập -->
                 <div sec:authorize="isAnonymous()" class="d-flex align-items-center gap-2">
-                    <a href="/auth/login" class="btn btn-outline-dark">
+                    <a href="/auth/login" class="btn btn-outline-dark btn-sm">
                         <i class="fas fa-user me-1"></i> Đăng nhập
+                    </a>
+                    <a href="/auth/register" class="btn btn-dark btn-sm">
+                        <i class="fas fa-user-plus me-1"></i> Đăng ký
                     </a>
                 </div>
 
-                <!-- Giỏ hàng luôn hiển thị -->
-                <a href="/cart" class="btn btn-dark">
-                    <i class="fas fa-shopping-cart me-1"></i> Giỏ hàng
+                <!-- Wishlist button -->
+                <a href="/wishlist" class="btn btn-outline-danger position-relative" title="Sản phẩm yêu thích">
+                    <i class="fas fa-heart"></i>
+                </a>
+
+                <!-- Giỏ hàng luôn hiển thị với số lượng -->
+                <a href="/cart" class="btn btn-dark position-relative" title="Giỏ hàng">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
+                          th:if="${session.cartItemCount != null && session.cartItemCount > 0}"
+                          th:text="${session.cartItemCount}">0</span>
                 </a>
             </div>
         </div>

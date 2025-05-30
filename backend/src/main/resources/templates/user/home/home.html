@@ -13,16 +13,118 @@
 <!-- Navigation -->
 <nav th:replace="~{shared/fragments/navbar :: navbar('home')}"></nav>
 
-<!-- Banner Section -->
-<section class="banner-section text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold">
-            <span sec:authorize="isAuthenticated()">Chào mừng, <strong
-                    sec:authentication="name">Người dùng</strong>!</span>
-            <span sec:authorize="isAnonymous()">Khám Phá Hương Thơm Xa Xỉ</span>
-        </h1>
-        <p class="lead">Bộ sưu tập nước hoa cao cấp từ các thương hiệu hàng đầu</p>
-        <a href="/shop" class="btn btn-light btn-lg mt-3">Mua Ngay</a>
+<!-- Hero Banner Slider Section -->
+<section class="hero-slider">
+    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
+        </div>
+        <div class="carousel-inner">
+            <!-- Banner tổng quan -->
+            <div class="carousel-item active">
+                <div class="banner-section" style="background-image: url('/images/banner/banner.jpg')">
+                    <div class="container text-center">
+                        <h1 class="display-4 fw-bold">Khám Phá Hương Thơm Xa Xỉ</h1>
+                        <p class="lead">Bộ sưu tập nước hoa cao cấp từ các thương hiệu hàng đầu thế giới</p>
+                        <div class="mt-4">
+                            <a href="/shop" class="btn btn-light btn-lg">Khám Phá Ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner theo mùa hiện tại -->
+            <div class="carousel-item">
+                <div class="banner-section" th:style="'background-image: url(/images/banner/banner-' + ${currentSeason} + '.jpg)'">
+                    <div class="container text-center">
+                        <h1 class="display-4 fw-bold" th:text="'Bộ Sưu Tập Mùa ' + ${currentSeasonVietnamese}">Bộ Sưu Tập Mùa</h1>
+                        <p class="lead" th:text="'Khám phá những mùi hương đặc trưng của mùa ' + ${currentSeasonVietnamese}">Khám phá những mùi hương đặc trưng</p>
+                        <div class="mt-4">
+                            <a th:href="@{'/shop?seasons=' + ${currentSeason}}" class="btn btn-light btn-lg">Khám Phá Ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner theo mùa gần nhất -->
+            <div class="carousel-item">
+                <div class="banner-section" th:style="'background-image: url(/images/banner/banner-' + ${nextSeason} + '.jpg)'">
+                    <div class="container text-center">
+                        <h1 class="display-4 fw-bold" th:text="'Bộ Sưu Tập Mùa ' + ${nextSeasonVietnamese}">Bộ Sưu Tập Mùa</h1>
+                        <p class="lead" th:text="'Chuẩn bị cho mùa ' + ${nextSeasonVietnamese} + ' sắp tới với những mùi hương tuyệt vời'">Chuẩn bị cho mùa sắp tới</p>
+                        <div class="mt-4">
+                            <a th:href="@{'/shop?seasons=' + ${nextSeason}}" class="btn btn-light btn-lg">Khám Phá Ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner liên hệ -->
+            <div class="carousel-item">
+                <div class="banner-section" style="background-image: url('/images/banner/banner-contact.jpg')">
+                    <div class="container text-center">
+                        <h1 class="display-4 fw-bold">Cần Tư Vấn?</h1>
+                        <p class="lead">Đội ngũ chuyên gia của chúng tôi luôn sẵn sàng hỗ trợ bạn tìm ra mùi hương hoàn hảo</p>
+                        <div class="mt-4">
+                            <a href="/contact" class="btn btn-light btn-lg">Liên Hệ Ngay</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="container features-section py-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h5>Giao Hàng Nhanh</h5>
+                <p>Miễn phí giao hàng cho đơn từ 1.000.000đ</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h5>Sản Phẩm Chính Hãng</h5>
+                <p>Cam kết 100% sản phẩm chính hãng</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h5>Đổi Trả Dễ Dàng</h5>
+                <p>Đổi trả trong vòng 30 ngày</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h5>Hỗ Trợ 24/7</h5>
+                <p>Luôn sẵn sàng hỗ trợ khách hàng</p>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -50,21 +152,142 @@
                 </div>
             </div>
         </div>
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-6 g-4">
-            <div class="col" th:each="product : ${flashDealProducts}">
-                <div class="card product-card d-flex flex-column h-100 position-relative"
+        
+        <!-- Flash Deal Products Carousel -->
+        <div class="products-carousel">
+            <div class="row">
+                <div class="col-12">
+                    <div class="owl-carousel flash-deal-carousel">
+                        <div class="item" th:each="product : ${flashDealProducts}">
+                            <div class="card product-card d-flex flex-column h-100 position-relative"
+                                th:data-product-id="${product.productId}"
+                                th:data-variants="${flashSaleProductVariants.containsKey(product.productId) ? flashSaleProductVariants.get(product.productId) : '[]'}"
+                                th:data-original-price="${flashSaleProductPriceRangeMap.containsKey(product.productId) ? flashSaleProductPriceRangeMap.get(product.productId)[0] : '0'}"
+                                th:data-sale-price="${flashSaleProductPriceRangeMap.containsKey(product.productId) ? flashSaleProductPriceRangeMap.get(product.productId)[1] : '0'}"
+                                th:data-brand="${product.brandName}">
+                                <div class="position-absolute top-0 start-0 m-2">
+                                    <span class="badge bg-danger">-30%</span>
+                                </div>
+                                <div class="product-actions">
+                                    <div sec:authorize="isAuthenticated()">
+                                        <form th:action="@{/wishlist/add}" method="post"
+                                            th:if="${!flashSaleProductInWishlistMap[product.productId]}"
+                                            class="d-inline">
+                                            <input type="hidden" name="productId" th:value="${product.productId}"/>
+                                            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}"/>
+                                            <button type="submit" class="action-btn" title="Yêu thích">
+                                                <i class="far fa-heart"></i>
+                                            </button>
+                                        </form>
+                                        <button class="action-btn active" title="Đã yêu thích" disabled
+                                                th:if="${flashSaleProductInWishlistMap[product.productId]}">
+                                            <i class="far fa-heart text-danger"></i>
+                                        </button>
+                                    </div>
+
+                                    <div sec:authorize="isAnonymous()">
+                                        <button class="action-btn" title="Yêu thích" onclick="showLoginReminder()">
+                                            <i class="far fa-heart"></i>
+                                        </button>
+                                    </div>
+
+                                    <button class="action-btn" title="Xem nhanh"
+                                            th:onclick="'javascript:openQuickView(' + ${product.productId} + ');'">
+                                        <i class="far fa-eye"></i>
+                                    </button>
+                                </div>
+
+                                <a th:href="@{'/shop/product/' + ${product.productId}}">
+                                    <img th:src="${product.imageUrl}" class="card-img-top product-img" alt="Product Image">
+                                </a>
+                                <div class="card-body text-center d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star"></i>
+                                            <i class="fas fa-star-half-alt"></i>
+                                        </div>
+                                        <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
+                                        <h5 class="card-title product-name" th:text="${product.productName}">Tên sản phẩm</h5>
+                                        <div class="product-price">
+                                <span class="original-price"
+                                    th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId)}"
+                                    th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ'}">3.500.000đ</span>
+
+                                            <span class="sale-price" th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId) &&
+                                        flashSaleProductPriceRangeMap.get(product.productId)[0].equals(flashSaleProductPriceRangeMap.get(product.productId)[1])}"
+                                                th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ'}">2.450.000đ</span>
+
+                                            <span class="sale-price" th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId) &&
+                                        !flashSaleProductPriceRangeMap.get(product.productId)[0].equals(flashSaleProductPriceRangeMap.get(product.productId)[1])}"
+                                                th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ - ' +
+                                        #numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[1], 0, 'COMMA', 0, 'POINT') + 'đ'}">1.950.000đ - 2.950.000đ</span>
+                                        </div>
+                                    </div>
+                                    <form th:action="@{/cart/add}" method="post" class="add-to-cart-form mt-auto"
+                                        th:with="firstVariantId=${flashSaleFirstVariantMap[product.productId]},
+                                        hasStock=${flashSaleProductHasStockMap[product.productId]}">
+                                        <input type="hidden" name="productVariantId" th:value="${firstVariantId}">
+                                        <input type="hidden" name="quantity" value="1">
+                                        <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
+
+                                        <button type="submit" class="btn btn-sm btn-dark mt-2 w-100"
+                                                th:disabled="${!hasStock or firstVariantId == null}">
+                                            <i class="fas fa-shopping-cart me-1"></i>
+                                            <span th:if="${!hasStock or firstVariantId == null}">Hết hàng</span>
+                                            <span th:unless="${!hasStock or firstVariantId == null}">Thêm vào giỏ</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Brand Section -->
+<section class="container mb-5">
+    <h2 class="section-title text-center">Thương Hiệu</h2>
+    <div class="brands-wrapper">
+        <div class="owl-carousel brands-carousel">
+            <div class="item" th:each="brand : ${brands}">
+                <a th:href="@{'/shop?brands=' + ${#strings.replace(brand.brandName, ' ', '+')}}" class="brand-item">
+                    <img th:src="${brand.logoUrl != null ? brand.logoUrl : '/images/brands/default.png'}"
+                         th:alt="${brand.brandName}"
+                         class="img-fluid brand-logo">
+                    <p class="mt-2 brand-name" th:text="${brand.brandName}">Brand Name</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- New Arrivals -->
+<section class="container mb-5">
+    <h2 class="section-title">Sản Phẩm Mới</h2>
+    <div class="products-carousel">
+        <div class="owl-carousel new-products-carousel">
+            <div class="item" th:each="product : ${newProducts}">
+                <div class="card product-card h-100"
                      th:data-product-id="${product.productId}"
-                     th:data-variants="${flashSaleProductVariants.containsKey(product.productId) ? flashSaleProductVariants.get(product.productId) : '[]'}"
-                     th:data-original-price="${flashSaleProductPriceRangeMap.containsKey(product.productId) ? flashSaleProductPriceRangeMap.get(product.productId)[0] : '0'}"
-                     th:data-sale-price="${flashSaleProductPriceRangeMap.containsKey(product.productId) ? flashSaleProductPriceRangeMap.get(product.productId)[1] : '0'}"
+                     th:data-variants="${newProductVariants.containsKey(product.productId) ? newProductVariants.get(product.productId) : '[]'}"
+                     th:data-original-price="${newProductPriceRangeMap.containsKey(product.productId) ? newProductPriceRangeMap.get(product.productId)[0] : '0'}"
+                     th:data-sale-price="${newProductPriceRangeMap.containsKey(product.productId) ? newProductPriceRangeMap.get(product.productId)[1] : '0'}"
                      th:data-brand="${product.brandName}">
                     <div class="position-absolute top-0 start-0 m-2">
-                        <span class="badge bg-danger">-30%</span>
+                        <span class="badge bg-danger">Mới</span>
                     </div>
                     <div class="product-actions">
+                        <!-- Nếu đã đăng nhập -->
                         <div sec:authorize="isAuthenticated()">
+                            <!-- Nếu chưa nằm trong wishlist -->
                             <form th:action="@{/wishlist/add}" method="post"
-                                  th:if="${!flashSaleProductInWishlistMap[product.productId]}"
+                                  th:if="${!newProductInWishlistMap[product.productId]}"
                                   class="d-inline">
                                 <input type="hidden" name="productId" th:value="${product.productId}"/>
                                 <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}"/>
@@ -72,12 +295,15 @@
                                     <i class="far fa-heart"></i>
                                 </button>
                             </form>
+
+                            <!-- Nếu đã nằm trong wishlist -->
                             <button class="action-btn active" title="Đã yêu thích" disabled
-                                    th:if="${flashSaleProductInWishlistMap[product.productId]}">
+                                    th:if="${newProductInWishlistMap[product.productId]}">
                                 <i class="far fa-heart text-danger"></i>
                             </button>
                         </div>
 
+                        <!-- Nếu chưa đăng nhập -->
                         <div sec:authorize="isAnonymous()">
                             <button class="action-btn" title="Yêu thích" onclick="showLoginReminder()">
                                 <i class="far fa-heart"></i>
@@ -93,35 +319,36 @@
                     <a th:href="@{'/shop/product/' + ${product.productId}}">
                         <img th:src="${product.imageUrl}" class="card-img-top product-img" alt="Product Image">
                     </a>
-                    <div class="card-body text-center d-flex flex-column justify-content-between">
-                        <div>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star-half-alt"></i>
-                            </div>
-                            <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
-                            <h5 class="card-title product-name" th:text="${product.productName}">Tên sản phẩm</h5>
-                            <div class="product-price">
-                    <span class="original-price"
-                          th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId)}"
-                          th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ'}">3.500.000đ</span>
-
-                                <span class="sale-price" th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId) &&
-                              flashSaleProductPriceRangeMap.get(product.productId)[0].equals(flashSaleProductPriceRangeMap.get(product.productId)[1])}"
-                                      th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ'}">2.450.000đ</span>
-
-                                <span class="sale-price" th:if="${flashSaleProductPriceRangeMap != null && flashSaleProductPriceRangeMap.containsKey(product.productId) &&
-                              !flashSaleProductPriceRangeMap.get(product.productId)[0].equals(flashSaleProductPriceRangeMap.get(product.productId)[1])}"
-                                      th:text="${#numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[0], 0, 'COMMA', 0, 'POINT') + 'đ - ' +
-                              #numbers.formatDecimal(flashSaleProductPriceRangeMap.get(product.productId)[1], 0, 'COMMA', 0, 'POINT') + 'đ'}">1.950.000đ - 2.950.000đ</span>
-                            </div>
+                    <div class="card-body text-center">
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
                         </div>
-                        <form th:action="@{/cart/add}" method="post" class="add-to-cart-form mt-auto"
-                              th:with="firstVariantId=${flashSaleFirstVariantMap[product.productId]},
-                               hasStock=${flashSaleProductHasStockMap[product.productId]}">
+                        <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
+                        <h5 class="card-title" th:text="${product.productName}">Tên sản phẩm</h5>
+                        <div class="product-price"
+                             th:if="${newProductPriceRangeMap.containsKey(product.productId)}"
+                             th:with="priceRange=${newProductPriceRangeMap[product.productId]},
+                                      minPrice=${priceRange[0]},
+                                      maxPrice=${priceRange[1]}">
+                            <span class="sale-price"
+                                  th:if="${minPrice != null and maxPrice != null and minPrice.equals(maxPrice)}"
+                                  th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
+                                1.950.000đ
+                            </span>
+                            <span class="sale-price"
+                                  th:if="${minPrice != null and maxPrice != null and !minPrice.equals(maxPrice)}"
+                                  th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ - ' + #numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
+                                1.950.000đ - 2.950.000đ
+                            </span>
+                        </div>
+                        <form th:action="@{/cart/add}" method="post" class="add-to-cart-form"
+                              th:with="firstVariantId=${newFirstVariantMap[product.productId]},
+                                           hasStock=${newProductHasStockMap[product.productId]}">
+
                             <input type="hidden" name="productVariantId" th:value="${firstVariantId}">
                             <input type="hidden" name="quantity" value="1">
                             <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
@@ -138,118 +365,8 @@
             </div>
         </div>
     </div>
-</section>
-
-<!-- Brand Section -->
-<section class="container mb-5">
-    <h2 class="section-title text-center">Thương Hiệu</h2>
-    <div class="row justify-content-center align-items-center">
-        <div class="col-4 col-md-2 text-center mb-4" th:each="brand : ${brands}">
-            <a th:href="@{'/shop?brand=' + ${brand.brandName}}">
-                <img th:src="${brand.logoUrl != null ? brand.logoUrl : '/images/brands/default.png'}"
-                     th:alt="${brand.brandName}"
-                     class="img-fluid brand-logo">
-                <p class="mt-2 brand-name" th:text="${brand.brandName}">Brand Name</p>
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- New Arrivals -->
-<section class="container mb-5">
-    <h2 class="section-title">Sản Phẩm Mới</h2>
-    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <div class="col" th:each="product : ${newProducts}">
-            <div class="card product-card h-100"
-                 th:data-product-id="${product.productId}"
-                 th:data-variants="${newProductVariants.containsKey(product.productId) ? newProductVariants.get(product.productId) : '[]'}"
-                 th:data-original-price="${newProductPriceRangeMap.containsKey(product.productId) ? newProductPriceRangeMap.get(product.productId)[0] : '0'}"
-                 th:data-sale-price="${newProductPriceRangeMap.containsKey(product.productId) ? newProductPriceRangeMap.get(product.productId)[1] : '0'}"
-                 th:data-brand="${product.brandName}">
-                <div class="position-absolute top-0 start-0 m-2">
-                    <span class="badge bg-danger">Mới</span>
-                </div>
-                <div class="product-actions">
-                    <!-- Nếu đã đăng nhập -->
-                    <div sec:authorize="isAuthenticated()">
-                        <!-- Nếu chưa nằm trong wishlist -->
-                        <form th:action="@{/wishlist/add}" method="post"
-                              th:if="${!newProductInWishlistMap[product.productId]}"
-                              class="d-inline">
-                            <input type="hidden" name="productId" th:value="${product.productId}"/>
-                            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}"/>
-                            <button type="submit" class="action-btn" title="Yêu thích">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </form>
-
-                        <!-- Nếu đã nằm trong wishlist -->
-                        <button class="action-btn active" title="Đã yêu thích" disabled
-                                th:if="${newProductInWishlistMap[product.productId]}">
-                            <i class="far fa-heart text-danger"></i>
-                        </button>
-                    </div>
-
-                    <!-- Nếu chưa đăng nhập -->
-                    <div sec:authorize="isAnonymous()">
-                        <button class="action-btn" title="Yêu thích" onclick="showLoginReminder()">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    </div>
-
-                    <button class="action-btn" title="Xem nhanh"
-                            th:onclick="'javascript:openQuickView(' + ${product.productId} + ');'">
-                        <i class="far fa-eye"></i>
-                    </button>
-                </div>
-
-                <a th:href="@{'/shop/product/' + ${product.productId}}">
-                    <img th:src="${product.imageUrl}" class="card-img-top product-img" alt="Product Image">
-                </a>
-                <div class="card-body text-center">
-                    <div class="rating">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                    </div>
-                    <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
-                    <h5 class="card-title" th:text="${product.productName}">Tên sản phẩm</h5>
-                    <div class="product-price"
-                         th:if="${newProductPriceRangeMap.containsKey(product.productId)}"
-                         th:with="priceRange=${newProductPriceRangeMap[product.productId]},
-                                  minPrice=${priceRange[0]},
-                                  maxPrice=${priceRange[1]}">
-                        <span class="sale-price"
-                              th:if="${minPrice != null and maxPrice != null and minPrice.equals(maxPrice)}"
-                              th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
-                            1.950.000đ
-                        </span>
-                        <span class="sale-price"
-                              th:if="${minPrice != null and maxPrice != null and !minPrice.equals(maxPrice)}"
-                              th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ - ' + #numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">
-                            1.950.000đ - 2.950.000đ
-                        </span>
-                    </div>
-                    <form th:action="@{/cart/add}" method="post" class="add-to-cart-form"
-                          th:with="firstVariantId=${newFirstVariantMap[product.productId]},
-                                       hasStock=${newProductHasStockMap[product.productId]}">
-
-                        <input type="hidden" name="productVariantId" th:value="${firstVariantId}">
-                        <input type="hidden" name="quantity" value="1">
-                        <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}">
-
-                        <button type="submit" class="btn btn-sm btn-dark mt-2 w-100"
-                                th:disabled="${!hasStock or firstVariantId == null}">
-                            <i class="fas fa-shopping-cart me-1"></i>
-                            <span th:if="${!hasStock or firstVariantId == null}">Hết hàng</span>
-                            <span th:unless="${!hasStock or firstVariantId == null}">Thêm vào giỏ</span>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <div class="text-center mt-4">
+        <a href="/shop?sort=newest" class="btn btn-outline-dark">Xem tất cả sản phẩm mới</a>
     </div>
 </section>
 
@@ -258,23 +375,29 @@
     <div class="row">
         <div class="col-md-6 mb-4">
             <div class="collection-season">
-                <img src="/images/collection-spring.jpg" alt="Spring Collection" class="collection-image">
+                <img th:src="@{'/images/collection/collection-' + ${currentSeason} + '.png'}" 
+                     th:alt="${currentSeasonVietnamese} + ' Collection'" 
+                     class="collection-image">
                 <div class="collection-content">
-                    <h3 class="collection-title">Bộ Sưu Tập Mùa Xuân</h3>
-                    <p class="collection-description">Khám phá những mùi hương tươi mới và đầy sức sống của mùa
-                        xuân.</p>
-                    <a href="/shop?seasons=spring&min=124200&max=56524200" class="btn btn-light">Khám Phá Ngay</a>
+                    <h3 class="collection-title" th:text="'Bộ Sưu Tập Mùa ' + ${currentSeasonVietnamese}">Bộ Sưu Tập Mùa</h3>
+                    <p class="collection-description" th:text="'Khám phá những mùi hương đặc trưng và quyến rũ của mùa ' + ${currentSeasonVietnamese} + '.'">
+                        Khám phá những mùi hương đặc trưng của mùa.
+                    </p>
+                    <a th:href="@{'/shop?seasons=' + ${currentSeason}}" class="btn btn-light">Khám Phá Ngay</a>
                 </div>
             </div>
         </div>
         <div class="col-md-6 mb-4">
             <div class="collection-season">
-                <img src="/images/collection-summer.jpg" alt="Summer Collection" class="collection-image">
+                <img th:src="@{'/images/collection/collection-' + ${nextSeason} + '.png'}" 
+                     th:alt="${nextSeasonVietnamese} + ' Collection'" 
+                     class="collection-image">
                 <div class="collection-content">
-                    <h3 class="collection-title">Bộ Sưu Tập Mùa Hè</h3>
-                    <p class="collection-description">Tận hưởng những mùi hương mát lạnh và trái cây cho những ngày hè
-                        nóng bức.</p>
-                    <a href="/shop?seasons=summer&min=124200&max=56524200" class="btn btn-light">Khám Phá Ngay</a>
+                    <h3 class="collection-title" th:text="'Bộ Sưu Tập Mùa ' + ${nextSeasonVietnamese}">Bộ Sưu Tập Mùa</h3>
+                    <p class="collection-description" th:text="'Chuẩn bị cho mùa ' + ${nextSeasonVietnamese} + ' sắp tới với những mùi hương tuyệt vời.'">
+                        Chuẩn bị cho mùa sắp tới với những mùi hương tuyệt vời.
+                    </p>
+                    <a th:href="@{'/shop?seasons=' + ${nextSeason}}" class="btn btn-light">Khám Phá Ngay</a>
                 </div>
             </div>
         </div>
@@ -300,25 +423,33 @@
 
 <!-- Blog Section -->
 <section class="container mb-5">
-    <h2 class="section-title">Bài Viết Mới Nhất</h2>
+    <div class="section-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="section-title">Bài Viết Mới Nhất</h2>
+        <a href="/blog" class="btn btn-outline-dark">Xem tất cả</a>
+    </div>
+    
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         <div class="col" th:each="post : ${blogPosts}">
             <div class="card blog-card h-100">
-                <img th:src="${post.image}" class="card-img-top blog-img" alt="Blog Image">
+                <div class="blog-image-container">
+                    <img th:src="${post.image}" class="card-img-top blog-img" alt="Blog Image">
+                    <div class="blog-overlay">
+                        <a th:href="@{'/blog/' + ${post.id}}" class="blog-read-more">
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
                 <div class="card-body">
                     <div class="blog-meta">
-                        <span><i class="far fa-user me-1"></i> <span th:text="${post.author}">Admin</span></span>
-                        <span><i class="far fa-calendar me-1"></i> <span th:text="${post.date}">15/04/2023</span></span>
+                        <span><i class="fas fa-user me-1"></i> <span th:text="${post.author}">Admin</span></span>
+                        <span><i class="fas fa-calendar me-1"></i> <span th:text="${post.date}">15/04/2023</span></span>
                     </div>
                     <h5 class="card-title" th:text="${post.title}">Tiêu đề bài viết</h5>
                     <p class="card-text" th:text="${post.excerpt}">Mô tả ngắn về bài viết...</p>
-                    <a th:href="@{'/blog/' + ${post.id}}" class="btn btn-outline-dark">Xem Thêm</a>
+                    <a th:href="@{'/blog/' + ${post.id}}" class="btn btn-link text-dark p-0">Xem Thêm <i class="fas fa-long-arrow-alt-right ms-1"></i></a>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="text-center mt-4">
-        <a href="/blog" class="btn btn-outline-dark">Xem Tất Cả Bài Viết</a>
     </div>
 </section>
 
@@ -327,47 +458,59 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3 mb-4 mb-md-0">
-                <h5>APH Perfume</h5>
-                <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                <div class="footer-brand mb-4">
+                    <h4>APH Perfume</h4>
+                    <p class="mt-3">Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
+                </div>
+                <div class="footer-contact">
+                    <p><i class="fas fa-map-marker-alt me-2"></i> 123 Đường Nguyễn Huệ, Quận 1, TP.HCM</p>
+                    <p><i class="fas fa-phone me-2"></i> (84) 28 1234 5678</p>
+                    <p><i class="fas fa-envelope me-2"></i> info@aphperfume.com</p>
+                </div>
             </div>
             <div class="col-md-3 mb-4 mb-md-0">
-                <h5>Liên Kết Nhanh</h5>
-                <ul class="list-unstyled">
-                    <li><a href="/" class="text-white">Trang chủ</a></li>
-                    <li><a href="/shop" class="text-white">Sản phẩm</a></li>
-                    <li><a href="/about" class="text-white">Giới thiệu</a></li>
-                    <li><a href="/contact" class="text-white">Liên hệ</a></li>
+                <h5 class="footer-heading">Liên Kết Nhanh</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="/" class="footer-link"><i class="fas fa-angle-right me-2"></i>Trang chủ</a></li>
+                    <li><a href="/shop" class="footer-link"><i class="fas fa-angle-right me-2"></i>Sản phẩm</a></li>
+                    <li><a href="/about" class="footer-link"><i class="fas fa-angle-right me-2"></i>Giới thiệu</a></li>
+                    <li><a href="/contact" class="footer-link"><i class="fas fa-angle-right me-2"></i>Liên hệ</a></li>
+                    <li><a href="/blog" class="footer-link"><i class="fas fa-angle-right me-2"></i>Blog</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4 mb-md-0">
-                <h5>Dịch Vụ Khách Hàng</h5>
-                <ul class="list-unstyled">
-                    <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
-                    <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
-                    <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
-                    <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
+                <h5 class="footer-heading">Dịch Vụ Khách Hàng</h5>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="#" class="footer-link"><i class="fas fa-angle-right me-2"></i>Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="footer-link"><i class="fas fa-angle-right me-2"></i>Vận chuyển & Đổi trả</a></li>
+                    <li><a href="#" class="footer-link"><i class="fas fa-angle-right me-2"></i>Chính sách bảo mật</a></li>
+                    <li><a href="#" class="footer-link"><i class="fas fa-angle-right me-2"></i>Điều khoản & Điều kiện</a></li>
+                    <li><a href="#" class="footer-link"><i class="fas fa-angle-right me-2"></i>Phương thức thanh toán</a></li>
                 </ul>
             </div>
             <div class="col-md-3">
-                <h5>Kết Nối Với Chúng Tôi</h5>
-                <div class="d-flex gap-3 fs-4 mb-3">
-                    <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
+                <h5 class="footer-heading">Kết Nối Với Chúng Tôi</h5>
+                <div class="social-icons mb-4">
+                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
                 </div>
-                <p>Đăng ký nhận bản tin:</p>
-                <form>
+                <h5 class="footer-heading">Đăng Ký Nhận Tin</h5>
+                <p>Nhận thông tin về sản phẩm mới và ưu đãi đặc biệt:</p>
+                <form class="newsletter-form">
                     <div class="input-group">
                         <input type="email" class="form-control" placeholder="Email của bạn">
-                        <button class="btn btn-light" type="submit">Đăng Ký</button>
+                        <button class="btn btn-primary" type="submit">Đăng Ký</button>
                     </div>
                 </form>
             </div>
         </div>
-        <hr class="my-4">
-        <div class="text-center">
-            <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+        <hr class="mt-4 mb-3 border-secondary">
+        <div class="row align-items-center">
+            <div class="col-12 text-center">
+                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
+            </div>
         </div>
     </div>
 </footer>
@@ -391,23 +534,6 @@
         });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get("logout") === "success") {
-            Swal.fire({
-                icon: 'success',
-                title: 'Đăng xuất thành công!',
-                timer: 2000,
-                showConfirmButton: false
-            }).then(() => {
-            window.history.replaceState({}, document.title, window.location.pathname);
-            window.location.reload();
-        });
-
-        }
-    });
-</script>
-<script>
     function showLoginReminder() {
         Swal.fire({
             icon: 'info',
@@ -423,11 +549,11 @@
             }
         });
     }
-</script>
-<script>
+
     document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
 
+        // Check for logout success
         if (params.get("logout") === "success") {
             Swal.fire({
                 icon: 'success',
@@ -440,6 +566,7 @@
             });
         }
 
+        // Check for cart addition success
         if (params.get("addedToCart") === "success") {
             Swal.fire({
                 icon: 'success',
@@ -450,6 +577,7 @@
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
+        // Check for wishlist addition success
         if (params.get("wishlistAdded") === "success") {
             Swal.fire({
                 icon: 'success',

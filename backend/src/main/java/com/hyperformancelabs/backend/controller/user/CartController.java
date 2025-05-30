@@ -149,6 +149,10 @@ public class CartController {
 
         try {
             cartService.addToCart(username, sessionId, addToCartRequest);
+            
+            // Cập nhật cart item count trong session
+            updateCartItemCountInSession(request, username, sessionId);
+            
         } catch (Exception e) {
             // Nếu có lỗi, vẫn quay lại trang trước, nhưng kèm thông báo lỗi
             String referer = request.getHeader("Referer");
@@ -159,8 +163,6 @@ public class CartController {
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
     }
-
-
 
     @PostMapping("/update")
     public String updateCartItemQuantity(
@@ -187,7 +189,6 @@ public class CartController {
         return "redirect:/cart";
     }
 
-
     @PostMapping("/remove")
     public String removeCartItem(
             @RequestParam Integer cartItemId,
@@ -206,7 +207,6 @@ public class CartController {
 
         return "redirect:/cart";
     }
-
 
     private String getCurrentUsername() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -269,5 +269,20 @@ public class CartController {
 
         String referer = request.getHeader("Referer");
         return "redirect:" + (referer != null ? referer : "/");
+    }
+    
+    /**
+     * Cập nhật số lượng item trong giỏ hàng vào session
+     */
+    private void updateCartItemCountInSession(HttpServletRequest request, String username, String sessionId) {
+        try {
+            List<CartItemDTO> cartItems = cartService.getCartItems(username, sessionId);
+            int totalItems = cartItems.stream().mapToInt(CartItemDTO::getQuantity).sum();
+            
+            HttpSession session = request.getSession();
+            session.setAttribute("cartItemCount", totalItems);
+        } catch (Exception e) {
+            System.err.println("Error updating cart item count in session: " + e.getMessage());
+        }
     }
 } 

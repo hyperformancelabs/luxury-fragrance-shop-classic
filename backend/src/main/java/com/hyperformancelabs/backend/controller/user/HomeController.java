@@ -15,10 +15,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -55,18 +57,44 @@ public class HomeController {
             }
         }
 
-        // ------------------- Get flash deal products ----------------------------------------
-        List<ProductDTO> flashSaleProducts = new ArrayList<>();
+        // ------------------- Get flash deal products - fix duplicate products ----------------------------------------
         List<FlashSaleProductDTO> flashDealProducts = productService.getFlashSaleProducts();
-        for (FlashSaleProductDTO flashDealProduct : flashDealProducts) {
-            flashSaleProducts.add(productService.getProductById(flashDealProduct.getProductId()));
+        
+        // Debug: Log flash sale data
+        System.out.println("=== FLASH SALE DEBUG ===");
+        System.out.println("Total flash deal products from service: " + flashDealProducts.size());
+        for (FlashSaleProductDTO dto : flashDealProducts) {
+            System.out.println("Flash sale product: ID=" + dto.getProductId() + ", Name=" + dto.getProductName());
         }
-
-        Map<Integer, List<ProductVariantDTO>> flashSaleProductVariantMap = flashDealProducts.stream()
-                .map(flashDealProduct -> productVariantService.getProductVariantsByProductId(flashDealProduct.getProductId()))
+        
+        // Get unique product IDs from flash sale products to avoid duplicates
+        Set<Integer> uniqueFlashSaleProductIds = flashDealProducts.stream()
+                .map(FlashSaleProductDTO::getProductId)
                 .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .collect(Collectors.groupingBy(ProductVariantDTO::getProductId));
+                .collect(Collectors.toSet());
+        
+        System.out.println("Unique flash sale product IDs: " + uniqueFlashSaleProductIds);
+        
+        // Get unique flash sale products
+        List<ProductDTO> flashSaleProducts = uniqueFlashSaleProductIds.stream()
+                .map(productService::getProductById)
+                .filter(Objects::nonNull)
+                .limit(6) // Limit to 6 products to avoid too many
+                .collect(Collectors.toList());
+
+        System.out.println("Final flash sale products count: " + flashSaleProducts.size());
+        System.out.println("=== END FLASH SALE DEBUG ===");
+
+        // Create a proper map for flash sale product variants - fix duplication issue
+        Map<Integer, List<ProductVariantDTO>> flashSaleProductVariantMap = new HashMap<>();
+        for (ProductDTO product : flashSaleProducts) {
+            if (product != null) {
+                List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(product.getProductId());
+                if (variants != null && !variants.isEmpty()) {
+                    flashSaleProductVariantMap.put(product.getProductId(), variants);
+                }
+            }
+        }
 
         Map<Integer, BigDecimal[]> flashSaleProductPriceRangeMap = new HashMap<>();
         Map<Integer, String> flashSaleProductVariants = new HashMap<>();
@@ -102,18 +130,36 @@ public class HomeController {
         model.addAttribute("flashSaleProductInWishlistMap", flashSaleProductInWishlistMap);
 
 
-        // ---------------------------------- Get new products -------------------------------------------------------------------
+        // ---------------------------------- Get new products - fix duplicate products -------------------------------------------------------------------
         List<InventoryTransactionDTO> inventoryTransactions = inventoryTransactionService.findTop6ImportTransactionsNative();
 
-        Map<Integer, List<ProductVariantDTO>> newProductVariantMap = inventoryTransactions.stream()
-                .map(inventoryTransaction -> productVariantService.getProductVariantById(inventoryTransaction.getProductVariantId()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.groupingBy(ProductVariantDTO::getProductId));
+        // Get unique product IDs from inventory transactions - ensure no duplicates
+        Set<Integer> uniqueNewProductIds = new LinkedHashSet<>(); // Use LinkedHashSet to maintain order
+        for (InventoryTransactionDTO transaction : inventoryTransactions) {
+            if (transaction != null && transaction.getProductVariantId() != null) {
+                ProductVariantDTO variant = productVariantService.getProductVariantById(transaction.getProductVariantId());
+                if (variant != null && variant.getProductId() != null) {
+                    uniqueNewProductIds.add(variant.getProductId());
+                }
+            }
+        }
 
-        List<ProductDTO> newProducts = newProductVariantMap.keySet().stream()
+        // Get unique new products in the order they were added
+        List<ProductDTO> newProducts = uniqueNewProductIds.stream()
                 .map(productService::getProductById)
                 .filter(Objects::nonNull)
+                .limit(6) // Limit to 6 products to avoid too many
                 .collect(Collectors.toList());
+
+        Map<Integer, List<ProductVariantDTO>> newProductVariantMap = new HashMap<>();
+        for (ProductDTO product : newProducts) {
+            if (product != null) {
+                List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(product.getProductId());
+                if (variants != null && !variants.isEmpty()) {
+                    newProductVariantMap.put(product.getProductId(), variants);
+                }
+            }
+        }
 
         Map<Integer, BigDecimal[]> newProductPriceRangeMap = new HashMap<>();
         Map<Integer, String> newProductVariants = new HashMap<>();
@@ -158,6 +204,13 @@ public class HomeController {
         model.addAttribute("newProductInWishlistMap", newProductInWishlistMap);
 
 
+        // --------------------------------------------- Season logic ------------------------------------
+        Map<String, Object> seasonData = getCurrentSeasonData();
+        model.addAttribute("currentSeason", seasonData.get("currentSeason"));
+        model.addAttribute("nextSeason", seasonData.get("nextSeason"));
+        model.addAttribute("currentSeasonVietnamese", seasonData.get("currentSeasonVietnamese"));
+        model.addAttribute("nextSeasonVietnamese", seasonData.get("nextSeasonVietnamese"));
+        
         // --------------------------------------------- Add brand data - Lấy 12 brand đầu tiên ------------------------------------
         List<BrandDTO> allBrands = brandService.getAllBrands();
         List<BrandDTO> brands = allBrands.stream()
@@ -216,6 +269,26 @@ public class HomeController {
         return "user/home/home";
     }
 
+    @GetMapping("/debug/flash-sale")
+    @ResponseBody
+    public Map<String, Object> debugFlashSale() {
+        List<FlashSaleProductDTO> flashDealProducts = productService.getFlashSaleProducts();
+        
+        Map<String, Object> debugInfo = new HashMap<>();
+        debugInfo.put("totalFlashSaleProducts", flashDealProducts.size());
+        debugInfo.put("flashSaleProducts", flashDealProducts);
+        
+        Set<Integer> uniqueProductIds = flashDealProducts.stream()
+                .map(FlashSaleProductDTO::getProductId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        
+        debugInfo.put("uniqueProductIds", uniqueProductIds);
+        debugInfo.put("uniqueProductCount", uniqueProductIds.size());
+        
+        return debugInfo;
+    }
+
     private String convertVariantsToJson(List<ProductVariantDTO> variants) {
         if (variants == null || variants.isEmpty()) {
             return "[]";
@@ -250,5 +323,53 @@ public class HomeController {
             return authentication.getName();
         }
         return null;
+    }
+
+    /**
+     * Tính toán mùa hiện tại và mùa tiếp theo
+     * Xuân: tháng 1-3, Hạ: tháng 4-6, Thu: tháng 7-9, Đông: tháng 10-12
+     */
+    private Map<String, Object> getCurrentSeasonData() {
+        LocalDate now = LocalDate.now();
+        int month = now.getMonthValue();
+        
+        String currentSeason;
+        String nextSeason;
+        String currentSeasonVietnamese;
+        String nextSeasonVietnamese;
+        
+        if (month >= 1 && month <= 3) {
+            // Xuân
+            currentSeason = "spring";
+            nextSeason = "summer";
+            currentSeasonVietnamese = "Xuân";
+            nextSeasonVietnamese = "Hạ";
+        } else if (month >= 4 && month <= 6) {
+            // Hạ
+            currentSeason = "summer";
+            nextSeason = "autumn";
+            currentSeasonVietnamese = "Hạ";
+            nextSeasonVietnamese = "Thu";
+        } else if (month >= 7 && month <= 9) {
+            // Thu
+            currentSeason = "autumn";
+            nextSeason = "winter";
+            currentSeasonVietnamese = "Thu";
+            nextSeasonVietnamese = "Đông";
+        } else {
+            // Đông (tháng 10-12)
+            currentSeason = "winter";
+            nextSeason = "spring";
+            currentSeasonVietnamese = "Đông";
+            nextSeasonVietnamese = "Xuân";
+        }
+        
+        Map<String, Object> seasonData = new HashMap<>();
+        seasonData.put("currentSeason", currentSeason);
+        seasonData.put("nextSeason", nextSeason);
+        seasonData.put("currentSeasonVietnamese", currentSeasonVietnamese);
+        seasonData.put("nextSeasonVietnamese", nextSeasonVietnamese);
+        
+        return seasonData;
     }
 } 

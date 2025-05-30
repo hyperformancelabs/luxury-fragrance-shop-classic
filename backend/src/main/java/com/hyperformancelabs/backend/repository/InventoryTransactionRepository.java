@@ -12,12 +12,23 @@ import java.util.List;
 @Repository
 public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Integer> {
 
-    // Lấy top 6 giao dịch nhập hàng mới nhất
+    // Lấy top 6 giao dịch nhập hàng mới nhất với unique products
     @Query(value = """
-            SELECT TOP 6 *
-            FROM [InventoryTransaction]
-            WHERE transaction_type = 'IMPORT'
-            ORDER BY transaction_date DESC;
+            WITH RankedTransactions AS (
+                SELECT it.inventory_transaction_id, it.product_variant_id, it.performed_by, 
+                       it.transaction_type, it.transaction_date, it.before_quantity, 
+                       it.quantity, it.after_quantity, it.reason, it.note, it.cost_price,
+                       ROW_NUMBER() OVER (PARTITION BY pv.product_id ORDER BY it.transaction_date DESC) as rn
+                FROM [InventoryTransaction] it
+                JOIN [ProductVariant] pv ON it.product_variant_id = pv.product_variant_id
+                WHERE it.transaction_type = 'IMPORT'
+            )
+            SELECT TOP 6 inventory_transaction_id, product_variant_id, performed_by, 
+                   transaction_type, transaction_date, before_quantity, 
+                   quantity, after_quantity, reason, note, cost_price
+            FROM RankedTransactions
+            WHERE rn = 1
+            ORDER BY transaction_date DESC
     """, nativeQuery = true)
     List<InventoryTransaction> findTop6ImportTransactionsNative();
 

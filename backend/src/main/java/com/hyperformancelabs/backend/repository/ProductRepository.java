@@ -40,7 +40,7 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     }
 
     // Lấy danh sách sản phẩm đang trong flash sale
-    @Query(value = "SELECT p.product_id, p.product_name, " +
+    @Query(value = "SELECT DISTINCT p.product_id, p.product_name, " +
             "pp.product_promotion_id, pp.max_discount_amount, pp.condition_json, " +
             "pr.promotion_name, pr.discount_type, pr.discount_value, pr.usage_limit, " +
             "pp.start_date, pp.end_date " +
@@ -49,7 +49,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             "JOIN Promotion pr ON pp.promotion_id = pr.promotion_id " +
             "WHERE pp.status = 'active' " +
             "AND GETDATE() BETWEEN pp.start_date AND ISNULL(pp.end_date, '9999-12-31') " +
-            "AND pr.status = 'active'",
+            "AND pr.status = 'active' " +
+            "ORDER BY p.product_id",
             nativeQuery = true)
     List<Object[]> findActiveFlashSaleProducts();
 
