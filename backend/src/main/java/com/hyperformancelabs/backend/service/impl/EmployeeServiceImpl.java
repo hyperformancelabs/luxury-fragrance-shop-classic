@@ -90,6 +90,45 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
+    public boolean updateEmployeeProfile(EmployeeDTO dto) {
+        try {
+            Employee entity = employeeRepository.findByEmployeeId(dto.getEmployeeId());
+            if (entity == null) {
+                return false;
+            }
+
+            entity.setFullName(dto.getFullName());
+            entity.setPhoneNumber(dto.getPhoneNumber());
+            entity.setEmail(dto.getEmail());
+            entity.setAddress(dto.getAddress());
+            entity.setStatus(dto.getStatus());
+            entity.setProfilePictureUrl(dto.getProfilePictureUrl());
+
+            if (dto.getDateOfBirth() != null) {
+                entity.setDateOfBirth(new java.sql.Date(dto.getDateOfBirth().getTime()));
+            }
+
+            if (dto.getStartDate() != null) {
+                entity.setStartDate(new java.sql.Date(dto.getStartDate().getTime()));
+            }
+
+            if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
+                entity.setPassword(dto.getPassword());
+            }
+
+            if (dto.getLastLogin() != null) {
+                entity.setLastLogin(new java.sql.Timestamp(dto.getLastLogin().getTime()));
+            }
+
+            employeeRepository.save(entity);
+            return true;
+            
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
     public void deleteEmployee(Integer employeeId) {
         employeeRepository.deleteById(employeeId);
     }

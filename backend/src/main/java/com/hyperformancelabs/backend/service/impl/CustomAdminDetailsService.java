@@ -21,16 +21,28 @@ public class CustomAdminDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        EmployeeDTO employee = employeeService.findActiveSystemAdminByEmailOrPhone(username);
+        System.out.println("=== CustomAdminDetailsService.loadUserByUsername ===");
+        System.out.println("Loading user by username: " + username);
+        
+        EmployeeDTO employee = employeeService.getEmployeeByUsername(username);
 
         if (employee == null) {
+            System.out.println("Employee not found with username: " + username);
             throw new UsernameNotFoundException("Không tìm thấy admin: " + username);
         }
 
-        return User.builder()
+        System.out.println("Found employee: " + employee.getUsername() + " (ID: " + employee.getEmployeeId() + ")");
+        System.out.println("Creating UserDetails with username: " + employee.getUsername());
+        
+        UserDetails userDetails = User.builder()
                 .username(employee.getUsername())
                 .password(employee.getPassword())
                 .roles("ADMIN")
                 .build();
+                
+        System.out.println("UserDetails created successfully: " + userDetails.getUsername());
+        System.out.println("=== END CustomAdminDetailsService.loadUserByUsername ===");
+        
+        return userDetails;
     }
 }

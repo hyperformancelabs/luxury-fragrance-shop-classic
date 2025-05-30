@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<div th:fragment="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h3 class="brand-title">LFS ADMIN</h3>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <ul class="nav nav-pills nav-sidebar flex-column">
+            <!-- Dashboard -->
+            <li class="nav-item">
+                <a href="/admin/dashboard" class="nav-link">
+                    <i class="fas fa-tachometer-alt nav-icon"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            
+            <!-- Statistics -->
+            <li class="nav-item">
+                <a href="/admin/statistics" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    <span>Thống kê</span>
+                </a>
+            </li>
+            
+            <!-- Orders -->
+            <li class="nav-item">
+                <a href="/admin/orders" class="nav-link">
+                    <i class="fas fa-shopping-cart nav-icon"></i>
+                    <span>Đơn hàng</span>
+                </a>
+            </li>
+            
+            <!-- Products -->
+            <li class="nav-item">
+                <a href="/admin/products" class="nav-link">
+                    <i class="fas fa-box nav-icon"></i>
+                    <span>Sản phẩm</span>
+                </a>
+            </li>
+            
+            <!-- Customers -->
+            <li class="nav-item">
+                <a href="/admin/customers" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    <span>Khách hàng</span>
+                </a>
+            </li>
+            
+            <!-- Materials -->
+            <li class="nav-item">
+                <a href="/admin/materials" class="nav-link">
+                    <i class="fas fa-cubes nav-icon"></i>
+                    <span>Vật tư</span>
+                </a>
+            </li>
+            
+            <!-- Marketing -->
+            <li class="nav-item">
+                <a href="/admin/marketing" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    <span>Marketing</span>
+                </a>
+            </li>
+            
+            <!-- Employees -->
+            <li class="nav-item">
+                <a href="/admin/employees" class="nav-link">
+                    <i class="fas fa-user-tie nav-icon"></i>
+                    <span>Nhân viên</span>
+                </a>
+            </li>
+            
+            <!-- Profile -->
+            <li class="nav-item">
+                <a href="/admin/profile" class="nav-link">
+                    <i class="fas fa-user-circle nav-icon"></i>
+                    <span>Hồ sơ cá nhân</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- Logout -->
+    <div class="sidebar-footer">
+        <form th:action="@{/admin/logout}" method="post" class="logout-form">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="btn btn-logout">
+                <i class="fas fa-sign-out-alt me-2"></i>Đăng xuất
+            </button>
+        </form>
+    </div>
+</div>
+
+</html> 

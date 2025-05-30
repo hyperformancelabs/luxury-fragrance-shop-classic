@@ -29,6 +29,9 @@ public interface EmployeeService {
     // Cập nhật nhân viên
     void updateEmployee(EmployeeDTO employee);
 
+    // Cập nhật nhân viên với kết quả boolean
+    boolean updateEmployeeProfile(EmployeeDTO employee);
+
     // Xóa nhân viên
     void deleteEmployee(Integer employeeId);
 

@@ -60,21 +60,28 @@ public class AdminAuthController {
                              HttpServletRequest request,
                              RedirectAttributes redirectAttributes) {
 
+        System.out.println("=== ADMIN LOGIN DEBUG ===");
+        System.out.println("Login attempt with username: " + username);
+        
         EmployeeDTO employee = employeeService.findActiveSystemAdminByEmailOrPhone(username);
         if (employee == null) {
-            System.out.println("Tài khoản admin không tồn tại hoặc không có quyền.");
+            System.out.println("Employee not found for: " + username);
             redirectAttributes.addFlashAttribute("error", "Tài khoản admin không tồn tại hoặc không có quyền.");
             return "redirect:/admin/login";
         }
 
+        System.out.println("Found employee: " + employee.getUsername() + " (ID: " + employee.getEmployeeId() + ")");
+
         if (!passwordEncoder.matches(password, employee.getPassword())) {
+            System.out.println("Password mismatch for user: " + employee.getUsername());
             redirectAttributes.addFlashAttribute("error", "Mật khẩu không đúng.");
             return "redirect:/admin/login";
         }
 
-        UserDetails userDetails = adminDetailsService.loadUserByUsername(employee.getEmail() != null
-                ? employee.getEmail() : employee.getPhoneNumber());
+        System.out.println("Password validated. Loading UserDetails for username: " + employee.getUsername());
+        UserDetails userDetails = adminDetailsService.loadUserByUsername(employee.getUsername());
 
+        System.out.println("UserDetails loaded: " + userDetails.getUsername());
         UsernamePasswordAuthenticationToken authToken =
                 new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
@@ -85,6 +92,9 @@ public class AdminAuthController {
         // Truy vấn và lưu role vào session
         List<String> roles = employeeService.findActiveRoleNamesByEmployeeId(employee.getEmployeeId());
         request.getSession().setAttribute("ROLES", roles);
+        
+        System.out.println("Authentication set successfully. Roles: " + roles);
+        System.out.println("=== END ADMIN LOGIN DEBUG ===");
 
         return "redirect:/admin/dashboard";
     }
