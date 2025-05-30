@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.OrderDTO;
 import com.hyperformancelabs.backend.service.OrderService;
@@ -30,7 +30,7 @@ public class OrderTrackingController {
 
     @GetMapping
     public String showTrackOrderForm() {
-        return "order/track-order";
+        return "user/order/track-order";
     }
 
     @GetMapping("/search")
@@ -38,10 +38,10 @@ public class OrderTrackingController {
         List<OrderDTO> orders = orderService.findByPhone(phone);
         if (orders.isEmpty()) {
             model.addAttribute("error", "Không tìm thấy đơn hàng.");
-            return "order/track-order";
+            return "user/order/track-order";
         } else {
             model.addAttribute("orders", orders);
-            return "order/order-list";
+            return "user/order/order-list";
         }
     }
 }

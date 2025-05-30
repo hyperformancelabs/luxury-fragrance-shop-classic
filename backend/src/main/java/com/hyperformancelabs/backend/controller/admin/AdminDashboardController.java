@@ -87,7 +87,7 @@ public class AdminDashboardController {
             Map<String, BigDecimal> salesMonthlyData = orderService.getMonthlyRevenueTillNowOfCurrentYear();
             Map<String, BigDecimal> salesYearlyData = orderService.getRevenueByYearRange(2023, 2025);
 
-            List<TopSellingProductDTO> topProducts = productService.getTopSellingProducts(null, 5);
+            List<TopSellingProductDTO> topProducts = List.of();
             List<LowStockProductDTO> lowStockProducts = inventoryService.getLowStockProducts(5);
             List<RecentOrderDTO> recentOrders = orderService.findTop3ByOrderByOrderDateDesc();
 

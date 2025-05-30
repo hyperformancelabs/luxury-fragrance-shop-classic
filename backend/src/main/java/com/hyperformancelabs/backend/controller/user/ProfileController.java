@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
 import com.hyperformancelabs.backend.dto.common.response.OrderDTO;
@@ -39,7 +39,7 @@ public class ProfileController {
         String username = authentication.getName();
         CustomerDTO customer = customerService.getCustomerByUsername(username);
         model.addAttribute("user", customer);
-        return "profile/profile";
+        return "user/profile/profile";
     }
 
     @GetMapping("/orders")
@@ -49,7 +49,7 @@ public class ProfileController {
         List<OrderDTO> orders = orderService.findOrdersByCustomerId(customer.getCustomerId());
         model.addAttribute("orders", orders);
         model.addAttribute("user", customer);
-        return "profile/orders";
+        return "user/profile/orders";
     }
 
     @GetMapping("/edit")
@@ -57,7 +57,7 @@ public class ProfileController {
         String username = authentication.getName();
         CustomerDTO customer = customerService.getCustomerByUsername(username);
         model.addAttribute("user", customer);
-        return "profile/edit-profile";
+        return "user/profile/edit-profile";
     }
 
     @PostMapping("/update")

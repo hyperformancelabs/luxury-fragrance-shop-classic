@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.user.request.AddToCartRequest;
 import com.hyperformancelabs.backend.dto.user.response.CartItemDTO;
@@ -114,7 +114,7 @@ public class CartController {
             model.addAttribute("total", total);
             model.addAttribute("itemCount", cartItemsDisplay.size());
 
-            return "cart/cart";
+            return "user/cart/cart";
         } catch (Exception e) {
             // Xử lý lỗi
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải giỏ hàng: " + e.getMessage());
@@ -127,7 +127,7 @@ public class CartController {
             model.addAttribute("total", BigDecimal.ZERO);
             model.addAttribute("itemCount", 0);
 
-            return "cart/cart";
+            return "user/cart/cart";
         }
     }
 

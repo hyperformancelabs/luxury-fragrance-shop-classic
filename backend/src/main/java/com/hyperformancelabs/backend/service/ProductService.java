@@ -27,11 +27,6 @@ public interface ProductService {
     // Lấy sản phẩm liên quan (cùng thương hiệu)
     List<ProductDTO> getRelatedProducts(Integer productId, int limit);
     
-    // Lấy top sản phẩm bán chạy
-    List<ProductDTO> getTopSellingProducts(int limit);
-
-    List<TopSellingProductDTO> getTopSellingProducts(String category, int limit);
-
     // Lấy danh sách sản phẩm trong flash sale
     List<FlashSaleProductDTO> getFlashSaleProducts();
 
@@ -56,13 +51,6 @@ public interface ProductService {
                                                               BigDecimal minPrice,
                                                               BigDecimal maxPrice,
                                                               Pageable pageable);
-
-    Page<ProductDTO> getAllProductsOrderByTopSelling(String genderList,
-                                                      String brandList,
-                                                      String seasonList,
-                                                      BigDecimal minPrice,
-                                                      BigDecimal maxPrice,
-                                                      Pageable pageable);
 
     Page<ProductDTO> findByProductNameContainingIgnoreCase(String productName, Pageable pageable);
 

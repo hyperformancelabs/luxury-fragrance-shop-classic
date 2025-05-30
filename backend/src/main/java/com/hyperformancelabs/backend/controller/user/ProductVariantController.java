@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.ProductVariantDTO;
 import com.hyperformancelabs.backend.service.ProductVariantService;

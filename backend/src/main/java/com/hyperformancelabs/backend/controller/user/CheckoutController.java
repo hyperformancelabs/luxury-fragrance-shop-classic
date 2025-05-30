@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.user.response.CartItemDTO;
 import com.hyperformancelabs.backend.dto.common.response.ProductVariantDTO;
@@ -121,7 +121,7 @@ public class CheckoutController {
         }
 
 
-        return "checkout/checkout";
+        return "user/checkout/checkout";
     }
 
     @PostMapping

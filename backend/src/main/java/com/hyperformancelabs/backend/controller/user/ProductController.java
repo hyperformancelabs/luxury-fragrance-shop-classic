@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.ProductDTO;
 import com.hyperformancelabs.backend.service.ProductService;
@@ -30,6 +30,6 @@ public class ProductController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", productPage.getTotalPages());
 
-        return "shop/product-list"; // view name
+        return "user/shop/product-list"; // view name
     }
 }

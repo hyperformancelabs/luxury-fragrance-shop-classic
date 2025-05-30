@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
@@ -97,12 +97,12 @@ public class AuthController {
 
     @GetMapping("/login")
     public String login() {
-        return "auth/login";
+        return "user/auth/login";
     }
 
     @GetMapping("/register")
     public String register() {
-        return "auth/register";
+        return "user/auth/register";
     }
 
     @PostMapping("/signup")
@@ -154,6 +154,6 @@ public class AuthController {
 
     @GetMapping("/reset-password")
     public String resetPassword() {
-        return "auth/reset-password";
+        return "user/auth/reset-password";
     }
 }

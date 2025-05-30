@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +10,6 @@ public class ContactController {
 
     @GetMapping
     public String contact() {
-        return "contact/contact";
+        return "user/contact/contact";
     }
 } 

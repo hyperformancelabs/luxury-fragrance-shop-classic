@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.OrderDTO;
 import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
@@ -104,7 +104,7 @@ public class OrderSuccessController {
         model.addAttribute("subtotal", dto.getSubtotal());
         model.addAttribute("shipping", dto.getShippingFee());
         model.addAttribute("total", dto.getTotal());
-        return "order/order-success";
+        return "user/order/order-success";
     }
 
 

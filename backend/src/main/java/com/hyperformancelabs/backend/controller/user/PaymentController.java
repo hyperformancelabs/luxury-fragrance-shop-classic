@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,7 +22,7 @@ public class PaymentController {
         model.addAttribute("orderId", orderId);
         model.addAttribute("amount", 8000000);
         
-        return "payment/vnpay";
+        return "shared/payment/vnpay";
     }
     
     @PostMapping("/vnpay/process")
@@ -46,7 +46,7 @@ public class PaymentController {
         model.addAttribute("accountName", "CÔNG TY TNHH APH PERFUME");
         model.addAttribute("bankName", "MB BANK");
         
-        return "payment/mbbank";
+        return "shared/payment/mbbank";
     }
     
     @PostMapping("/mbbank/process")

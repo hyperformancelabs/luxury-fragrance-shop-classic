@@ -70,15 +70,6 @@ public class ProductServiceImpl implements ProductService {
     }
     
     @Override
-    public List<ProductDTO> getTopSellingProducts(int limit) {
-        // Giả sử có phương thức trong repository để lấy top sản phẩm bán chạy
-        return productRepository.findTopSellingProducts(limit)
-                .stream()
-                .map(this::convertToProductDTO)
-                .collect(Collectors.toList());
-    }
-
-    @Override
     public List<FlashSaleProductDTO> getFlashSaleProducts() {
         return productRepository.findActiveFlashSaleProducts()
                 .stream()
@@ -117,35 +108,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<ProductDTO> getAllProductsOrderByTopSelling(String genderList,
-                                                            String brandList,
-                                                            String seasonList,
-                                                            BigDecimal minPrice,
-                                                            BigDecimal maxPrice,
-                                                            Pageable pageable) {
-        return productRepository.filterTopSellingProducts(genderList, brandList, seasonList, minPrice, maxPrice, pageable).map(this::convertToProductDTO);
-    }
-
-    @Override
     public Page<ProductDTO> findByProductNameContainingIgnoreCase(String productName, Pageable pageable) {
         return productRepository.findByProductNameContainingIgnoreCase(productName, pageable).map(this::convertToProductDTO);
-    }
-
-    @Override
-    public List<TopSellingProductDTO> getTopSellingProducts(String category, int limit) {
-        List<Object[]> results = productRepository.findTop10TopSellingProducts(category);
-        return results.stream()
-                .map(result -> new TopSellingProductDTO(
-                        (Integer) result[0],            // productVariant.product_variant_id
-                        (String) result[1],             // p.product_name
-                        (String) result[2],             // b.brand_name
-                        (Integer) result[3],            // productVariant.volume
-                        (BigDecimal) result[4],         // productVariant.price
-                        (String) result[5],             // p.image_url
-                        ((Number) result[6]).intValue() // SUM(oi.quantity)
-                ))
-                .limit(limit)
-                .collect(Collectors.toList());
     }
 
     @Override

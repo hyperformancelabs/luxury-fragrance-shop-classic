@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.user.response.WishlistDTO;
 import com.hyperformancelabs.backend.dto.common.response.ProductVariantDTO;
@@ -158,59 +158,6 @@ public class HomeController {
         model.addAttribute("newProductInWishlistMap", newProductInWishlistMap);
 
 
-        // --------------------------------------------- Get best selling ----------------------------------------------------
-        List<ProductDTO> bestSellingProducts = productService.getTopSellingProducts(6);
-
-        Map<Integer, List<ProductVariantDTO>> bestSellingProductVariantMap = bestSellingProducts.stream()
-                .map(product -> productVariantService.getProductVariantsByProductId(product.getProductId()))
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .collect(Collectors.groupingBy(ProductVariantDTO::getProductId));
-
-        Map<Integer, BigDecimal[]> bestSellingProductPriceRangeMap = new HashMap<>();
-        Map<Integer, String> bestSellingProductVariants = new HashMap<>();
-        Map<Integer, Integer> bestSellingFirstVariantMap = new HashMap<>();
-        Map<Integer, Boolean> bestSellingProductHasStockMap = new HashMap<>();
-        Map<Integer, Boolean> bestSellingProductInWishlistMap = new HashMap<>();
-
-        for (Map.Entry<Integer, List<ProductVariantDTO>> entry : bestSellingProductVariantMap.entrySet()) {
-            Integer productId = entry.getKey();
-            List<ProductVariantDTO> variants = entry.getValue();
-
-            if (variants != null && !variants.isEmpty()) {
-                // Tính giá min-max
-                Optional<BigDecimal> min = variants.stream().map(ProductVariantDTO::getPrice).min(Comparator.naturalOrder());
-                Optional<BigDecimal> max = variants.stream().map(ProductVariantDTO::getPrice).max(Comparator.naturalOrder());
-
-                min.ifPresent(minPrice -> bestSellingProductPriceRangeMap.put(productId, new BigDecimal[]{minPrice, max.get()}));
-
-                // Convert variants to JSON string
-                String variantsJson = convertVariantsToJson(variants);
-                bestSellingProductVariants.put(productId, variantsJson);
-
-                // Tìm biến thể đầu tiên còn hàng
-                Optional<ProductVariantDTO> firstInStock = variants.stream()
-                        .filter(v -> v.getQuantityInStock() > 0)
-                        .findFirst();
-
-                bestSellingFirstVariantMap.put(productId, firstInStock.map(ProductVariantDTO::getProductVariantId).orElse(null));
-
-                // Cờ còn hàng
-                bestSellingProductHasStockMap.put(productId, firstInStock.isPresent());
-
-                bestSellingProductInWishlistMap.put(productId, wishlistProductIds.contains(productId));
-            }
-        }
-
-        model.addAttribute("bestSellingProducts", bestSellingProducts);
-        model.addAttribute("bestSellingProductPriceRangeMap", bestSellingProductPriceRangeMap);
-        model.addAttribute("bestSellingProductVariants", bestSellingProductVariants);
-        model.addAttribute("bestSellingFirstVariantMap", bestSellingFirstVariantMap);
-        model.addAttribute("bestSellingProductHasStockMap", bestSellingProductHasStockMap);
-        model.addAttribute("bestSellingProductInWishlistMap", bestSellingProductInWishlistMap);
-
-
-
         // --------------------------------------------- Add brand data - Lấy 12 brand đầu tiên ------------------------------------
         List<BrandDTO> allBrands = brandService.getAllBrands();
         List<BrandDTO> brands = allBrands.stream()
@@ -266,7 +213,7 @@ public class HomeController {
             )
         ));
 
-        return "home";
+        return "user/home/home";
     }
 
     private String convertVariantsToJson(List<ProductVariantDTO> variants) {

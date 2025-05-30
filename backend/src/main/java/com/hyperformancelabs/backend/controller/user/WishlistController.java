@@ -1,4 +1,4 @@
-package com.hyperformancelabs.backend.controller.mvc;
+package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.user.response.WishlistDTO;
 import com.hyperformancelabs.backend.dto.user.response.WishlistItemDisplayDTO;
@@ -111,12 +111,12 @@ public class WishlistController {
             model.addAttribute("wishlistItems", wishlistItemDisplays);
 
             System.out.println("hasInStock" + hasInStock);
-            return "wishlist/wishlist";
+            return "user/wishlist/wishlist";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi tải giỏ hàng: " + e.getMessage());
             e.printStackTrace();
             model.addAttribute("wishlistItems", List.of());
-            return "wishlist/wishlist";
+            return "user/wishlist/wishlist";
         }
     }
 
