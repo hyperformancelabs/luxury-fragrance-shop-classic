@@ -16,7 +16,72 @@
         <div class="d-flex align-items-center">
             <a href="/" class="me-2">TRANG CHỦ</a>
             <span class="mx-2">/</span>
-            <span th:text="${currentBrand != null ? currentBrand : (currentSearch != null ? 'Tìm kiếm: ' + currentSearch : 'Sản phẩm')}">Sản phẩm</span>
+            <span th:if="${currentSearch != null}">TÌM KIẾM</span>
+            <span th:if="${currentBrand != null and currentSearch == null}" th:text="${currentBrand}">Thương hiệu</span>
+            <span th:if="${currentSearch == null and currentBrand == null}">SẢN PHẨM</span>
+        </div>
+    </div>
+</div>
+
+<!-- Search Results Header (if searching) -->
+<div th:if="${currentSearch != null}" class="search-results-header bg-light">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="search-results-title mb-2">
+                    <i class="fas fa-search me-2 text-primary"></i>
+                    Kết quả tìm kiếm cho: 
+                    <span class="text-primary fw-bold" th:text="'&quot;' + ${currentSearch} + '&quot;'">"từ khóa"</span>
+                </h1>
+                <p class="search-results-subtitle text-muted mb-0">
+                    <span th:if="${totalItems > 0}">
+                        Tìm thấy <strong th:text="${totalItems}">0</strong> sản phẩm
+                        <span th:if="${totalPages > 1}"> 
+                            (trang <strong th:text="${currentPage + 1}">1</strong> của <strong th:text="${totalPages}">1</strong>)
+                        </span>
+                    </span>
+                    <span th:if="${totalItems == 0}">
+                        Không tìm thấy sản phẩm nào phù hợp
+                    </span>
+                </p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="/shop" class="btn btn-outline-primary">
+                    <i class="fas fa-eye me-2"></i>Xem tất cả sản phẩm
+                </a>
+            </div>
+        </div>
+        
+        <!-- Search suggestions if no results -->
+        <div th:if="${totalItems == 0}" class="search-no-results mt-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <i class="fas fa-search-minus text-warning" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                    <h4 class="text-warning">Không tìm thấy kết quả</h4>
+                    <p class="text-muted mb-3">Chúng tôi không thể tìm thấy sản phẩm nào phù hợp với từ khóa của bạn.</p>
+                    <div class="search-suggestions-tips">
+                        <h6 class="fw-bold mb-2">Gợi ý:</h6>
+                        <ul class="list-unstyled text-start">
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Kiểm tra chính tả từ khóa</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Thử tìm kiếm với từ khóa ngắn gọn hơn</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Sử dụng các từ khóa liên quan</li>
+                            <li><i class="fas fa-check-circle text-success me-2"></i>Thử tìm theo thương hiệu hoặc loại sản phẩm</li>
+                        </ul>
+                    </div>
+                    <div class="popular-searches mt-3">
+                        <p class="fw-bold mb-2">Từ khóa phổ biến:</p>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a href="/search?q=Dior" class="badge bg-light text-dark text-decoration-none">Dior</a>
+                            <a href="/search?q=Chanel" class="badge bg-light text-dark text-decoration-none">Chanel</a>
+                            <a href="/search?q=Tom Ford" class="badge bg-light text-dark text-decoration-none">Tom Ford</a>
+                            <a href="/search?q=Versace" class="badge bg-light text-dark text-decoration-none">Versace</a>
+                            <a href="/search?q=Creed" class="badge bg-light text-dark text-decoration-none">Creed</a>
+                            <a href="/search?q=nước hoa nam" class="badge bg-light text-dark text-decoration-none">Nước hoa nam</a>
+                            <a href="/search?q=nước hoa nữ" class="badge bg-light text-dark text-decoration-none">Nước hoa nữ</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

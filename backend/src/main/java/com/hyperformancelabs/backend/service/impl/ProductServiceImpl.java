@@ -123,6 +123,30 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Page<ProductDTO> searchProducts(String keyword, 
+                                          String genderList,
+                                          String brandList, 
+                                          String seasonList,
+                                          BigDecimal minPrice,
+                                          BigDecimal maxPrice,
+                                          String sortBy,
+                                          String sortDir,
+                                          Pageable pageable) {
+        return productRepository.searchProductsAdvanced(
+                keyword, genderList, brandList, seasonList, 
+                minPrice, maxPrice, sortBy, sortDir, pageable
+        ).map(this::convertToProductDTO);
+    }
+
+    @Override
+    public List<ProductDTO> searchProductSuggestions(String keyword, int limit) {
+        return productRepository.findProductSuggestions(keyword, limit)
+                .stream()
+                .map(this::convertToProductDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ProductDTO addProduct(ProductDTO productDTO) {
         Product product = new Product();
         product.setProductName(productDTO.getProductName());

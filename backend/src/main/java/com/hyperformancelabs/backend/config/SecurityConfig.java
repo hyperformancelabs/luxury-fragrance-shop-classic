@@ -63,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/").permitAll() // Cho phép truy cập trang chủ
                 .requestMatchers("/shop/**").permitAll()
                 .requestMatchers("/products/**").permitAll()
+                .requestMatchers("/search/**").permitAll() // Cho phép truy cập API search
                 .requestMatchers("/cart/**").permitAll() // Cho phép truy cập trang giỏ hàng
                 .requestMatchers("/checkout/**").permitAll() // Cho phép truy cập trang thanh toán
                 .requestMatchers("/wishlist/**").permitAll() // Cho phép truy cập trang danh sách yêu thích

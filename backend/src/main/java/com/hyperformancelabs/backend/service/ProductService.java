@@ -54,6 +54,20 @@ public interface ProductService {
 
     Page<ProductDTO> findByProductNameContainingIgnoreCase(String productName, Pageable pageable);
 
+    // Search sản phẩm theo nhiều tiêu chí (tên, thương hiệu, mô tả)
+    Page<ProductDTO> searchProducts(String keyword, 
+                                   String genderList,
+                                   String brandList, 
+                                   String seasonList,
+                                   BigDecimal minPrice,
+                                   BigDecimal maxPrice,
+                                   String sortBy,
+                                   String sortDir,
+                                   Pageable pageable);
+
+    // Search sản phẩm đơn giản cho autocomplete/suggestions
+    List<ProductDTO> searchProductSuggestions(String keyword, int limit);
+
     // --------------------------------------- ADMIN -----------------------------------------------------
 
     // Lọc sản phẩm

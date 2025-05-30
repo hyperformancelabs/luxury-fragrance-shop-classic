@@ -416,5 +416,109 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
             Pageable pageable
     );
 
+    // Advanced search products by multiple criteria
+    @Query(value = """
+    SELECT DISTINCT p.product_id, p.brand_id, p.product_name, p.description, p.image_url
+    FROM Product p
+    JOIN Brand b ON p.brand_id = b.brand_id
+    LEFT JOIN ProductDetail pd ON p.product_id = pd.product_id
+    LEFT JOIN ProductVariant pv ON p.product_id = pv.product_id
+    
+    WHERE 
+        (:keyword IS NULL OR (
+            p.product_name LIKE %:keyword% OR 
+            p.description LIKE %:keyword% OR 
+            b.brand_name LIKE %:keyword%
+        ))
+        AND (:genderList IS NULL OR (
+            pd.detail_name = 'suitable_gender' AND 
+            EXISTS (
+                SELECT 1 FROM STRING_SPLIT(:genderList, ',') s 
+                WHERE LTRIM(RTRIM(s.value)) = pd.detail_value
+            )
+        ))
+        AND (:brandList IS NULL OR EXISTS (
+            SELECT 1 FROM STRING_SPLIT(:brandList, ',') s 
+            WHERE LTRIM(RTRIM(s.value)) = b.brand_name
+        ))
+        AND ((:minPrice IS NULL OR :maxPrice IS NULL) 
+             OR EXISTS (
+                SELECT 1 FROM ProductVariant pv2 
+                WHERE pv2.product_id = p.product_id 
+                AND pv2.price BETWEEN :minPrice AND :maxPrice
+             ))
+        AND (:seasonList IS NULL OR EXISTS (
+            SELECT 1 FROM STRING_SPLIT(:seasonList, ',') s 
+            WHERE p.description LIKE '%' + LTRIM(RTRIM(s.value)) + '%'
+        ))
+        
+    ORDER BY p.product_name ASC
+    """,
+            countQuery = """
+    SELECT COUNT(DISTINCT p.product_id)
+    FROM Product p
+    JOIN Brand b ON p.brand_id = b.brand_id
+    LEFT JOIN ProductDetail pd ON p.product_id = pd.product_id
+    LEFT JOIN ProductVariant pv ON p.product_id = pv.product_id
+    WHERE 
+        (:keyword IS NULL OR (
+            p.product_name LIKE %:keyword% OR 
+            p.description LIKE %:keyword% OR 
+            b.brand_name LIKE %:keyword%
+        ))
+        AND (:genderList IS NULL OR (
+            pd.detail_name = 'suitable_gender' AND 
+            EXISTS (
+                SELECT 1 FROM STRING_SPLIT(:genderList, ',') s 
+                WHERE LTRIM(RTRIM(s.value)) = pd.detail_value
+            )
+        ))
+        AND (:brandList IS NULL OR EXISTS (
+            SELECT 1 FROM STRING_SPLIT(:brandList, ',') s 
+            WHERE LTRIM(RTRIM(s.value)) = b.brand_name
+        ))
+        AND ((:minPrice IS NULL OR :maxPrice IS NULL) 
+             OR EXISTS (
+                SELECT 1 FROM ProductVariant pv2 
+                WHERE pv2.product_id = p.product_id 
+                AND pv2.price BETWEEN :minPrice AND :maxPrice
+             ))
+        AND (:seasonList IS NULL OR EXISTS (
+            SELECT 1 FROM STRING_SPLIT(:seasonList, ',') s 
+            WHERE p.description LIKE '%' + LTRIM(RTRIM(s.value)) + '%'
+        ))
+    """,
+            nativeQuery = true)
+    Page<Product> searchProductsAdvanced(
+            @Param("keyword") String keyword,
+            @Param("genderList") String genderList,
+            @Param("brandList") String brandList,
+            @Param("seasonList") String seasonList,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("sortBy") String sortBy,
+            @Param("sortDir") String sortDir,
+            Pageable pageable);
+
+    // Simple search for suggestions/autocomplete
+    @Query(value = """
+    SELECT TOP (:limit) p.*
+    FROM Product p
+    JOIN Brand b ON p.brand_id = b.brand_id
+    WHERE 
+        p.product_name LIKE %:keyword% OR 
+        p.description LIKE %:keyword% OR 
+        b.brand_name LIKE %:keyword%
+    ORDER BY 
+        CASE 
+            WHEN p.product_name LIKE :keyword + '%' THEN 1
+            WHEN p.product_name LIKE '%' + :keyword + '%' THEN 2
+            WHEN b.brand_name LIKE :keyword + '%' THEN 3
+            WHEN b.brand_name LIKE '%' + :keyword + '%' THEN 4
+            ELSE 5
+        END,
+        p.product_name ASC
+    """, nativeQuery = true)
+    List<Product> findProductSuggestions(@Param("keyword") String keyword, @Param("limit") int limit);
 
 }

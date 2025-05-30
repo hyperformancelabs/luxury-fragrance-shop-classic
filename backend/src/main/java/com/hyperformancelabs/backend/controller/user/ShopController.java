@@ -444,10 +444,13 @@ public class ShopController {
     @GetMapping("/product/{id}")
     public String showProductDetail(@PathVariable Integer id, Model model) {
         ProductDTO product = productService.getProductById(id);
-        List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(id);
-
         if (product == null) {
-            return "error/404"; // Or redirect to a product not found page
+            return "error/404";
+        }
+
+        List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(id);
+        if (variants.isEmpty()) {
+            return "error/404"; // No variants available
         }
 
         // Find min and max prices among variants
@@ -465,7 +468,9 @@ public class ShopController {
         Double averageRating = product.getAverageRating();
         if (averageRating == null) averageRating = 0.0;
 
-        long totalReviews = product.getTotalReviews();
+        // Fix null pointer for total reviews
+        Integer totalReviewsObj = product.getTotalReviews();
+        int totalReviews = (totalReviewsObj != null) ? totalReviewsObj : 0;
 
         // Determine if there is any stock available for any variant
         boolean hasStock = variants.stream().anyMatch(v -> v.getQuantityInStock() > 0);
@@ -475,8 +480,10 @@ public class ShopController {
                 .filter(v -> v.getQuantityInStock() > 0)
                 .findFirst()
                 .map(ProductVariantDTO::getProductVariantId)
-                .orElse(variants.isEmpty() ? null : variants.get(0).getProductVariantId()); // Fallback to first variant if none in stock
+                .orElse(variants.get(0).getProductVariantId()); // Fallback to first variant if none in stock
 
+        // Get related products
+        List<ProductDTO> relatedProducts = productService.getRelatedProducts(id, 4);
 
         model.addAttribute("product", product);
         model.addAttribute("variants", variants);
@@ -487,6 +494,7 @@ public class ShopController {
         model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("hasStock", hasStock);
         model.addAttribute("firstInStockVariantId", firstInStockVariantId);
+        model.addAttribute("relatedProducts", relatedProducts);
 
         return "user/shop/product-detail";
     }

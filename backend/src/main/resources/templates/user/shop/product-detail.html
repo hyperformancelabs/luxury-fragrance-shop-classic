@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="~{shared/fragments/head :: head(${product.productName}, ~{::link})">
+<head th:replace="~{shared/fragments/head :: head(${product.productName}, ~{::link})}">
     <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}" />
     <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}" />
     <link rel="stylesheet" href="/css/product-detail.css">
@@ -29,13 +29,12 @@
             <!-- Product Images -->
             <div class="col-md-5 mb-4 mb-md-0">
                 <div class="product-image-container">
-                    <img th:src="${images[0]}" id="main-product-image" class="product-main-image" alt="Product Image">
+                    <img th:src="${product.imageUrl}" id="main-product-image" class="product-main-image" alt="Product Image">
                 </div>
                 <div class="product-thumbnails">
-                    <img th:each="image, iterStat : ${images}"
-                         th:src="${image}"
-                         th:class="${iterStat.index == 0 ? 'product-thumbnail active' : 'product-thumbnail'}"
-                         alt="Product Thumbnail">
+                    <img th:src="${product.imageUrl}" class="product-thumbnail active" alt="Product Thumbnail">
+                    <img th:src="${product.imageUrl}" class="product-thumbnail" alt="Product Thumbnail">
+                    <img th:src="${product.imageUrl}" class="product-thumbnail" alt="Product Thumbnail">
                 </div>
             </div>
 
@@ -46,61 +45,84 @@
 
                 <div class="product-rating">
                     <div class="rating-stars">
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star"></i>
-                        <i class="fas fa-star-half-alt"></i>
+                        <i class="fas fa-star" th:classappend="${averageRating >= 1 ? '' : 'far'}"></i>
+                        <i class="fas fa-star" th:classappend="${averageRating >= 2 ? '' : 'far'}"></i>
+                        <i class="fas fa-star" th:classappend="${averageRating >= 3 ? '' : 'far'}"></i>
+                        <i class="fas fa-star" th:classappend="${averageRating >= 4 ? '' : 'far'}"></i>
+                        <i class="fas fa-star" th:classappend="${averageRating >= 5 ? '' : 'far'}"></i>
                     </div>
-                    <span th:text="${rating + ' (' + reviewCount + ' đánh giá)'}">4.5 (125 đánh giá)</span>
+                    <span th:text="${averageRating + ' (' + totalReviews + ' đánh giá)'}">4.5 (125 đánh giá)</span>
                 </div>
 
                 <div class="product-price">
-                    <span class="original-price" th:text="${#numbers.formatDecimal(originalPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">3.500.000đ</span>
-                    <span class="sale-price" th:text="${#numbers.formatDecimal(salePrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">2.400.000đ</span>
+                    <span class="original-price" th:if="${maxPrice > minPrice}" 
+                          th:text="${#numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">3.500.000đ</span>
+                    <span class="sale-price" 
+                          th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">2.400.000đ</span>
                 </div>
 
-                <div class="size-options">
+                <div class="size-options" th:if="${!variants.isEmpty()}">
                     <div class="mb-2">Dung tích:</div>
                     <div>
-                        <span th:each="variant, iterStat : ${productVariants}"
-                              th:class="${iterStat.index == 0 ? 'size-option active' : 'size-option'}"
+                        <span th:each="variant, iterStat : ${variants}"
+                              class="quickview-size"
+                              th:classappend="|
+                                ${variant.productVariantId == firstInStockVariantId ? 'active' : ''}
+                                ${(variant.quantityInStock == 0) ? 'out-of-stock' :
+                                  (variant.quantityInStock <= 5 ? 'low-stock' : '')}
+                              |"
                               th:data-value="${variant.productVariantId}"
-                              th:data-price="${variant.price}"
-                              th:data-stock="${variant.quantityInStock}"
-                              th:text="${variant.volume + 'ml'}">50ml</span>
+                              th:data-price="${variant.price}">
+                            <span th:text="${variant.volume + 'ml'}">50ml</span>
+                            <span class="stock-status"
+                                  th:text="${variant.quantityInStock == 0 ? ' (Hết hàng)' :
+                                           (variant.quantityInStock <= 5 ? ' (Sắp hết)' : ' (Còn hàng)')}"></span>
+                        </span>
                     </div>
                 </div>
 
                 <div class="quantity-selector">
                     <div class="mb-2">Số lượng:</div>
-                    <div class="d-flex align-items-center">
-                        <div class="quantity-btn quantity-decrease" id="decreaseBtn">-</div>
+                    <div class="d-flex">
+                        <button class="quantity-btn quantity-decrease">-</button>
                         <input type="number" id="quantity" class="quantity-input" value="1" min="1">
-                        <div class="quantity-btn quantity-increase" id="increaseBtn">+</div>
-                        <span class="ms-3 text-muted" id="stock-info">
-                            Còn lại: <span id="current-stock" th:text="${productVariants[0].quantityInStock}">10</span> sản phẩm
-                        </span>
+                        <button class="quantity-btn quantity-increase">+</button>
                     </div>
                 </div>
 
                 <form th:action="@{/cart/add}" method="post" id="add-to-cart-form">
                     <input type="hidden" name="productVariantId" id="selectedVariantId"
-                           th:value="${productVariants[0].productVariantId}" />
+                           th:value="${firstInStockVariantId}" />
                     <input type="hidden" name="quantity" id="selectedQuantity" value="1" />
                     <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
 
-                    <button type="submit" class="add-to-cart-btn">
+                    <button type="submit" class="add-to-cart-btn" th:if="${hasStock}">
                         <i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ hàng
                     </button>
+                    <span th:if="${!hasStock}" class="text-danger fw-bold">Tạm hết hàng</span>
                 </form>
 
-
                 <div class="product-actions mt-3">
-                    <div class="action-btn">
-                        <i class="far fa-heart"></i>
-                        <span>Thêm vào yêu thích</span>
+                    <!-- Nếu đã đăng nhập -->
+                    <div sec:authorize="isAuthenticated()">
+                        <form th:action="@{/wishlist/add}" method="post" class="d-inline">
+                            <input type="hidden" name="productId" th:value="${product.productId}" />
+                            <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                            <button type="submit" class="action-btn">
+                                <i class="far fa-heart"></i>
+                                <span>Thêm vào yêu thích</span>
+                            </button>
+                        </form>
                     </div>
+
+                    <!-- Nếu chưa đăng nhập -->
+                    <div sec:authorize="isAnonymous()">
+                        <button class="action-btn" onclick="showLoginReminder()">
+                            <i class="far fa-heart"></i>
+                            <span>Thêm vào yêu thích</span>
+                        </button>
+                    </div>
+                    
                     <div class="action-btn">
                         <i class="fas fa-share-alt"></i>
                         <span>Chia sẻ</span>
@@ -113,28 +135,14 @@
 
                 <div class="product-tabs">
                     <div class="tab-buttons">
-                        <div class="tab-button" data-tab="fragrance">Hương</div>
+                        <div class="tab-button active" data-tab="fragrance">Hương</div>
                         <div class="tab-button" data-tab="details">Chi tiết</div>
                         <div class="tab-button" data-tab="reviews">Đánh giá</div>
                     </div>
 
                     <div class="tab-content" data-tab="fragrance">
                         <h4>Thông tin hương thơm</h4>
-                        <p>Bright Crystal là một hương thơm tươi mát và quyến rũ, được lấy cảm hứng từ sự kết hợp yêu thích của Donatella Versace.</p>
-
-                        <div class="seasonal-chart">
-                            <h5>Khuyến nghị theo mùa</h5>
-
-                            <div th:each="entry : ${seasonalRecommendations}">
-                                <div class="chart-label">
-                                    <span th:text="${entry.key}">MÙA XUÂN</span>
-                                    <span th:text="${entry.value + '%'}">70%</span>
-                                </div>
-                                <div class="chart-bar">
-                                    <div class="chart-fill" th:style="'width: ' + ${entry.value + '%'}"></div>
-                                </div>
-                            </div>
-                        </div>
+                        <p th:text="${product.description}">Mô tả chi tiết về hương thơm...</p>
                     </div>
 
                     <div class="tab-content" data-tab="details" style="display: none;">
@@ -143,31 +151,29 @@
                             <tbody>
                                 <tr>
                                     <th>Thương hiệu</th>
-                                    <td>Versace</td>
+                                    <td th:text="${product.brandName}">Versace</td>
                                 </tr>
                                 <tr>
-                                    <th>Xuất xứ</th>
-                                    <td>Ý</td>
+                                    <th>Dung tích</th>
+                                    <td>
+                                        <span th:each="variant, iterStat : ${variants}">
+                                            <span th:text="${variant.volume + 'ml'}">50ml</span>
+                                            <span th:if="${!iterStat.last}">, </span>
+                                        </span>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <th>Năm ra mắt</th>
-                                    <td>2006</td>
+                                    <th>Khoảng giá</th>
+                                    <td>
+                                        <span th:if="${minPrice.equals(maxPrice)}" 
+                                              th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">2.450.000đ</span>
+                                        <span th:if="${!minPrice.equals(maxPrice)}" 
+                                              th:text="${#numbers.formatDecimal(minPrice, 0, 'COMMA', 0, 'POINT') + 'đ - ' + #numbers.formatDecimal(maxPrice, 0, 'COMMA', 0, 'POINT') + 'đ'}">2.450.000đ - 3.450.000đ</span>
+                                    </td>
                                 </tr>
                                 <tr>
-                                    <th>Nhóm hương</th>
-                                    <td>Hương hoa cỏ trái cây</td>
-                                </tr>
-                                <tr>
-                                    <th>Độ lưu hương</th>
-                                    <td>Trung bình, 3-6 giờ</td>
-                                </tr>
-                                <tr>
-                                    <th>Độ tỏa hương</th>
-                                    <td>Gần, toả hương trong khoảng cách gần</td>
-                                </tr>
-                                <tr>
-                                    <th>Thời điểm khuyên dùng</th>
-                                    <td>Ngày, Xuân, Hạ</td>
+                                    <th>Tình trạng</th>
+                                    <td th:text="${hasStock ? 'Còn hàng' : 'Hết hàng'}">Còn hàng</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -175,34 +181,27 @@
 
                     <div class="tab-content" data-tab="reviews" style="display: none;">
                         <h4>Đánh giá từ khách hàng</h4>
-                        <div class="mb-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="rating-stars me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                </div>
-                                <span class="fw-bold">Nguyễn Văn A</span>
-                                <span class="ms-auto text-muted">15/04/2023</span>
-                            </div>
-                            <p>Sản phẩm rất tuyệt vời, hương thơm nhẹ nhàng và quyến rũ. Tôi rất hài lòng với sản phẩm này.</p>
+                        <div class="text-center py-4" th:if="${totalReviews == 0}">
+                            <i class="fas fa-star-half-alt fa-3x text-muted mb-3"></i>
+                            <h5>Chưa có đánh giá</h5>
+                            <p class="text-muted">Hãy là người đầu tiên đánh giá sản phẩm này.</p>
                         </div>
-
-                        <div class="mb-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <div class="rating-stars me-2">
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="fas fa-star"></i>
-                                    <i class="far fa-star"></i>
+                        
+                        <div th:if="${totalReviews > 0}">
+                            <div class="mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="rating-stars me-2">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                    <span class="fw-bold">Nguyễn Văn A</span>
+                                    <span class="ms-auto text-muted">15/04/2023</span>
                                 </div>
-                                <span class="fw-bold">Trần Thị B</span>
-                                <span class="ms-auto text-muted">10/04/2023</span>
+                                <p>Sản phẩm rất tuyệt vời, hương thơm nhẹ nhàng và quyến rũ. Tôi rất hài lòng với sản phẩm này.</p>
                             </div>
-                            <p>Hương thơm rất dễ chịu, nhưng độ lưu hương không được lâu như mong đợi.</p>
                         </div>
                     </div>
                 </div>
@@ -210,7 +209,7 @@
         </div>
 
         <!-- Related Products -->
-        <div class="related-products">
+        <div class="related-products mt-5" th:if="${!relatedProducts.isEmpty()}">
             <h3 class="mb-4">Sản phẩm liên quan</h3>
             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
                 <div class="col" th:each="relatedProduct : ${relatedProducts}">
@@ -220,7 +219,7 @@
                         </a>
                         <div class="related-product-info">
                             <h5 class="related-product-title" th:text="${relatedProduct.productName}">Tên sản phẩm liên quan</h5>
-                            <div class="related-product-price">1.950.000đ</div>
+                            <div class="related-product-brand text-muted" th:text="${relatedProduct.brandName}">Thương hiệu</div>
                         </div>
                     </div>
                 </div>
@@ -231,205 +230,90 @@
     <!-- Footer -->
     <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
-    <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
+    <th:block th:replace="~{shared/fragments/scripts :: scripts(~{::script})}">
+        <script src="/js/product-detail.js"></script>
+    </th:block>
+    
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Chọn variant
-            const sizeOptions = document.querySelectorAll(".size-option");
-            const quantityInput = document.getElementById("quantity");
-            const currentStockDisplay = document.getElementById("current-stock");
-            const decreaseBtn = document.getElementById("decreaseBtn");
-            const increaseBtn = document.getElementById("increaseBtn");
-            let currentStock = parseInt(currentStockDisplay.textContent);
-            
-            sizeOptions.forEach(option => {
+            // Initialize product detail functionality
+            initProductDetail();
+        });
+
+        function initProductDetail() {
+            // Variant selection
+            document.querySelectorAll(".quickview-size").forEach(option => {
                 option.addEventListener("click", function () {
-                    // Cập nhật trạng thái active
-                    sizeOptions.forEach(o => o.classList.remove("active"));
+                    if (this.classList.contains("out-of-stock")) return;
+
+                    document.querySelectorAll(".quickview-size").forEach(o => o.classList.remove("active"));
                     this.classList.add("active");
 
-                    // Cập nhật thông tin variant
                     const variantId = this.getAttribute("data-value");
                     const price = this.getAttribute("data-price");
-                    const stock = parseInt(this.getAttribute("data-stock"));
-                    
-                    // Cập nhật form
+
                     document.getElementById("selectedVariantId").value = variantId;
                     document.querySelector(".sale-price").textContent = new Intl.NumberFormat('vi-VN').format(price) + "đ";
-                    
-                    // Cập nhật thông tin tồn kho
-                    currentStock = stock;
-                    currentStockDisplay.textContent = stock;
-                    
-                    // Reset số lượng về 1 khi đổi variant
-                    quantityInput.value = 1;
-                    document.getElementById("selectedQuantity").value = 1;
-                    
-                    // Disable nút thêm vào giỏ hàng nếu hết hàng
-                    const addToCartBtn = document.querySelector(".add-to-cart-btn");
-                    if (stock <= 0) {
-                        addToCartBtn.disabled = true;
-                        addToCartBtn.innerHTML = '<i class="fas fa-ban me-2"></i>Hết hàng';
-                    } else {
-                        addToCartBtn.disabled = false;
-                        addToCartBtn.innerHTML = '<i class="fas fa-shopping-cart me-2"></i>Thêm vào giỏ hàng';
+                });
+            });
+
+            // Quantity controls
+            const quantityInput = document.getElementById("quantity");
+            const decreaseBtn = document.querySelector(".quantity-decrease");
+            const increaseBtn = document.querySelector(".quantity-increase");
+
+            if (decreaseBtn) {
+                decreaseBtn.addEventListener("click", () => {
+                    let val = parseInt(quantityInput.value);
+                    if (val > 1) {
+                        quantityInput.value = val - 1;
+                        document.getElementById("selectedQuantity").value = quantityInput.value;
                     }
                 });
-            });
+            }
 
-            // Tăng/giảm số lượng với các nút mới
-            decreaseBtn.addEventListener("click", function() {
-                let val = parseInt(quantityInput.value);
-                if (val > 1) {
-                    quantityInput.value = val - 1;
-                    document.getElementById("selectedQuantity").value = quantityInput.value;
-                }
-            });
-            
-            increaseBtn.addEventListener("click", function() {
-                let val = parseInt(quantityInput.value);
-                // Kiểm tra tồn kho trước khi tăng số lượng
-                if (val < currentStock) {
+            if (increaseBtn) {
+                increaseBtn.addEventListener("click", () => {
+                    let val = parseInt(quantityInput.value);
                     quantityInput.value = val + 1;
                     document.getElementById("selectedQuantity").value = quantityInput.value;
-                } else {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Thông báo',
-                        text: 'Số lượng đã đạt mức tối đa trong kho.',
-                        confirmButtonText: 'Đóng'
-                    });
-                }
-            });
-            
-            quantityInput.addEventListener("input", function() {
-                let val = parseInt(this.value);
-                
-                // Kiểm tra giá trị hợp lệ
-                if (isNaN(val) || val < 1) {
-                    val = 1;
-                    this.value = 1;
-                }
-                
-                // Kiểm tra giới hạn tồn kho
-                if (val > currentStock) {
-                    val = currentStock;
-                    this.value = currentStock;
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Thông báo',
-                        text: 'Số lượng đã được điều chỉnh theo tồn kho hiện có.',
-                        confirmButtonText: 'Đóng'
-                    });
-                }
-                
-                document.getElementById("selectedQuantity").value = val;
-            });
-            
-            // Kiểm tra nếu hết hàng khi tải trang
-            const initialStock = parseInt(currentStockDisplay.textContent);
-            const addToCartBtn = document.querySelector(".add-to-cart-btn");
-            if (initialStock <= 0) {
-                addToCartBtn.disabled = true;
-                addToCartBtn.innerHTML = '<i class="fas fa-ban me-2"></i>Hết hàng';
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const params = new URLSearchParams(window.location.search);
-            
-            // Hiển thị thông báo thành công nếu thêm vào giỏ hàng thành công
-            if (params.get("addedToCart") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã thêm vào giỏ hàng!',
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-                // Xóa param để không hiển thị lại khi refresh
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-            
-            // Hiển thị thông báo lỗi nếu có
-            const errorMessage = /*[[${errorMessage}]]*/ null;
-            if (errorMessage) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Lỗi',
-                    text: errorMessage,
-                    confirmButtonText: 'Đóng'
                 });
             }
-        });
-    </script>
 
-    <script>
-        function confirmLogout() {
-            Swal.fire({
-                title: 'Xác nhận đăng xuất',
-                text: 'Bạn có chắc chắn muốn đăng xuất không?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Đăng xuất',
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('logout-form').submit();
-                }
+            if (quantityInput) {
+                quantityInput.addEventListener("input", () => {
+                    document.getElementById("selectedQuantity").value = quantityInput.value;
+                });
+            }
+
+            // Tab functionality
+            document.querySelectorAll(".tab-button").forEach(button => {
+                button.addEventListener("click", function () {
+                    const tab = this.getAttribute("data-tab");
+                    
+                    // Remove active class from all buttons and hide all content
+                    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
+                    document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
+                    
+                    // Add active to clicked button and show corresponding content
+                    this.classList.add("active");
+                    document.querySelector(`[data-tab="${tab}"].tab-content`).style.display = "block";
+                });
+            });
+
+            // Thumbnail functionality
+            document.querySelectorAll(".product-thumbnail").forEach(thumb => {
+                thumb.addEventListener("click", function () {
+                    document.querySelectorAll(".product-thumbnail").forEach(t => t.classList.remove("active"));
+                    this.classList.add("active");
+                    document.getElementById("main-product-image").src = this.src;
+                });
             });
         }
 
+        // Success messages
         document.addEventListener('DOMContentLoaded', function () {
             const params = new URLSearchParams(window.location.search);
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                window.location.reload();
-            });
-
-            }
-        });
-    </script>
-    <script>
-        function showLoginReminder() {
-            Swal.fire({
-                icon: 'info',
-                title: 'Vui lòng đăng nhập',
-                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
-                confirmButtonText: 'Đăng nhập',
-                showCancelButton: true,
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/auth/login";
-                }
-            });
-        }
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    window.location.reload();
-                });
-            }
-
             if (params.get("addedToCart") === "success") {
                 Swal.fire({
                     icon: 'success',
@@ -450,6 +334,23 @@
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         });
+
+        // Login reminder for wishlist
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
     </script>
 </body>
 </html>
