@@ -259,57 +259,55 @@ footer a:hover {
 }
 
 .footer-link {
-    color: #ccc !important;
+    color: #f8f9fa;
     text-decoration: none;
-    transition: all 0.3s ease;
-    font-size: 0.95rem;
+    transition: color 0.3s;
     display: block;
+    padding: 4px 0;
 }
 
 .footer-link:hover {
-    color: var(--primary) !important;
-    transform: translateX(5px);
+    color: #0d6efd;
 }
 
 .social-icons {
     display: flex;
-    gap: 10px;
+    gap: 1rem;
 }
 
 .social-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    width: 36px;
+    height: 36px;
     background-color: rgba(255, 255, 255, 0.1);
-    color: #fff !important;
+    border-radius: 50%;
+    color: #fff;
     text-decoration: none;
-    transition: all 0.3s ease;
+    transition: all 0.3s;
 }
 
 .social-icon:hover {
-    background-color: var(--primary);
-    color: #fff !important;
+    background-color: #0d6efd;
+    color: #fff;
     transform: translateY(-3px);
 }
 
 .newsletter-form .form-control {
     background-color: rgba(255, 255, 255, 0.1);
-    border: none;
-    color: #fff !important;
-    padding: 10px 15px;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #fff;
 }
 
 .newsletter-form .form-control::placeholder {
-    color: #aaa !important;
+    color: rgba(255, 255, 255, 0.6);
 }
 
-.newsletter-form .btn {
-    background-color: var(--primary);
-    border-color: var(--primary);
-    color: #fff !important;
+.newsletter-form .form-control:focus {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
 }
 
 .payment-methods img {

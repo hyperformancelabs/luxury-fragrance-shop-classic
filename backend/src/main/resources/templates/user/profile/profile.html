@@ -127,47 +127,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-dark text-white py-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>APH Perfume</h5>
-                    <p>Điểm đến cho những mùi hương xa xỉ và nước hoa cao cấp.</p>
-                </div>
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>Liên Kết Nhanh</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="/" class="text-white">Trang chủ</a></li>
-                        <li><a href="/shop" class="text-white">Sản phẩm</a></li>
-                        <li><a href="/about" class="text-white">Giới thiệu</a></li>
-                        <li><a href="/contact" class="text-white">Liên hệ</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3 mb-4 mb-md-0">
-                    <h5>Dịch Vụ Khách Hàng</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Câu hỏi thường gặp</a></li>
-                        <li><a href="#" class="text-white">Vận chuyển & Đổi trả</a></li>
-                        <li><a href="#" class="text-white">Chính sách bảo mật</a></li>
-                        <li><a href="#" class="text-white">Điều khoản & Điều kiện</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-3">
-                    <h5>Kết Nối Với Chúng Tôi</h5>
-                    <div class="d-flex gap-3 fs-4 mb-3">
-                        <a href="#" class="text-white"><i class="fab fa-facebook"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-pinterest"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr class="my-4">
-            <div class="text-center">
-                <p class="mb-0">&copy; 2023 APH Perfume. Tất cả các quyền được bảo lưu.</p>
-            </div>
-        </div>
-    </footer>
+    <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
