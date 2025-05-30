@@ -18,6 +18,9 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     // Tìm nhân viên theo username
     Optional<Employee> findByUsername(String username);
 
+    // Tìm nhân viên theo email
+    Optional<Employee> findByEmail(String email);
+
     // Tìm nhân viên theo id
     Employee findByEmployeeId(Integer employeeId);
 

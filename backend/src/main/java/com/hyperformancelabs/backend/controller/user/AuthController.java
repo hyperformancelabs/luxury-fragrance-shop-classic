@@ -1,7 +1,9 @@
 package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
+import com.hyperformancelabs.backend.model.Customer;
 import com.hyperformancelabs.backend.service.CustomerService;
+import com.hyperformancelabs.backend.service.PasswordResetService;
 import com.hyperformancelabs.backend.service.impl.CustomUserDetailsService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private UserDetailsService userDetailsService;
+
+    @Autowired
+    private PasswordResetService passwordResetService;
 
     @PostMapping("/precheck")
     public String precheck(@RequestParam String phoneOrEmail,
@@ -151,9 +157,75 @@ public class AuthController {
         return "redirect:/auth/login";
     }
 
-
     @GetMapping("/reset-password")
     public String resetPassword() {
         return "user/auth/reset-password";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPassword() {
+        return "user/auth/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String requestPasswordReset(@RequestParam String email,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            String message = passwordResetService.requestPasswordReset(email);
+            redirectAttributes.addFlashAttribute("success", message);
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+        return "redirect:/auth/forgot-password";
+    }
+
+    @GetMapping("/reset-password-with-token")
+    public String resetPasswordWithToken(@RequestParam(required = false) String token, 
+                                        Model model,
+                                        RedirectAttributes redirectAttributes) {
+        if (token == null || token.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("error", "Mã xác thực không hợp lệ.");
+            return "redirect:/auth/forgot-password";
+        }
+
+        try {
+            Customer customer = passwordResetService.verifyResetToken(token);
+            model.addAttribute("token", token);
+            model.addAttribute("customerName", customer.getName());
+            return "user/auth/reset-password-with-token";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/auth/forgot-password";
+        }
+    }
+
+    @PostMapping("/reset-password-with-token")
+    public String processPasswordReset(@RequestParam String token,
+                                      @RequestParam String newPassword,
+                                      @RequestParam String confirmPassword,
+                                      RedirectAttributes redirectAttributes) {
+        
+        // Validate passwords match
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu xác nhận không khớp.");
+            redirectAttributes.addFlashAttribute("token", token);
+            return "redirect:/auth/reset-password-with-token?token=" + token;
+        }
+
+        // Validate password strength
+        if (newPassword.length() < 6) {
+            redirectAttributes.addFlashAttribute("error", "Mật khẩu phải có ít nhất 6 ký tự.");
+            redirectAttributes.addFlashAttribute("token", token);
+            return "redirect:/auth/reset-password-with-token?token=" + token;
+        }
+
+        try {
+            String message = passwordResetService.resetPassword(token, newPassword);
+            redirectAttributes.addFlashAttribute("success", message);
+            return "redirect:/auth/login";
+        } catch (RuntimeException e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            return "redirect:/auth/forgot-password";
+        }
     }
 }

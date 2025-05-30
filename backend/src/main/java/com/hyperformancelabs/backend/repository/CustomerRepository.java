@@ -22,6 +22,7 @@ public interface  CustomerRepository extends JpaRepository<Customer, Integer> {
     Optional<Customer> findByCustomerId(Integer customerId);
     List<Customer> findByUsername(String username);
     Optional<Customer> findByEmailOrPhoneNumber(String email, String phone);
+    Optional<Customer> findByEmail(String email);
 
     // -------------------------------------- ADMIN -----------------------------------------------------
 

@@ -34,10 +34,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain adminSecurity(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.csrfTokenRepository(csrfTokenRepository()))
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/admin/forgot-password", "/admin/reset-password-with-token")
+                        .csrfTokenRepository(csrfTokenRepository()))
                 .securityMatcher("/admin/**") // Áp dụng cho tất cả /admin/*
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/admin/login", "/admin/css/**", "/admin/js/**", "admin/precheck").permitAll()
+                        .requestMatchers("/admin/login", "/admin/css/**", "/admin/js/**", "/admin/precheck", 
+                                        "/admin/forgot-password", "/admin/reset-password-with-token").permitAll()
                         .anyRequest().hasRole("ADMIN")
                 )
                 .logout(logout -> logout
@@ -54,7 +57,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.
-                        ignoringRequestMatchers("/logout/**", "/cart/add/**")
+                        ignoringRequestMatchers("/logout/**", "/cart/add/**", "/auth/forgot-password", "/auth/reset-password-with-token")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
 
