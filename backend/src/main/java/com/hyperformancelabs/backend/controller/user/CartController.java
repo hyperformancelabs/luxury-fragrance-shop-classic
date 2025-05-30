@@ -135,7 +135,8 @@ public class CartController {
     public String addToCart(
             @RequestParam Integer productVariantId,
             @RequestParam Integer quantity,
-            HttpServletRequest request) {
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
 
         String username = getCurrentUsername();
         String sessionId = getOrCreateSessionId(request);
@@ -153,15 +154,16 @@ public class CartController {
             // Cập nhật cart item count trong session
             updateCartItemCountInSession(request, username, sessionId);
             
+            // ✅ Thêm tham số ?addedToCart=success để hiển thị thông báo SweetAlert
+            String referer = request.getHeader("Referer");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
+            
         } catch (Exception e) {
             // Nếu có lỗi, vẫn quay lại trang trước, nhưng kèm thông báo lỗi
             String referer = request.getHeader("Referer");
-            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?error=true" : "/?error=true");
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
         }
-
-        // ✅ Thêm tham số ?addedToCart=success để hiển thị thông báo SweetAlert
-        String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
     }
 
     @PostMapping("/update")
@@ -182,8 +184,11 @@ public class CartController {
         try {
             cartService.updateCartItemQuantity(cartItemId, quantity, username, sessionId);
             redirectAttributes.addFlashAttribute("successMessage", "Số lượng đã được cập nhật");
+            
+            // Cập nhật cart item count trong session
+            updateCartItemCountInSession(request, username, sessionId);
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể cập nhật số lượng: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
         }
 
         return "redirect:/cart";
@@ -234,41 +239,49 @@ public class CartController {
                                     @RequestParam(value = "quantity", defaultValue = "1") Integer quantity,
                                     HttpServletRequest request,
                                     RedirectAttributes redirectAttributes) {
-        try {
-            if (productId == null) {
-                throw new IllegalArgumentException("ID sản phẩm không hợp lệ");
-            }
-
-            // Lấy thông tin người dùng và session
-            String username = getCurrentUsername();
-            String sessionId = getOrCreateSessionId(request);
-
-            // Lấy variant đầu tiên của sản phẩm
-            ProductVariantDTO variant = productVariantService.findFirstByProduct_ProductId(productId);
-            if (variant == null) {
-                throw new IllegalArgumentException("Không tìm thấy biến thể sản phẩm");
-            }
-
-            // Tạo AddToCartRequest
-            AddToCartRequest addToCartRequest = new AddToCartRequest();
-            addToCartRequest.setProductVariantId(variant.getProductVariantId());
-            addToCartRequest.setQuantity(quantity);
-
-            // Thêm vào giỏ hàng
-            cartService.addToCart(username, sessionId, addToCartRequest);
-
-            // Thông báo thành công
-            redirectAttributes.addFlashAttribute("successMessage", "Sản phẩm đã được thêm vào giỏ hàng.");
-
-        } catch (IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Có lỗi xảy ra khi thêm sản phẩm vào giỏ hàng.");
-            e.printStackTrace(); // Log lỗi để debug
+        
+        String username = getCurrentUsername();
+        String sessionId = getOrCreateSessionId(request);
+        
+        // Lấy product variant đầu tiên của sản phẩm
+        List<ProductVariantDTO> variants = productVariantService.getProductVariantsByProductId(productId);
+        
+        if (variants.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy biến thể sản phẩm");
+            String referer = request.getHeader("Referer");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
         }
-
+        
+        // Tìm biến thể còn hàng
+        ProductVariantDTO inStockVariant = variants.stream()
+                .filter(v -> v.getQuantityInStock() >= quantity)
+                .findFirst()
+                .orElse(null);
+        
+        // Nếu không có biến thể nào còn đủ hàng
+        if (inStockVariant == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm đã hết hàng hoặc không đủ số lượng yêu cầu");
+            String referer = request.getHeader("Referer");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
+        }
+        
+        AddToCartRequest addToCartRequest = new AddToCartRequest();
+        addToCartRequest.setProductVariantId(inStockVariant.getProductVariantId());
+        addToCartRequest.setQuantity(quantity);
+        
+        try {
+            cartService.addToCart(username, sessionId, addToCartRequest);
+            
+            // Cập nhật cart item count trong session
+            updateCartItemCountInSession(request, username, sessionId);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        }
+        
         String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer : "/");
+        return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
     }
     
     /**

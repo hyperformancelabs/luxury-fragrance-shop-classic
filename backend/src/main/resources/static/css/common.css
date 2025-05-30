@@ -345,6 +345,23 @@ img {
     width: 100%;
     height: 250px;
     object-position: center;
+    min-height: 200px;
+}
+
+/* Placeholder for missing product images */
+img.product-img:not([src]), 
+img.product-img[src=""], 
+img.product-img[src="null"], 
+img.product-img[src="#"],
+img.product-img:not([src]):before {
+    display: block;
+    content: "";
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3e%3cg fill='%23cccccc'%3e%3cpath d='M40 0a40 40 0 1 0 40 40A40 40 0 0 0 40 0zm0 76a36 36 0 1 1 36-36 36 36 0 0 1-36 36z'/%3e%3cpath d='M48.5 30A8.5 8.5 0 1 0 40 38.5 8.5 8.5 0 0 0 48.5 30zM25 50.92V54h30v-3.08a15 15 0 0 0-30 0z'/%3e%3c/g%3e%3c/svg%3e");
+    background-position: center;
+    background-size: 30%;
+    background-repeat: no-repeat;
+    background-color: #f9f9f9;
+    border-radius: 4px;
 }
 
 .collection-image {

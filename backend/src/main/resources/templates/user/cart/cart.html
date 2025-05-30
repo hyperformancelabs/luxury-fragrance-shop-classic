@@ -129,6 +129,27 @@
     <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
     <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
+    
+    <!-- Hiển thị thông báo -->
+    <script th:if="${errorMessage != null}">
+        Swal.fire({
+            icon: 'error',
+            title: 'Lỗi',
+            text: /*[[${errorMessage}]]*/ 'Đã xảy ra lỗi',
+            confirmButtonText: 'Đóng'
+        });
+    </script>
+    
+    <script th:if="${successMessage != null}">
+        Swal.fire({
+            icon: 'success',
+            title: 'Thành công',
+            text: /*[[${successMessage}]]*/ 'Thao tác thành công',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    </script>
+    
     <script>
         function confirmLogout() {
             Swal.fire({
@@ -145,6 +166,53 @@
                 }
             });
         }
+    </script>
+    
+    <!-- Script xử lý tăng giảm số lượng -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Xử lý nút giảm số lượng
+            document.querySelectorAll('.quantity-decrease').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const currentValue = parseInt(input.value);
+                    
+                    if (currentValue > 1) {
+                        input.value = currentValue - 1;
+                        const form = this.closest('.update-form');
+                        form.submit();
+                    }
+                });
+            });
+            
+            // Xử lý nút tăng số lượng
+            document.querySelectorAll('.quantity-increase').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const currentValue = parseInt(input.value);
+                    
+                    input.value = currentValue + 1;
+                    const form = this.closest('.update-form');
+                    form.submit();
+                });
+            });
+            
+            // Xử lý thay đổi trực tiếp trong input số lượng
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
+                    let value = parseInt(this.value);
+                    
+                    // Đảm bảo giá trị hợp lệ
+                    if (isNaN(value) || value < 1) {
+                        value = 1;
+                        this.value = 1;
+                    }
+                    
+                    const form = this.closest('.update-form');
+                    form.submit();
+                });
+            });
+        });
     </script>
 
 </body>

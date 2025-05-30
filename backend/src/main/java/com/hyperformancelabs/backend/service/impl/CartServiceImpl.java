@@ -43,19 +43,38 @@ public class CartServiceImpl implements CartService {
         ProductVariant productVariant = productVariantRepository.findById(request.getProductVariantId())
                 .orElseThrow(() -> new RuntimeException("Product variant not found"));
 
-        // Thêm sản phẩm vào giỏ hàng
-        CartItem cartItem = new CartItem();
-        cartItem.setCart(cart);
-        cartItem.setProductVariant(productVariant);
-        cartItem.setQuantity(request.getQuantity());
-        cartItem.setUnitPrice(productVariant.getPrice());
-        cartItem.setIsSelected(true);
-        cartItemRepository.save(cartItem);
+        // Kiểm tra tồn kho
+        if (productVariant.getQuantityInStock() < request.getQuantity()) {
+            throw new RuntimeException("Số lượng vượt quá tồn kho. Hiện chỉ còn " + productVariant.getQuantityInStock() + " sản phẩm.");
+        }
+
+        // Kiểm tra xem sản phẩm đã có trong giỏ hàng chưa
+        CartItem existingCartItem = cartItemRepository.findByCartAndProductVariant(cart, productVariant).orElse(null);
+
+        if (existingCartItem != null) {
+            // Nếu đã có, cập nhật số lượng
+            int newQuantity = existingCartItem.getQuantity() + request.getQuantity();
+            
+            // Kiểm tra lại số lượng mới có vượt quá tồn kho không
+            if (newQuantity > productVariant.getQuantityInStock()) {
+                throw new RuntimeException("Tổng số lượng vượt quá tồn kho. Hiện chỉ còn " + productVariant.getQuantityInStock() + " sản phẩm.");
+            }
+            
+            existingCartItem.setQuantity(newQuantity);
+            cartItemRepository.save(existingCartItem);
+        } else {
+            // Nếu chưa có, tạo mới cart item
+            CartItem cartItem = new CartItem();
+            cartItem.setCart(cart);
+            cartItem.setProductVariant(productVariant);
+            cartItem.setQuantity(request.getQuantity());
+            cartItem.setUnitPrice(productVariant.getPrice());
+            cartItem.setIsSelected(true);
+            cartItemRepository.save(cartItem);
+        }
 
         // Cập nhật tổng tiền của giỏ hàng
         updateCartTotalAmount(cart);
-
-        convertToCartItemDTO(cartItem);
     }
 
     @Override
@@ -72,6 +91,12 @@ public class CartServiceImpl implements CartService {
         Cart cart = getOrCreateCart(username, sessionId);
         CartItem cartItem = cartItemRepository.findById(cartItemId)
                 .orElseThrow(() -> new RuntimeException("Cart item not found"));
+
+        // Kiểm tra số lượng tồn kho
+        ProductVariant productVariant = cartItem.getProductVariant();
+        if (productVariant.getQuantityInStock() < quantity) {
+            throw new RuntimeException("Số lượng vượt quá tồn kho. Hiện chỉ còn " + productVariant.getQuantityInStock() + " sản phẩm.");
+        }
 
         cartItem.setQuantity(quantity);
         cartItemRepository.save(cartItem);
