@@ -35,8 +35,8 @@ public interface EmployeeService {
     // Xóa nhân viên
     void deleteEmployee(Integer employeeId);
 
-    // Lấy system admin theo email hoặc số điện thoại
-    EmployeeDTO findActiveSystemAdminByEmailOrPhone(String emailOrPhone);
+    // Lấy system admin theo username, email hoặc số điện thoại
+    EmployeeDTO findActiveSystemAdminByUsernameEmailOrPhone(String usernameEmailOrPhone);
 
     // Lấy thông tin nhân viên theo username
     EmployeeDTO getEmployeeByUsername(String username);

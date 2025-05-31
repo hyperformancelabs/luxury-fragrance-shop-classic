@@ -134,8 +134,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     }
 
     @Override
-    public EmployeeDTO findActiveSystemAdminByEmailOrPhone(String emailOrPhone) {
-        Employee employee = employeeRepository.findActiveSystemAdminByEmailOrPhone(emailOrPhone);
+    public EmployeeDTO findActiveSystemAdminByUsernameEmailOrPhone(String usernameEmailOrPhone) {
+        Employee employee = employeeRepository.findActiveSystemAdminByEmailOrPhone(usernameEmailOrPhone);
         return employee != null ? convertToEmployeeDTO(employee) : null;
     }
 

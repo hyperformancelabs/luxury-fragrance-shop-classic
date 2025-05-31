@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{shared/fragments/head :: head('Danh sách yêu thích', ~{::link})}">
+    <link rel="stylesheet" href="/css/wishlist.css">
+    <link rel="stylesheet" href="/css/profile.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{shared/fragments/navbar :: navbar('profile')}"></nav>
+
+    <!-- Breadcrumb -->
+    <header class="breadcrumb-section">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <a href="/profile" class="me-2">TÀI KHOẢN</a>
+                <span class="mx-2">/</span>
+                <span>DANH SÁCH YÊU THÍCH</span>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container py-5">
+        <div class="profile-container">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <div class="profile-menu">
+                    <div class="profile-menu-header">
+                        <div>
+                            <div class="profile-name" th:text="${user.name}">Nguyễn Văn A</div>
+                            <div class="profile-email" th:text="${user.email}">nguyenvana@example.com</div>
+                        </div>
+                    </div>
+                    
+                    <ul class="profile-menu-items">
+                        <li class="profile-menu-item">
+                            <a href="/profile" class="profile-menu-link">
+                                <i class="fas fa-user profile-menu-icon"></i> Thông tin tài khoản
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/profile/orders" class="profile-menu-link">
+                                <i class="fas fa-shopping-bag profile-menu-icon"></i> Đơn hàng của tôi
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/profile/wishlist" class="profile-menu-link active">
+                                <i class="fas fa-heart profile-menu-icon"></i> Danh sách yêu thích
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="/profile/edit" class="profile-menu-link">
+                                <i class="fas fa-cog profile-menu-icon"></i> Chỉnh sửa thông tin
+                            </a>
+                        </li>
+                        <li class="profile-menu-item">
+                            <a href="#" onclick="confirmLogout()" class="profile-menu-link">
+                                <i class="fas fa-sign-out-alt profile-menu-icon"></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <div class="wishlist-container">
+                    <div class="wishlist-header">
+                        <h2>Danh Sách Yêu Thích</h2>
+                        <span class="wishlist-count" th:text="${wishlistItems.size() + ' sản phẩm'}">4 sản phẩm</span>
+                    </div>
+
+                    <div th:if="${!wishlistItems.isEmpty()}">
+                        <div th:each="item : ${wishlistItems}" class="wishlist-item" th:data-product-id="${item.productId}">
+                            <img th:src="${item.imageUrl}" class="wishlist-item-image" alt="Product Image">
+
+                            <div class="wishlist-item-details">
+                                <h5 class="wishlist-item-name" th:text="${item.productName}">Tên sản phẩm</h5>
+                                <div class="wishlist-item-status" th:class="${item.inStock ? 'in-stock' : 'out-of-stock'}">
+                                    <span th:if="${item.inStock}"><i class="fas fa-check-circle"></i> Còn hàng</span>
+                                    <span th:unless="${item.inStock}"><i class="fas fa-times-circle"></i> Hết hàng</span>
+                                </div>
+
+                                <div class="size-options">
+                                    <span th:each="vol, iterStat : ${item.variantVolumes}"
+                                        th:data-value="${vol}"
+                                        th:data-variant-id="${item.volumeVariantIdMap[vol.toString()]}"
+                                        th:class="'size-option' + (iterStat.index == 0 ? ' active' : '')"
+                                        th:text="${vol + 'ml'}">50ml</span>
+                                </div>
+
+                                <div class="quantity-selector">
+                                    <button class="quantity-btn quantity-decrease">-</button>
+                                    <input type="number" class="quantity-input" value="1" min="1">
+                                    <button class="quantity-btn quantity-increase">+</button>
+                                </div>
+
+                                <div class="wishlist-item-price">
+                                    <span th:if="${item.minPrice == item.maxPrice}"
+                                        th:text="${#numbers.formatDecimal(item.minPrice, 0, 'POINT', 3, 'COMMA') + 'đ'}">
+                                        2.400.000đ
+                                    </span>
+                                    <span th:unless="${item.minPrice == item.maxPrice}"
+                                        th:text="${#numbers.formatDecimal(item.minPrice, 0, 'POINT', 3, 'COMMA') + 'đ'} + ' - ' + ${#numbers.formatDecimal(item.maxPrice, 0, 'POINT', 3, 'COMMA') + 'đ'}">
+                                        2.400.000đ - 3.500.000đ
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="wishlist-item-actions">
+                                <form th:action="@{/cart/add}" method="post" class="wishlist-add-to-cart-form" th:if="${item.inStock}">
+                                    <input type="hidden" name="productVariantId" th:value="${item.productVariantId}" />
+                                    <input type="hidden" name="quantity" value="1" />
+                                    <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                                    <button type="submit" class="add-to-cart-btn">
+                                        <i class="fas fa-shopping-cart me-1"></i> Thêm vào giỏ
+                                    </button>
+                                </form>
+
+                                <!-- Nếu hết hàng thì show nút "Hết hàng" -->
+                                <button class="add-to-cart-btn disabled-like" disabled th:if="${!item.inStock}">
+                                    <i class="fas fa-ban me-1"></i> Hết hàng
+                                </button>
+
+                                <form th:action="@{/wishlist/remove}" method="post" class="d-inline">
+                                    <input type="hidden" name="productVariantId" th:value="${item.productVariantId}" />
+                                    <input type="hidden" name="_csrf" th:value="${_csrf != null ? _csrf.token : ''}" />
+                                    <button type="submit" class="remove-btn" title="Xóa khỏi danh sách yêu thích">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div th:if="${wishlistItems.isEmpty()}" class="empty-wishlist">
+                        <div class="empty-wishlist-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h3 class="empty-wishlist-message">Danh sách yêu thích trống</h3>
+                        <p class="text-muted mb-4">Bạn chưa thêm sản phẩm nào vào danh sách yêu thích</p>
+                        <a href="/shop" class="btn btn-dark">Tiếp tục mua sắm</a>
+                    </div>
+
+                    <div th:if="${!wishlistItems.isEmpty()}" class="wishlist-footer">
+                        <form th:action="@{/wishlist/clear}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn xóa tất cả không?')">
+                            <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+                            <button type="submit" id="clear-all-btn" class="clear-all-btn">
+                                <i class="fas fa-trash-alt me-1"></i> Xóa tất cả
+                            </button>
+                        </form>
+
+                        <button id="add-all-to-cart-btn"
+                                class="add-all-to-cart-btn"
+                                th:classappend="${!hasInStock} ? ' disabled-like' : ''"
+                                onclick="handleAddAllToCartClick(event)">
+                            <i class="fas fa-shopping-cart me-1"></i> Thêm tất cả vào giỏ hàng
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
+
+    <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
+    <script src="/js/wishlist.js"></script>
+
+    <!-- Hidden form for logout POST request -->
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+    </form>
+
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            // Check for error message from server
+            const errorDataElement = document.getElementById('error-data');
+            if (errorDataElement) {
+                const errorMessage = errorDataElement.getAttribute('data-error-message');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            }
+
+            if (params.get("wishlistRemoved") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã xóa khỏi danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("addedToCart") === "error") {
+                // Error message sẽ được xử lý qua errorMessage flash attribute
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
+        });
+
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
+    </script>
+
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${errorMessage != null}" 
+         id="error-data" 
+         th:data-error-message="${errorMessage}" 
+         style="display: none;"></div>
+</body>
+</html> 

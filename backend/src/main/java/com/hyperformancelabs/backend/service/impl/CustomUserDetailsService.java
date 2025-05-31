@@ -17,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        CustomerDTO customer = customerService.getCustomerByEmailOrPhone(username, username);
+        CustomerDTO customer = customerService.getCustomerByUsernameEmailOrPhone(username);
         if (customer == null) {
             throw new UsernameNotFoundException("Không tìm thấy người dùng: " + username);
         }

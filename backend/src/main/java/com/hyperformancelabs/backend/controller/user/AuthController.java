@@ -39,12 +39,12 @@ public class AuthController {
     private PasswordResetService passwordResetService;
 
     @PostMapping("/precheck")
-    public String precheck(@RequestParam String phoneOrEmail,
+    public String precheck(@RequestParam String usernameEmailOrPhone,
                            @RequestParam String password,
                            RedirectAttributes redirectAttributes,
                            HttpServletRequest request) {
 
-        CustomerDTO customer = customerService.getCustomerByEmailOrPhone(phoneOrEmail, phoneOrEmail);
+        CustomerDTO customer = customerService.getCustomerByUsernameEmailOrPhone(usernameEmailOrPhone);
 
         if (customer == null) {
             redirectAttributes.addFlashAttribute("error", "Tài khoản không tồn tại.");
@@ -58,12 +58,13 @@ public class AuthController {
 
         if ("automatically created".equalsIgnoreCase(customer.getNote())) {
             redirectAttributes.addFlashAttribute("info", "Tài khoản được tạo tự động. Vui lòng đặt lại mật khẩu.");
-            redirectAttributes.addFlashAttribute("phoneOrEmail", phoneOrEmail);
+            redirectAttributes.addFlashAttribute("usernameEmailOrPhone", usernameEmailOrPhone);
             return "redirect:/auth/reset-password";
         }
 
         if (passwordEncoder.matches(password, customer.getPassword())) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(
+                    customer.getUsername() != null ? customer.getUsername() : 
                     customer.getEmail() != null ? customer.getEmail() : customer.getPhoneNumber()
             );
 
@@ -83,11 +84,11 @@ public class AuthController {
     }
 
     @PostMapping("/update-password")
-    public String updatePassword(@RequestParam String phoneOrEmail,
+    public String updatePassword(@RequestParam String usernameEmailOrPhone,
                                  @RequestParam String newPassword,
                                  RedirectAttributes redirectAttributes) {
 
-        CustomerDTO customer = customerService.getCustomerByEmailOrPhone(phoneOrEmail, phoneOrEmail);
+        CustomerDTO customer = customerService.getCustomerByUsernameEmailOrPhone(usernameEmailOrPhone);
         if (customer == null) {
             redirectAttributes.addFlashAttribute("error", "Không tìm thấy tài khoản.");
             return "redirect:/auth/reset-password";

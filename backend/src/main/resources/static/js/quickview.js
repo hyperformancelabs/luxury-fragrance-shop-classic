@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Xóa dữ liệu cũ
         quickviewThumbnails.innerHTML = '';
         quickviewSizeOptions.innerHTML = '';
-        quickviewMainImage.src = '/images/placeholder.jpg';
+        quickviewMainImage.src = '/images/product-default.png';
         quickviewBrand.textContent = '';
         quickviewTitle.textContent = '';
         quickviewDescription.textContent = '';
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Lấy thông tin cơ bản của sản phẩm
                 const productName = productCard.querySelector('.product-name, .card-title')?.textContent || 'Sản phẩm';
                 const brandName = productCard.querySelector('.product-brand, .brand-name')?.textContent || productCard.getAttribute('data-brand') || 'Thương hiệu';
-                const imageUrl = productCard.querySelector('.product-image, .product-img')?.src || '/images/placeholder.jpg';
+                const imageUrl = productCard.querySelector('.product-image, .product-img')?.src || '/images/product-default.png';
                 const description = productCard.getAttribute('data-description') || 'Mô tả sản phẩm';
 
                 // Lấy thông tin giá
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     reviewCount: 0,
                     originalPrice: 1000000,
                     salePrice: 800000,
-                    images: ['/images/placeholder.jpg'],
+                    images: ['/images/product-default.png'],
                     sizes: [
                         { value: '1', label: '30ml', price: 500000, volume: 30, quantityInStock: 10 },
                         { value: '2', label: '50ml', price: 800000, volume: 50, quantityInStock: 8 },
@@ -393,32 +393,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Hàm cập nhật nội dung QuickView
     function updateQuickViewContent(product) {
-        console.log('Cập nhật nội dung QuickView với dữ liệu:', product);
+        console.log('Updating QuickView content with product:', product);
 
-        // Xóa nội dung cũ trước khi cập nhật
+        // Cập nhật ảnh chính
+        quickviewMainImage.src = product.imageUrl || '/images/product-default.png';
+        quickviewMainImage.alt = product.productName || 'Product Image';
+        
+        // Thêm fallback cho ảnh chính
+        quickviewMainImage.onerror = function() {
+            if (!this.src.includes('product-default.png')) {
+                this.src = '/images/product-default.png';
+                this.alt = 'Ảnh sản phẩm mặc định';
+                this.classList.add('fallback-image');
+            }
+        };
+
+        // Cập nhật thumbnails (hiện tại chỉ dùng ảnh chính)
         quickviewThumbnails.innerHTML = '';
-        quickviewSizeOptions.innerHTML = '';
-
-        // Cập nhật hình ảnh
-        if (product.images && product.images.length > 0) {
-            quickviewMainImage.src = product.images[0];
-            product.images.forEach((image, index) => {
-                const thumbnail = document.createElement('img');
-                thumbnail.src = image;
-                thumbnail.alt = 'Thumbnail';
-                thumbnail.className = index === 0 ? 'quickview-thumbnail active' : 'quickview-thumbnail';
-                thumbnail.addEventListener('click', function() {
-                    quickviewMainImage.src = image;
-                    document.querySelectorAll('.quickview-thumbnail').forEach(thumb => {
-                        thumb.classList.remove('active');
-                    });
-                    this.classList.add('active');
-                });
-                quickviewThumbnails.appendChild(thumbnail);
-            });
-        } else {
-            quickviewMainImage.src = '/images/placeholder.jpg';
-        }
+        const thumbnail = document.createElement('img');
+        thumbnail.src = product.imageUrl || '/images/product-default.png';
+        thumbnail.alt = 'Thumbnail';
+        thumbnail.className = 'quickview-thumbnail active';
+        
+        // Thêm fallback cho thumbnail
+        thumbnail.onerror = function() {
+            if (!this.src.includes('product-default.png')) {
+                this.src = '/images/product-default.png';
+                this.alt = 'Ảnh sản phẩm mặc định';
+                this.classList.add('fallback-image');
+            }
+        };
+        
+        thumbnail.addEventListener('click', function() {
+            quickviewMainImage.src = this.src;
+            document.querySelectorAll('.quickview-thumbnail').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+        });
+        quickviewThumbnails.appendChild(thumbnail);
 
         // Cập nhật thông tin sản phẩm
         quickviewBrand.textContent = product.brand || 'Thương hiệu';

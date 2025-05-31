@@ -24,6 +24,9 @@ public interface  CustomerRepository extends JpaRepository<Customer, Integer> {
     Optional<Customer> findByEmailOrPhoneNumber(String email, String phone);
     Optional<Customer> findByEmail(String email);
 
+    // Tìm customer theo username, email hoặc phone number
+    Optional<Customer> findByUsernameOrEmailOrPhoneNumber(String username, String email, String phoneNumber);
+
     // -------------------------------------- ADMIN -----------------------------------------------------
 
     // Số khách hàng mới hôm nay

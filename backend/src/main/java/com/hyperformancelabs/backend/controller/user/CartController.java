@@ -159,10 +159,10 @@ public class CartController {
             return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
             
         } catch (Exception e) {
-            // Nếu có lỗi, vẫn quay lại trang trước, nhưng kèm thông báo lỗi
+            // Nếu có lỗi, thêm parameter error và flash attribute để hiển thị toast notification
             String referer = request.getHeader("Referer");
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=error" : "/?addedToCart=error");
         }
     }
 
@@ -249,7 +249,7 @@ public class CartController {
         if (variants.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy biến thể sản phẩm");
             String referer = request.getHeader("Referer");
-            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=error" : "/?addedToCart=error");
         }
         
         // Tìm biến thể còn hàng
@@ -262,7 +262,7 @@ public class CartController {
         if (inStockVariant == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Sản phẩm đã hết hàng hoặc không đủ số lượng yêu cầu");
             String referer = request.getHeader("Referer");
-            return "redirect:" + (referer != null ? referer.split("\\?")[0] : "/");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=error" : "/?addedToCart=error");
         }
         
         AddToCartRequest addToCartRequest = new AddToCartRequest();
@@ -275,13 +275,13 @@ public class CartController {
             // Cập nhật cart item count trong session
             updateCartItemCountInSession(request, username, sessionId);
             
-            redirectAttributes.addFlashAttribute("successMessage", "Đã thêm sản phẩm vào giỏ hàng");
+            String referer = request.getHeader("Referer");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+            String referer = request.getHeader("Referer");
+            return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=error" : "/?addedToCart=error");
         }
-        
-        String referer = request.getHeader("Referer");
-        return "redirect:" + (referer != null ? referer.split("\\?")[0] + "?addedToCart=success" : "/?addedToCart=success");
     }
     
     /**

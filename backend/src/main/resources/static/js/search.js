@@ -197,10 +197,10 @@ class AdvancedSearch {
         
         const html = this.suggestions.map((item, index) => `
             <a href="${item.url}" class="search-suggestion-item" data-index="${index}">
-                <img src="${item.image || '/images/placeholder.jpg'}" 
+                <img src="${item.image || '/images/product-default.png'}" 
                      alt="${item.name}" 
                      class="search-suggestion-image"
-                     onerror="this.src='/images/placeholder.jpg'">
+                     onerror="this.src='/images/product-default.png'">
                 <div class="search-suggestion-content">
                     <div class="search-suggestion-name">${this.highlightQuery(item.name)}</div>
                     <div class="search-suggestion-brand">${item.brand}</div>

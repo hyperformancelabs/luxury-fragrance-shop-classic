@@ -13,6 +13,7 @@
 <!-- Navigation -->
 <nav th:replace="~{shared/fragments/navbar :: navbar('home')}"></nav>
 
+<main>
 <!-- Hero Banner Slider Section -->
 <section class="hero-slider">
     <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
@@ -202,13 +203,6 @@
                                 </a>
                                 <div class="card-body text-center d-flex flex-column justify-content-between">
                                     <div>
-                                        <div class="rating">
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star"></i>
-                                            <i class="fas fa-star-half-alt"></i>
-                                        </div>
                                         <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
                                         <h5 class="card-title product-name" th:text="${product.productName}">Tên sản phẩm</h5>
                                         <div class="product-price">
@@ -320,13 +314,6 @@
                         <img th:src="${product.imageUrl}" class="card-img-top product-img" alt="Product Image">
                     </a>
                     <div class="card-body text-center">
-                        <div class="rating">
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                            <i class="fas fa-star"></i>
-                        </div>
                         <p class="product-brand mb-1" th:text="${product.brandName}">Thương hiệu</p>
                         <h5 class="card-title" th:text="${product.productName}">Tên sản phẩm</h5>
                         <div class="product-price"
@@ -452,11 +439,18 @@
         </div>
     </div>
 </section>
+</main>
 
 <!-- Footer -->
 <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
 <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
+
+<!-- Hiển thị thông báo lỗi nếu có -->
+<div th:if="${errorMessage != null}" 
+     id="error-data" 
+     th:data-error-message="${errorMessage}" 
+     style="display: none;"></div>
 
 <script>
     function confirmLogout() {
@@ -494,6 +488,20 @@
     document.addEventListener('DOMContentLoaded', function () {
         const params = new URLSearchParams(window.location.search);
 
+        // Check for error message from server
+        const errorDataElement = document.getElementById('error-data');
+        if (errorDataElement) {
+            const errorMessage = errorDataElement.getAttribute('data-error-message');
+            if (errorMessage) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Thêm vào giỏ hàng thất bại',
+                    text: errorMessage,
+                    confirmButtonText: 'Đóng'
+                });
+            }
+        }
+
         // Check for logout success
         if (params.get("logout") === "success") {
             Swal.fire({
@@ -515,6 +523,12 @@
                 timer: 2000,
                 showConfirmButton: false
             });
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
+        // Check for cart addition error
+        if (params.get("addedToCart") === "error") {
+            // Error message sẽ được hiển thị bởi script phía trên nếu có errorMessage
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 

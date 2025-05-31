@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{shared/fragments/head :: head(${title}, ~{::link})}">
+    <!-- Add any additional page-specific links here -->
+    <link rel="stylesheet" href="/css/page-specific.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav th:replace="~{shared/fragments/navbar :: navbar(${activePage})}"></nav>
+
+    <!-- Breadcrumb - if needed -->
+    <header class="breadcrumb-section" th:if="${showBreadcrumb}">
+        <div class="container">
+            <nav class="d-flex">
+                <a href="/" class="me-2">TRANG CHỦ</a>
+                <span class="mx-2">/</span>
+                <!-- Add additional breadcrumb items as needed -->
+                <span th:text="${pageTitle}">PAGE TITLE</span>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main content - flex-grow will push footer down -->
+    <main class="container py-5">
+        <!-- Page content goes here -->
+        <div th:replace="${content}">
+            <!-- This will be replaced with the actual content -->
+            Page content placeholder
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
+
+    <!-- Scripts -->
+    <th:block th:replace="~{shared/fragments/scripts :: scripts(~{::script})}">
+        <!-- Add any additional page-specific scripts here -->
+        <script src="/js/page-specific.js"></script>
+    </th:block>
+
+    <!-- Form for logout POST request -->
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+    </form>
+
+    <!-- Common scripts for authentication and notifications -->
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+
+        function showLoginReminder() {
+            Swal.fire({
+                icon: 'info',
+                title: 'Vui lòng đăng nhập',
+                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
+                confirmButtonText: 'Đăng nhập',
+                showCancelButton: true,
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const params = new URLSearchParams(window.location.search);
+
+            // Check for error message from server
+            const errorDataElement = document.getElementById('error-data');
+            if (errorDataElement) {
+                const errorMessage = errorDataElement.getAttribute('data-error-message');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            }
+
+            // Check for notifications in URL parameters
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
+
+            if (params.get("addedToCart") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào giỏ hàng!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("wishlistAdded") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đã thêm vào danh sách yêu thích!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Check for flash attributes
+            const successElement = document.getElementById('success-message');
+            if (successElement) {
+                const successMessage = successElement.getAttribute('data-success-message');
+                if (successMessage) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: successMessage,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                }
+            }
+
+            const errorElement = document.getElementById('error-message');
+            if (errorElement) {
+                const errorMessage = errorElement.getAttribute('data-error-message');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            }
+        });
+    </script>
+
+    <!-- Hidden elements for flash messages -->
+    <div th:if="${success != null}" id="success-message" th:data-success-message="${success}" style="display: none;"></div>
+    <div th:if="${error != null}" id="error-message" th:data-error-message="${error}" style="display: none;"></div>
+    <div th:if="${errorMessage != null}" id="error-data" th:data-error-message="${errorMessage}" style="display: none;"></div>
+</body>
+</html> 

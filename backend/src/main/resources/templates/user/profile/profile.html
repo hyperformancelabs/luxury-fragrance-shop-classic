@@ -1,14 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông tin tài khoản - APH Perfume</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<head th:replace="~{shared/fragments/head :: head('Thông tin tài khoản', ~{::link})}">
     <link rel="stylesheet" href="/css/profile.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -50,7 +44,7 @@
                             </a>
                         </li>
                         <li class="profile-menu-item">
-                            <a href="/wishlist" class="profile-menu-link">
+                            <a href="/profile/wishlist" class="profile-menu-link">
                                 <i class="fas fa-heart profile-menu-icon"></i> Danh sách yêu thích
                             </a>
                         </li>
@@ -60,7 +54,7 @@
                             </a>
                         </li>
                         <li class="profile-menu-item">
-                            <a href="/logout" class="profile-menu-link">
+                            <a href="#" onclick="confirmLogout()" class="profile-menu-link">
                                 <i class="fas fa-sign-out-alt profile-menu-icon"></i> Đăng xuất
                             </a>
                         </li>
@@ -129,7 +123,13 @@
     <!-- Footer -->
     <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
+
+    <!-- Hidden form for logout POST request -->
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+    </form>
+
     <script>
         function confirmLogout() {
             Swal.fire({

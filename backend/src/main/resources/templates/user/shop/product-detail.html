@@ -33,8 +33,6 @@
                 </div>
                 <div class="product-thumbnails">
                     <img th:src="${product.imageUrl}" class="product-thumbnail active" alt="Product Thumbnail">
-                    <img th:src="${product.imageUrl}" class="product-thumbnail" alt="Product Thumbnail">
-                    <img th:src="${product.imageUrl}" class="product-thumbnail" alt="Product Thumbnail">
                 </div>
             </div>
 
@@ -42,17 +40,6 @@
             <div class="col-md-7">
                 <div class="product-brand" th:text="${product.brandName}">VERSACE</div>
                 <h1 class="product-title" th:text="${product.productName}">Nước Hoa Nữ Versace Bright Crystal EDT</h1>
-
-                <div class="product-rating">
-                    <div class="rating-stars">
-                        <i class="fas fa-star" th:classappend="${averageRating >= 1 ? '' : 'far'}"></i>
-                        <i class="fas fa-star" th:classappend="${averageRating >= 2 ? '' : 'far'}"></i>
-                        <i class="fas fa-star" th:classappend="${averageRating >= 3 ? '' : 'far'}"></i>
-                        <i class="fas fa-star" th:classappend="${averageRating >= 4 ? '' : 'far'}"></i>
-                        <i class="fas fa-star" th:classappend="${averageRating >= 5 ? '' : 'far'}"></i>
-                    </div>
-                    <span th:text="${averageRating + ' (' + totalReviews + ' đánh giá)'}">4.5 (125 đánh giá)</span>
-                </div>
 
                 <div class="product-price">
                     <span class="original-price" th:if="${maxPrice > minPrice}" 
@@ -102,7 +89,7 @@
                     <span th:if="${!hasStock}" class="text-danger fw-bold">Tạm hết hàng</span>
                 </form>
 
-                <div class="product-actions mt-3">
+                <div class="product-actions">
                     <!-- Nếu đã đăng nhập -->
                     <div sec:authorize="isAuthenticated()">
                         <form th:action="@{/wishlist/add}" method="post" class="d-inline">
@@ -123,7 +110,7 @@
                         </button>
                     </div>
                     
-                    <div class="action-btn">
+                    <div class="action-btn" id="share-btn">
                         <i class="fas fa-share-alt"></i>
                         <span>Chia sẻ</span>
                     </div>
@@ -137,7 +124,6 @@
                     <div class="tab-buttons">
                         <div class="tab-button active" data-tab="fragrance">Hương</div>
                         <div class="tab-button" data-tab="details">Chi tiết</div>
-                        <div class="tab-button" data-tab="reviews">Đánh giá</div>
                     </div>
 
                     <div class="tab-content" data-tab="fragrance">
@@ -178,32 +164,6 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <div class="tab-content" data-tab="reviews" style="display: none;">
-                        <h4>Đánh giá từ khách hàng</h4>
-                        <div class="text-center py-4" th:if="${totalReviews == 0}">
-                            <i class="fas fa-star-half-alt fa-3x text-muted mb-3"></i>
-                            <h5>Chưa có đánh giá</h5>
-                            <p class="text-muted">Hãy là người đầu tiên đánh giá sản phẩm này.</p>
-                        </div>
-                        
-                        <div th:if="${totalReviews > 0}">
-                            <div class="mb-4">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="rating-stars me-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <span class="fw-bold">Nguyễn Văn A</span>
-                                    <span class="ms-auto text-muted">15/04/2023</span>
-                                </div>
-                                <p>Sản phẩm rất tuyệt vời, hương thơm nhẹ nhàng và quyến rũ. Tôi rất hài lòng với sản phẩm này.</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -234,86 +194,31 @@
         <script src="/js/product-detail.js"></script>
     </th:block>
     
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${errorMessage != null}" 
+         id="error-data" 
+         th:data-error-message="${errorMessage}" 
+         style="display: none;"></div>
+    
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Initialize product detail functionality
-            initProductDetail();
-        });
-
-        function initProductDetail() {
-            // Variant selection
-            document.querySelectorAll(".quickview-size").forEach(option => {
-                option.addEventListener("click", function () {
-                    if (this.classList.contains("out-of-stock")) return;
-
-                    document.querySelectorAll(".quickview-size").forEach(o => o.classList.remove("active"));
-                    this.classList.add("active");
-
-                    const variantId = this.getAttribute("data-value");
-                    const price = this.getAttribute("data-price");
-
-                    document.getElementById("selectedVariantId").value = variantId;
-                    document.querySelector(".sale-price").textContent = new Intl.NumberFormat('vi-VN').format(price) + "đ";
-                });
-            });
-
-            // Quantity controls
-            const quantityInput = document.getElementById("quantity");
-            const decreaseBtn = document.querySelector(".quantity-decrease");
-            const increaseBtn = document.querySelector(".quantity-increase");
-
-            if (decreaseBtn) {
-                decreaseBtn.addEventListener("click", () => {
-                    let val = parseInt(quantityInput.value);
-                    if (val > 1) {
-                        quantityInput.value = val - 1;
-                        document.getElementById("selectedQuantity").value = quantityInput.value;
-                    }
-                });
-            }
-
-            if (increaseBtn) {
-                increaseBtn.addEventListener("click", () => {
-                    let val = parseInt(quantityInput.value);
-                    quantityInput.value = val + 1;
-                    document.getElementById("selectedQuantity").value = quantityInput.value;
-                });
-            }
-
-            if (quantityInput) {
-                quantityInput.addEventListener("input", () => {
-                    document.getElementById("selectedQuantity").value = quantityInput.value;
-                });
-            }
-
-            // Tab functionality
-            document.querySelectorAll(".tab-button").forEach(button => {
-                button.addEventListener("click", function () {
-                    const tab = this.getAttribute("data-tab");
-                    
-                    // Remove active class from all buttons and hide all content
-                    document.querySelectorAll(".tab-button").forEach(b => b.classList.remove("active"));
-                    document.querySelectorAll(".tab-content").forEach(c => c.style.display = "none");
-                    
-                    // Add active to clicked button and show corresponding content
-                    this.classList.add("active");
-                    document.querySelector(`[data-tab="${tab}"].tab-content`).style.display = "block";
-                });
-            });
-
-            // Thumbnail functionality
-            document.querySelectorAll(".product-thumbnail").forEach(thumb => {
-                thumb.addEventListener("click", function () {
-                    document.querySelectorAll(".product-thumbnail").forEach(t => t.classList.remove("active"));
-                    this.classList.add("active");
-                    document.getElementById("main-product-image").src = this.src;
-                });
-            });
-        }
-
         // Success messages
         document.addEventListener('DOMContentLoaded', function () {
             const params = new URLSearchParams(window.location.search);
+            
+            // Check for error message from server
+            const errorDataElement = document.getElementById('error-data');
+            if (errorDataElement) {
+                const errorMessage = errorDataElement.getAttribute('data-error-message');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Thêm vào giỏ hàng thất bại',
+                        text: errorMessage,
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            }
+            
             if (params.get("addedToCart") === "success") {
                 Swal.fire({
                     icon: 'success',
@@ -321,6 +226,12 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("addedToCart") === "error") {
+                // Error message sẽ được hiển thị bởi script phía trên nếu có errorMessage
+                // Chỉ cần clear URL parameter
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
 
@@ -332,6 +243,46 @@
                     showConfirmButton: false
                 });
                 window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            // Share functionality
+            const shareBtn = document.getElementById('share-btn');
+            if (shareBtn) {
+                shareBtn.addEventListener('click', function() {
+                    // Copy current URL to clipboard
+                    navigator.clipboard.writeText(window.location.href)
+                        .then(function() {
+                            // Show success toast
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã sao chép!',
+                                text: 'Link sản phẩm đã được sao chép vào clipboard',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        })
+                        .catch(function(err) {
+                            // Fallback for older browsers
+                            const textArea = document.createElement('textarea');
+                            textArea.value = window.location.href;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            document.execCommand('copy');
+                            document.body.removeChild(textArea);
+                            
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Đã sao chép!',
+                                text: 'Link sản phẩm đã được sao chép vào clipboard',
+                                timer: 2000,
+                                showConfirmButton: false,
+                                toast: true,
+                                position: 'top-end'
+                            });
+                        });
+                });
             }
         });
 

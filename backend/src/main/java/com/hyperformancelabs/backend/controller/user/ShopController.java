@@ -464,14 +464,6 @@ public class ShopController {
                 .max(Comparator.naturalOrder())
                 .orElse(BigDecimal.ZERO);
 
-        // Calculate average rating
-        Double averageRating = product.getAverageRating();
-        if (averageRating == null) averageRating = 0.0;
-
-        // Fix null pointer for total reviews
-        Integer totalReviewsObj = product.getTotalReviews();
-        int totalReviews = (totalReviewsObj != null) ? totalReviewsObj : 0;
-
         // Determine if there is any stock available for any variant
         boolean hasStock = variants.stream().anyMatch(v -> v.getQuantityInStock() > 0);
 
@@ -480,7 +472,7 @@ public class ShopController {
                 .filter(v -> v.getQuantityInStock() > 0)
                 .findFirst()
                 .map(ProductVariantDTO::getProductVariantId)
-                .orElse(variants.get(0).getProductVariantId()); // Fallback to first variant if none in stock
+                .orElse(variants.get(0).getProductVariantId());
 
         // Get related products
         List<ProductDTO> relatedProducts = productService.getRelatedProducts(id, 4);
@@ -490,8 +482,6 @@ public class ShopController {
         model.addAttribute("variantsJson", convertVariantsToJson(variants)); // For JS
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
-        model.addAttribute("averageRating", averageRating.isNaN() ? 0 : averageRating);
-        model.addAttribute("totalReviews", totalReviews);
         model.addAttribute("hasStock", hasStock);
         model.addAttribute("firstInStockVariantId", firstInStockVariantId);
         model.addAttribute("relatedProducts", relatedProducts);

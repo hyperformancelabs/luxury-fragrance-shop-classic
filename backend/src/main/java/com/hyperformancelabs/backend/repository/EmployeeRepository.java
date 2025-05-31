@@ -32,13 +32,13 @@ public interface EmployeeRepository extends JpaRepository<Employee, Integer> {
     JOIN RolePermission rp ON r.role_id = rp.role_id
     JOIN Permission p ON rp.permission_id = p.permission_id
     WHERE 
-        (:emailOrPhone IS NOT NULL AND (e.email = :emailOrPhone OR e.phone_number = :emailOrPhone))
+        (:usernameEmailOrPhone IS NOT NULL AND (e.username = :usernameEmailOrPhone OR e.email = :usernameEmailOrPhone OR e.phone_number = :usernameEmailOrPhone))
         AND r.role_name IN ('System Admin', 'Order Staff', 'Material Staff')
         AND e.status = 'active'
         AND er.status = 'active'
         AND r.status = 'active'
     """, nativeQuery = true)
-    Employee findActiveSystemAdminByEmailOrPhone(@Param("emailOrPhone") String emailOrPhone);
+    Employee findActiveSystemAdminByEmailOrPhone(@Param("usernameEmailOrPhone") String usernameEmailOrPhone);
 
     // Lấy tên role của nhân viên theo id
     @Query("""

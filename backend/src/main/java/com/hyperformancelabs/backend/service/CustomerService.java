@@ -20,6 +20,8 @@ public interface CustomerService {
 
     CustomerDTO getCustomerByEmailOrPhone(String email, String phone);
 
+    CustomerDTO getCustomerByUsernameEmailOrPhone(String usernameEmailOrPhone);
+
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);

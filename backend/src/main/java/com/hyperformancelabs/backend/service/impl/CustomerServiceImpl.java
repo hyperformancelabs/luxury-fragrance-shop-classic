@@ -103,6 +103,13 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerDTO getCustomerByUsernameEmailOrPhone(String usernameEmailOrPhone) {
+        return customerRepository.findByUsernameOrEmailOrPhoneNumber(usernameEmailOrPhone, usernameEmailOrPhone, usernameEmailOrPhone)
+                .map(this::convertToCustomerDTO)
+                .orElse(null);
+    }
+
+    @Override
     public boolean existsByUsername(String username) {
         return customerRepository.existsByUsername(username);
     }

@@ -72,22 +72,6 @@
     line-height: 1.3;
 }
 
-.product-rating {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.rating-stars {
-    color: #ffc107;
-    font-size: 18px;
-}
-
-.rating-stars i.far {
-    color: #e9ecef;
-}
-
 .product-price {
     margin-bottom: 25px;
 }

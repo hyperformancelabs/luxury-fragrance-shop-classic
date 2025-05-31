@@ -55,17 +55,17 @@ public class AdminAuthController {
     }
 
     @PostMapping("/precheck")
-    public String loginAdmin(@RequestParam String username,
+    public String loginAdmin(@RequestParam String usernameEmailOrPhone,
                              @RequestParam String password,
                              HttpServletRequest request,
                              RedirectAttributes redirectAttributes) {
 
         System.out.println("=== ADMIN LOGIN DEBUG ===");
-        System.out.println("Login attempt with username: " + username);
+        System.out.println("Login attempt with usernameEmailOrPhone: " + usernameEmailOrPhone);
         
-        EmployeeDTO employee = employeeService.findActiveSystemAdminByEmailOrPhone(username);
+        EmployeeDTO employee = employeeService.findActiveSystemAdminByUsernameEmailOrPhone(usernameEmailOrPhone);
         if (employee == null) {
-            System.out.println("Employee not found for: " + username);
+            System.out.println("Employee not found for: " + usernameEmailOrPhone);
             redirectAttributes.addFlashAttribute("error", "Tài khoản admin không tồn tại hoặc không có quyền.");
             return "redirect:/admin/login";
         }

@@ -129,103 +129,26 @@
     <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
     <script src="/js/wishlist.js"></script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const addToCartForms = document.querySelectorAll(".wishlist-add-to-cart-form");
-
-            addToCartForms.forEach(form => {
-                form.addEventListener("submit", function (e) {
-                    e.preventDefault(); // ⛔ Ngăn submit ngay lập tức
-
-                    const wishlistItem = form.closest(".wishlist-item");
-
-                    const quantityInput = wishlistItem.querySelector(".quantity-input");
-                    const quantity = quantityInput ? quantityInput.value : 1;
-
-                    const selectedSize = wishlistItem.querySelector(".size-option.active");
-                    const productVariantIdInput = form.querySelector("input[name='productVariantId']");
-
-                    if (selectedSize) {
-                        const selectedVariantId = selectedSize.getAttribute("data-variant-id");
-                        const volume = selectedSize.getAttribute("data-value");
-
-                        // ✅ In ra để debug
-                        console.log("✅ Selected Volume (ml):", volume);
-                        console.log("✅ Selected Quantity:", quantity);
-                        console.log("✅ Selected Variant ID:", selectedVariantId);
-
-                        if (selectedVariantId && productVariantIdInput) {
-                            productVariantIdInput.value = selectedVariantId;
-                        }
-                    } else {
-                        console.warn("⚠️ Chưa chọn kích thước (volume) cho sản phẩm.");
-                    }
-
-                    form.querySelector("input[name='quantity']").value = quantity;
-
-                    // ✅ Chờ JS hoàn thành cập nhật trước khi submit
-                    setTimeout(() => {
-                        form.submit();
-                    }, 0);
-                });
-            });
-
-            // Xử lý chọn volume
-            document.querySelectorAll('.size-option').forEach(option => {
-                option.addEventListener('click', function () {
-                    const container = option.closest('.size-options');
-                    container.querySelectorAll('.size-option').forEach(el => el.classList.remove('active'));
-                    option.classList.add('active');
-                });
-            });
-        });
-    </script>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function handleAddAllToCartClick(event) {
-            const button = document.getElementById("add-all-to-cart-btn");
-            if (button.classList.contains("disabled-like")) {
-                event.preventDefault();
-                Swal.fire({
-                    icon: 'info',
-                    title: 'Không thể thêm vào giỏ hàng',
-                    text: 'Tất cả sản phẩm trong danh sách đều đã hết hàng.',
-                    confirmButtonText: 'Đã hiểu'
-                });
-            } else {
-                proceedAddAllToCart();
-            }
-        }
 
-        function proceedAddAllToCart() {
-            const wishlistItems = document.querySelectorAll('.wishlist-item');
-
-            wishlistItems.forEach(item => {
-                const productId = item.getAttribute('data-product-id');
-                const quantity = item.querySelector('.quantity-input').value;
-                const selectedSize = item.querySelector('.size-option.active');
-
-                if (selectedSize) {
-                    const size = selectedSize.getAttribute('data-value');
-                    console.log(`Thêm sản phẩm ${productId} vào giỏ hàng, kích thước: ${size}, số lượng: ${quantity}`);
-                } else {
-                    console.log(`Vui lòng chọn kích thước cho sản phẩm ${productId}`);
-                }
-            });
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Đã thêm vào giỏ hàng',
-                text: 'Tất cả sản phẩm còn hàng đã được thêm!',
-                timer: 2000,
-                showConfirmButton: false
-            });
-        }
-    </script>
+    <!-- Chỉ giữ các script xử lý success/error messages -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const params = new URLSearchParams(window.location.search);
+
+            // Check for error message from server
+            const errorDataElement = document.getElementById('error-data');
+            if (errorDataElement) {
+                const errorMessage = errorDataElement.getAttribute('data-error-message');
+                if (errorMessage) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Lỗi',
+                        text: errorMessage,
+                        confirmButtonText: 'Đóng'
+                    });
+                }
+            }
 
             if (params.get("wishlistRemoved") === "success") {
                 Swal.fire({
@@ -234,14 +157,9 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
-                // Xóa query khỏi URL để không hiện lại sau khi reload
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
+
             if (params.get("addedToCart") === "success") {
                 Swal.fire({
                     icon: 'success',
@@ -251,9 +169,25 @@
                 });
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
+
+            if (params.get("addedToCart") === "error") {
+                // Error message sẽ được xử lý qua errorMessage flash attribute
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (params.get("logout") === "success") {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Đăng xuất thành công!',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    window.location.reload();
+                });
+            }
         });
-    </script>
-    <script>
+
         function confirmLogout() {
             Swal.fire({
                 title: 'Xác nhận đăng xuất',
@@ -270,23 +204,6 @@
             });
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                window.location.reload();
-            });
-
-            }
-        });
-    </script>
-    <script>
         function showLoginReminder() {
             Swal.fire({
                 icon: 'info',
@@ -303,56 +220,11 @@
             });
         }
     </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
 
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    window.location.reload();
-                });
-            }
-
-            if (params.get("addedToCart") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã thêm vào giỏ hàng!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            if (params.get("wishlistAdded") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã thêm vào danh sách yêu thích!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get("wishlistCleared") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã xóa toàn bộ danh sách yêu thích!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        });
-    </script>
+    <!-- Hiển thị thông báo lỗi nếu có -->
+    <div th:if="${errorMessage != null}" 
+         id="error-data" 
+         th:data-error-message="${errorMessage}" 
+         style="display: none;"></div>
 </body>
 </html>
