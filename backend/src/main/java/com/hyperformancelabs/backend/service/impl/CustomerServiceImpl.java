@@ -35,10 +35,23 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void addCustomer(CustomerDTO customerDTO) {
         Customer customer = new Customer();
+        
+        // Set basic required info
         customer.setName(customerDTO.getName());
-        customer.setPhoneNumber(customerDTO.getPhoneNumber());
-        customer.setEmail(customerDTO.getEmail());
-        customer.setUsername(customerDTO.getUsername());
+        
+        // Handle contact info - convert empty strings to null
+        customer.setUsername(customerDTO.getUsername() != null && customerDTO.getUsername().trim().isEmpty() ? 
+                            null : customerDTO.getUsername());
+        customer.setEmail(customerDTO.getEmail() != null && customerDTO.getEmail().trim().isEmpty() ? 
+                         null : customerDTO.getEmail());
+        customer.setPhoneNumber(customerDTO.getPhoneNumber() != null && customerDTO.getPhoneNumber().trim().isEmpty() ? 
+                               null : customerDTO.getPhoneNumber());
+        
+        // Validate at least one contact method is provided
+        if (customer.getUsername() == null && customer.getEmail() == null && customer.getPhoneNumber() == null) {
+            throw new IllegalArgumentException("Phải cung cấp ít nhất một trong các thông tin: tên đăng nhập, email hoặc số điện thoại");
+        }
+        
         customer.setPassword(customerDTO.getPassword());
         customer.setStreet(customerDTO.getStreet());
         customer.setWard(customerDTO.getWard());
@@ -50,6 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setStatus(customerDTO.getStatus());
         customer.setLoyaltyPoints(0);
         customer.setCreateAt(LocalDateTime.now());
+        
         customerRepository.save(customer);
         convertToCustomerDTO(customer);
     }
@@ -63,9 +77,20 @@ public class CustomerServiceImpl implements CustomerService {
         }
 
         customerEntity.setName(customer.getName());
-        customerEntity.setPhoneNumber(customer.getPhoneNumber());
-        customerEntity.setEmail(customer.getEmail());
-        customerEntity.setUsername(customer.getUsername());
+        
+        // Handle contact info - convert empty strings to null
+        customerEntity.setUsername(customer.getUsername() != null && customer.getUsername().trim().isEmpty() ? 
+                                  null : customer.getUsername());
+        customerEntity.setEmail(customer.getEmail() != null && customer.getEmail().trim().isEmpty() ? 
+                               null : customer.getEmail());
+        customerEntity.setPhoneNumber(customer.getPhoneNumber() != null && customer.getPhoneNumber().trim().isEmpty() ? 
+                                     null : customer.getPhoneNumber());
+        
+        // Validate at least one contact method is provided
+        if (customerEntity.getUsername() == null && customerEntity.getEmail() == null && customerEntity.getPhoneNumber() == null) {
+            throw new IllegalArgumentException("Phải cung cấp ít nhất một trong các thông tin: tên đăng nhập, email hoặc số điện thoại");
+        }
+        
         customerEntity.setPassword(customer.getPassword());
         customerEntity.setStreet(customer.getStreet());
         customerEntity.setWard(customer.getWard());
@@ -111,16 +136,25 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public boolean existsByUsername(String username) {
+        if (username == null || username.trim().isEmpty()) {
+            return false;
+        }
         return customerRepository.existsByUsername(username);
     }
 
     @Override
     public boolean existsByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return false;
+        }
         return customerRepository.existsByEmail(email);
     }
 
     @Override
     public boolean existsByPhoneNumber(String phone) {
+        if (phone == null || phone.trim().isEmpty()) {
+            return false;
+        }
         return customerRepository.existsByPhoneNumber(phone);
     }
 

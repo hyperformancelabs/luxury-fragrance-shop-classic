@@ -122,12 +122,25 @@ public class AuthController {
 
     @PostMapping("/signup")
     public String register(@RequestParam String name,
-                           @RequestParam String email,
-                           @RequestParam String username,
-                           @RequestParam String phoneNumber,
+                           @RequestParam(required = false) String email,
+                           @RequestParam(required = false) String username,
+                           @RequestParam(required = false) String phoneNumber,
                            @RequestParam String password,
                            @RequestParam String confirmPassword,
                            RedirectAttributes redirectAttributes) {
+
+        // Convert empty strings to null to satisfy database constraints
+        username = (username != null && username.trim().isEmpty()) ? null : username;
+        email = (email != null && email.trim().isEmpty()) ? null : email;
+        phoneNumber = (phoneNumber != null && phoneNumber.trim().isEmpty()) ? null : phoneNumber;
+
+        // Validate at least one contact method is provided
+        if ((username == null || username.isEmpty()) && 
+            (email == null || email.isEmpty()) && 
+            (phoneNumber == null || phoneNumber.isEmpty())) {
+            redirectAttributes.addFlashAttribute("error", "Vui lòng cung cấp ít nhất một trong các thông tin: tên đăng nhập, email hoặc số điện thoại.");
+            return "redirect:/auth/register";
+        }
 
         // Kiểm tra trùng username hoặc email
         if (customerService.existsByUsername(username)) {
@@ -151,19 +164,28 @@ public class AuthController {
             return "redirect:/auth/register";
         }
 
-        // Tạo khách hàng mới
-        CustomerDTO customer = new CustomerDTO();
-        customer.setName(name);
-        customer.setEmail(email);
-        customer.setUsername(username);
-        customer.setPhoneNumber(phoneNumber);
-        customer.setPassword(passwordEncoder.encode(password));
-        customer.setStatus("active");
+        try {
+            // Tạo khách hàng mới
+            CustomerDTO customer = new CustomerDTO();
+            customer.setName(name);
+            customer.setEmail(email);
+            customer.setUsername(username);
+            customer.setPhoneNumber(phoneNumber);
+            customer.setPassword(passwordEncoder.encode(password));
+            customer.setStatus("active");
 
-        customerService.addCustomer(customer);
+            customerService.addCustomer(customer);
 
-        redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
-        return "redirect:/auth/login";
+            redirectAttributes.addFlashAttribute("success", "Đăng ký thành công! Vui lòng đăng nhập.");
+            return "redirect:/auth/login";
+        } catch (IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+            return "redirect:/auth/register";
+        } catch (Exception ex) {
+            System.err.println("Lỗi đăng ký tài khoản: " + ex.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại sau.");
+            return "redirect:/auth/register";
+        }
     }
 
     @GetMapping("/reset-password")
