@@ -220,6 +220,24 @@
                                 <i class="fas fa-upload me-2"></i>Chọn ảnh mới
                             </button>
                             
+                            <div class="mt-3">
+                                <div class="text-center mb-2"><strong>hoặc</strong></div>
+                                <label for="profilePictureUrl" class="form-label">URL ảnh đại diện</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-link"></i></span>
+                                    <input type="text" id="profilePictureUrl" name="profilePictureUrl" 
+                                           class="form-control" placeholder="https://example.com/your-image.jpg"
+                                           th:value="${employee.profilePictureUrl}">
+                                    <button type="button" class="btn btn-outline-secondary" 
+                                            onclick="previewUrlAvatar()">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted d-block mt-2">
+                                    Nhập URL ảnh từ internet hoặc để trống nếu bạn tải ảnh lên
+                                </small>
+                            </div>
+                            
                             <small class="text-muted d-block mt-2">
                                 Định dạng: JPG, PNG. Kích thước tối đa: 5MB
                             </small>
@@ -232,13 +250,14 @@
                     <div class="profile-card">
                         <div class="profile-card-header">
                             <h4 class="card-title">
-                                <i class="fas fa-user me-2"></i>
-                                Thông tin cá nhân
+                                <i class="fas fa-info-circle me-2"></i>
+                                Thông tin cơ bản
                             </h4>
+                            <span class="text-muted">Thông tin này sẽ không được hiển thị công khai</span>
                         </div>
-                        
+
                         <div class="form-grid">
-                            <!-- Username (readonly) -->
+                            <!-- Thông tin cơ bản -->
                             <div class="form-group">
                                 <label for="username" class="form-label">Tên đăng nhập</label>
                                 <div class="input-group">
@@ -246,106 +265,51 @@
                                     <input type="text" id="username" class="form-control" 
                                            th:value="${employee.username}" readonly>
                                 </div>
-                                <small class="text-muted">Tên đăng nhập không thể thay đổi</small>
+                                <small class="form-text text-muted">Tên đăng nhập không thể thay đổi</small>
                             </div>
-
-                            <!-- Full Name -->
+                            
                             <div class="form-group">
-                                <label for="fullName" class="form-label">
-                                    Họ và tên <span class="text-danger">*</span>
-                                </label>
+                                <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                                    <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                                     <input type="text" id="fullName" name="fullName" class="form-control" 
-                                           th:value="${employee.fullName}" maxlength="100" required>
+                                           th:value="${employee.fullName}" required>
                                 </div>
                             </div>
-
-                            <!-- Email -->
+                            
                             <div class="form-group">
-                                <label for="email" class="form-label">
-                                    Email <span class="text-danger">*</span>
-                                </label>
+                                <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-envelope"></i></span>
                                     <input type="email" id="email" name="email" class="form-control" 
-                                           th:value="${employee.email}" maxlength="100" required>
+                                           th:value="${employee.email}" required>
                                 </div>
                             </div>
-
-                            <!-- Phone Number -->
+                            
                             <div class="form-group">
-                                <label for="phoneNumber" class="form-label">
-                                    Số điện thoại <span class="text-danger">*</span>
-                                </label>
+                                <label for="phoneNumber" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-phone"></i></span>
                                     <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" 
-                                           th:value="${employee.phoneNumber}" maxlength="20" required>
+                                           th:value="${employee.phoneNumber}" required>
                                 </div>
                             </div>
-
-                            <!-- Date of Birth -->
+                            
                             <div class="form-group">
-                                <label for="dateOfBirth" class="form-label">Ngày sinh</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-birthday-cake"></i></span>
-                                    <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" 
-                                           th:value="${employee.dateOfBirth != null ? #dates.format(employee.dateOfBirth, 'yyyy-MM-dd') : ''}">
-                                </div>
-                            </div>
-
-                            <!-- Address -->
-                            <div class="form-group full-width">
                                 <label for="address" class="form-label">Địa chỉ</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                    <textarea id="address" name="address" class="form-control" rows="3" 
-                                              maxlength="200" th:text="${employee.address}"></textarea>
+                                    <input type="text" id="address" name="address" class="form-control" 
+                                           th:value="${employee.address}">
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Password Change Section -->
-                    <div class="profile-card mt-4">
-                        <div class="profile-card-header">
-                            <h4 class="card-title">
-                                <i class="fas fa-lock me-2"></i>
-                                Thay đổi mật khẩu
-                            </h4>
-                            <small class="text-muted">Để trống nếu không muốn thay đổi mật khẩu</small>
-                        </div>
-                        
-                        <div class="form-grid">
-                            <!-- Current Password -->
+                            
                             <div class="form-group">
-                                <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
+                                <label for="dateOfBirth" class="form-label">Ngày sinh</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-key"></i></span>
-                                    <input type="password" id="currentPassword" name="currentPassword" 
-                                           class="form-control">
-                                </div>
-                            </div>
-
-                            <!-- New Password -->
-                            <div class="form-group">
-                                <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" id="newPassword" name="newPassword" 
-                                           class="form-control" minlength="6">
-                                </div>
-                                <small class="text-muted">Tối thiểu 6 ký tự</small>
-                            </div>
-
-                            <!-- Confirm Password -->
-                            <div class="form-group">
-                                <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-check"></i></span>
-                                    <input type="password" id="confirmPassword" name="confirmPassword" 
-                                           class="form-control">
+                                    <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                    <input type="date" id="dateOfBirth" name="dateOfBirth" class="form-control" 
+                                           th:value="${#dates.format(employee.dateOfBirth, 'yyyy-MM-dd')}">
                                 </div>
                             </div>
                         </div>
@@ -391,20 +355,63 @@
                         document.getElementById('avatarPreview').src = e.target.result;
                     }
                     reader.readAsDataURL(file);
+                    
+                    // Clear URL field when uploading a file
+                    document.getElementById('profilePictureUrl').value = '';
                 }
             }
             
-            // Password confirmation validation
-            document.getElementById('confirmPassword').addEventListener('input', function() {
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmPassword = this.value;
-                
-                if (newPassword !== confirmPassword) {
-                    this.setCustomValidity('Mật khẩu xác nhận không khớp');
+            // Preview URL avatar
+            function previewUrlAvatar() {
+                const url = document.getElementById('profilePictureUrl').value.trim();
+                if (url) {
+                    // Simple validation for image URL (basic check)
+                    if (url.match(/\.(jpeg|jpg|gif|png)$/i) || url.startsWith('http') || url.startsWith('/')) {
+                        document.getElementById('avatarPreview').src = url;
+                        // Clear file input when using URL
+                        document.getElementById('avatar').value = '';
+                    } else {
+                        alert('Vui lòng nhập một URL ảnh hợp lệ');
+                    }
                 } else {
-                    this.setCustomValidity('');
+                    alert('Vui lòng nhập URL ảnh');
+                }
+            }
+            
+            // Form validation before submit
+            document.querySelector('.edit-profile-form').addEventListener('submit', function(e) {
+                // Validate required fields
+                const requiredFields = document.querySelectorAll('[required]');
+                let hasError = false;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('is-invalid');
+                        hasError = true;
+                    } else {
+                        field.classList.remove('is-invalid');
+                        field.classList.add('is-valid');
+                    }
+                });
+                
+                // Validate email format
+                const emailField = document.getElementById('email');
+                if (emailField.value && !isValidEmail(emailField.value)) {
+                    emailField.classList.add('is-invalid');
+                    hasError = true;
+                    alert('Email không đúng định dạng');
+                }
+                
+                if (hasError) {
+                    e.preventDefault();
                 }
             });
+            
+            // Email validation helper
+            function isValidEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
             
             // Auto dismiss alerts after 5 seconds
             setTimeout(function() {

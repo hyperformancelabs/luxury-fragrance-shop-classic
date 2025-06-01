@@ -171,9 +171,6 @@ public class ProfileController {
                                 @RequestParam String ward,
                                 @RequestParam String district,
                                 @RequestParam String city,
-                                @RequestParam(required = false) String currentPassword,
-                                @RequestParam(required = false) String newPassword,
-                                @RequestParam(required = false) String confirmPassword,
                                 RedirectAttributes redirectAttributes) {
 
         CustomerDTO customer = customerService.getCustomerByUsername(username);
@@ -190,24 +187,6 @@ public class ProfileController {
         customer.setWard(ward);
         customer.setDistrict(district);
         customer.setCity(city);
-
-        // Nếu có đổi mật khẩu
-        if (currentPassword != null && !currentPassword.isBlank()
-                && newPassword != null && !newPassword.isBlank()
-                && confirmPassword != null && !confirmPassword.isBlank()) {
-
-            if (!passwordEncoder.matches(currentPassword, customer.getPassword())) {
-                redirectAttributes.addFlashAttribute("error", "Mật khẩu hiện tại không chính xác.");
-                return "redirect:/profile/edit";
-            }
-
-            if (!newPassword.equals(confirmPassword)) {
-                redirectAttributes.addFlashAttribute("error", "Xác nhận mật khẩu mới không khớp.");
-                return "redirect:/profile/edit";
-            }
-
-            customer.setPassword(passwordEncoder.encode(newPassword));
-        }
 
         customerService.updateCustomer(customer);
         redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin thành công.");

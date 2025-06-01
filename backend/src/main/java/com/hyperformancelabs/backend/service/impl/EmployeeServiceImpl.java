@@ -82,10 +82,6 @@ public class EmployeeServiceImpl implements EmployeeService {
             entity.setPassword(dto.getPassword());
         }
 
-        if (dto.getLastLogin() != null) {
-            entity.setLastLogin(new java.sql.Timestamp(dto.getLastLogin().getTime()));
-        }
-
         employeeRepository.save(entity);
     }
 
@@ -116,14 +112,11 @@ public class EmployeeServiceImpl implements EmployeeService {
                 entity.setPassword(dto.getPassword());
             }
 
-            if (dto.getLastLogin() != null) {
-                entity.setLastLogin(new java.sql.Timestamp(dto.getLastLogin().getTime()));
-            }
-
             employeeRepository.save(entity);
             return true;
             
         } catch (Exception e) {
+            e.printStackTrace(); // Add logging for debugging
             return false;
         }
     }
@@ -185,8 +178,8 @@ public class EmployeeServiceImpl implements EmployeeService {
                 employee.getEmail(),
                 employee.getAddress(),
                 employee.getStatus(),
-                employee.getStartDate(),
                 employee.getLastLogin(),
+                employee.getStartDate(),
                 employee.getDateOfBirth(),
                 employee.getProfilePictureUrl()
         );

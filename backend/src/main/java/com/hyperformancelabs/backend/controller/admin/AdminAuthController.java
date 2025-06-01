@@ -78,6 +78,18 @@ public class AdminAuthController {
             return "redirect:/admin/login";
         }
 
+        // Update last login time to current time
+        Optional<Employee> employeeEntity = employeeRepository.findByUsername(employee.getUsername());
+        if (employeeEntity.isPresent()) {
+            Employee updatedEmployee = employeeEntity.get();
+            updatedEmployee.setLastLogin(new java.util.Date()); // Set to current time
+            employeeRepository.save(updatedEmployee);
+            System.out.println("Updated last login time for user: " + updatedEmployee.getUsername());
+            
+            // Also set in session for header display
+            request.getSession().setAttribute("profilePictureUrl", updatedEmployee.getProfilePictureUrl());
+        }
+
         System.out.println("Password validated. Loading UserDetails for username: " + employee.getUsername());
         UserDetails userDetails = adminDetailsService.loadUserByUsername(employee.getUsername());
 

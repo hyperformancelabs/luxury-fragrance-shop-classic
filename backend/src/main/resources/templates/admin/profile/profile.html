@@ -229,9 +229,6 @@
                         <div class="profile-avatar-container">
                             <img th:src="${employee.profilePictureUrl != null ? employee.profilePictureUrl : '/images/default-avatar.png'}" 
                                  class="profile-avatar" alt="Avatar">
-                            <div class="avatar-overlay">
-                                <i class="fas fa-camera"></i>
-                            </div>
                         </div>
                         <h3 class="profile-name" th:text="${employee.fullName}">Admin Name</h3>
                         <p class="profile-username">@<span th:text="${employee.username}">username</span></p>
@@ -249,7 +246,7 @@
                             <div class="stat-label">Ngày tham gia</div>
                             <div class="stat-value">
                                 <i class="fas fa-calendar-alt me-1"></i>
-                                <span th:text="${#dates.format(employee.startDate, 'dd/MM/yyyy')}">01/01/2024</span>
+                                <span th:text="${employee.startDate != null ? #dates.format(employee.startDate, 'dd/MM/yyyy') : 'Chưa có dữ liệu'}">01/01/2024</span>
                             </div>
                         </div>
                         <div class="stat-item">
