@@ -73,6 +73,41 @@ public class ProfileController {
         return "user/profile/orders";
     }
     
+    @PostMapping("/orders/cancel")
+    public String cancelOrder(@RequestParam Integer orderId, Authentication authentication, RedirectAttributes redirectAttributes) {
+        try {
+            // Verify the order belongs to the authenticated user
+            String username = authentication.getName();
+            CustomerDTO customer = customerService.getCustomerByUsername(username);
+            OrderDTO order = orderService.findOrderById(orderId);
+            
+            if (order == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đơn hàng");
+                return "redirect:/profile/orders";
+            }
+            
+            if (!order.getCustomerId().equals(customer.getCustomerId())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền huỷ đơn hàng này");
+                return "redirect:/profile/orders";
+            }
+            
+            // Check if order status allows cancellation (only pending or processing)
+            if (!"pending".equals(order.getOrderStatus()) && !"processing".equals(order.getOrderStatus())) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Đơn hàng này không thể huỷ ở trạng thái hiện tại");
+                return "redirect:/profile/orders";
+            }
+            
+            // Cancel the order
+            orderService.cancelOrder(orderId);
+            
+            redirectAttributes.addFlashAttribute("successMessage", "Đơn hàng #" + orderId + " đã được huỷ thành công");
+            return "redirect:/profile/orders";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Đã xảy ra lỗi khi huỷ đơn hàng: " + e.getMessage());
+            return "redirect:/profile/orders";
+        }
+    }
+    
     @GetMapping("/wishlist")
     public String viewWishlist(Model model, Authentication authentication, RedirectAttributes redirectAttributes) {
         try {

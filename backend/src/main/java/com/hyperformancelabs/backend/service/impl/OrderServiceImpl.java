@@ -8,8 +8,14 @@ import com.hyperformancelabs.backend.dto.common.response.OrderItemDisplayDTO;
 import com.hyperformancelabs.backend.dto.common.response.ProductPurchaseInfoDTO;
 
 import com.hyperformancelabs.backend.model.Order;
+import com.hyperformancelabs.backend.model.OrderItem;
+import com.hyperformancelabs.backend.model.ProductVariant;
 import com.hyperformancelabs.backend.repository.OrderRepository;
 import com.hyperformancelabs.backend.service.OrderService;
+import com.hyperformancelabs.backend.service.OrderItemService;
+import com.hyperformancelabs.backend.service.ProductVariantService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,8 +34,16 @@ import java.util.stream.Collectors;
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
+
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemService orderItemService;
+
+    @Autowired
+    private ProductVariantService productVariantService;
 
     @Override
     public OrderDTO findOrderById(Integer orderId) {
@@ -51,6 +65,20 @@ public class OrderServiceImpl implements OrderService {
                 .stream()
                 .map(this::convertToOrderDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void cancelOrder(Integer orderId) {
+        Order order = orderRepository.findByOrderId(orderId);
+        if (order != null) {
+            // Chỉ hủy đơn hàng nếu trạng thái là pending hoặc processing
+            if ("pending".equals(order.getOrderStatus()) || "processing".equals(order.getOrderStatus())) {
+                // Cập nhật trạng thái đơn hàng thành cancelled
+                order.setOrderStatus("cancelled");
+                orderRepository.save(order);
+                logger.info("Order {} has been cancelled and inventory will be automatically restored by triggers", orderId);
+            }
+        }
     }
 
     // ----------------------------------------------- ADMIN -----------------------------------------------------

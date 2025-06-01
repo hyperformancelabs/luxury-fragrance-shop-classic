@@ -85,6 +85,16 @@ public class ProductVariantServiceImpl implements ProductVariantService {
         productVariantRepository.deleteById(productVariantId);
     }
 
+    @Override
+    public ProductVariant findById(Integer productVariantId) {
+        return productVariantRepository.findById(productVariantId).orElse(null);
+    }
+
+    @Override
+    public ProductVariant save(ProductVariant productVariant) {
+        return productVariantRepository.save(productVariant);
+    }
+
     private ProductVariantDTO convertToProductVariantDTO(ProductVariant productVariant) {
         return new ProductVariantDTO(
                 productVariant.getProductVariantId(),

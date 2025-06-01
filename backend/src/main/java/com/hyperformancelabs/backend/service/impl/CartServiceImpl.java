@@ -125,6 +125,13 @@ public class CartServiceImpl implements CartService {
         return convertToDTO(cart);
     }
 
+    @Override
+    public void updateCartItemCount(Integer count, String sessionId) {
+        // Triển khai phương thức để cập nhật số lượng sản phẩm trong session
+        // Phương thức này không thay đổi dữ liệu trong database, 
+        // chỉ được sử dụng để gắn giá trị vào session ở controller
+    }
+
     public Cart getOrCreateCart(String username, String sessionId) {
         Cart cart = null;
         

@@ -58,7 +58,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.
-                        ignoringRequestMatchers("/logout/**", "/cart/add/**", "/auth/forgot-password", "/auth/reset-password-with-token")
+                        ignoringRequestMatchers("/logout/**", "/cart/add/**", "/auth/forgot-password", "/auth/reset-password-with-token", "/profile/orders/cancel")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                 )
 

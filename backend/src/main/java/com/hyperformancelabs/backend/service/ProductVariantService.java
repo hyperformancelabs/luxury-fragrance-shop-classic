@@ -11,6 +11,12 @@ public interface ProductVariantService {
 
     // Tìm biến thể theo ID
     ProductVariantDTO getProductVariantById(Integer productVariantId);
+    
+    // Tìm biến thể entity theo ID
+    ProductVariant findById(Integer productVariantId);
+    
+    // Lưu biến thể
+    ProductVariant save(ProductVariant productVariant);
 
     // Tìm biến thể đầu tiên của một sản phẩm
     ProductVariantDTO findFirstByProduct_ProductId(Integer productId);

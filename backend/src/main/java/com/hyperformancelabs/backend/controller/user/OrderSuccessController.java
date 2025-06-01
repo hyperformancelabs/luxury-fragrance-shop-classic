@@ -10,6 +10,9 @@ import com.hyperformancelabs.backend.dto.user.response.OrderSuccessDTO;
 
 import com.hyperformancelabs.backend.model.OrderItem;
 import com.hyperformancelabs.backend.service.*;
+import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,6 +33,8 @@ import java.util.Map;
 @RequestMapping()
 public class OrderSuccessController {
 
+    private static final Logger logger = LoggerFactory.getLogger(OrderSuccessController.class);
+
     @Autowired
     private OrderService orderService;
 
@@ -46,76 +51,116 @@ public class OrderSuccessController {
     private CustomerService customerService;
 
     @GetMapping("/order-success")
-    public String orderSuccess(@RequestParam("orderId") Integer orderId, Model model) {
+    public String orderSuccess(@RequestParam("orderId") Integer orderId, Model model, HttpServletRequest request) {
+        logger.info("Loading order success page for orderId: {}", orderId);
+        
         if (orderId == null) {
+            logger.warn("Order ID is null, redirecting to home");
             return "redirect:/";
         }
 
-        // Lấy đơn hàng
-        OrderDTO order = orderService.findOrderById(orderId);
-        if (order == null) {
-            return "redirect:/";
-        }
+        try {
+            // Cập nhật số lượng giỏ hàng trong session thành 0 để hiển thị chính xác
+            updateCartItemCountInSession(request);
+            
+            // Lấy đơn hàng
+            OrderDTO order = orderService.findOrderById(orderId);
+            if (order == null) {
+                logger.warn("Order not found for ID: {}", orderId);
+                return "redirect:/";
+            }
+            logger.debug("Found order: {}", order.getOrderId());
 
-        CustomerDTO customer = customerService.getCustomerById(order.getCustomerId());
+            CustomerDTO customer = customerService.getCustomerById(order.getCustomerId());
+            if (customer == null) {
+                logger.error("Customer not found for ID: {}", order.getCustomerId());
+                throw new RuntimeException("Customer not found for order");
+            }
+            logger.debug("Found customer: {}", customer.getName());
 
-        // Lấy sản phẩm đã đặt
-        List<OrderItemDTO> orderItems = orderItemService.findByOrder_OrderId(orderId);
+            // Lấy sản phẩm đã đặt
+            List<OrderItemDTO> orderItems = orderItemService.findByOrder_OrderId(orderId);
+            logger.debug("Found {} order items", orderItems.size());
 
-        // Chuyển đổi sang danh sách DTO để hiển thị
-        List<OrderSuccessItemDTO> itemDTOs = orderItems.stream().map(item -> {
-            ProductVariantDTO variant = productVariantService.getProductVariantById(item.getProductVariantId());
-            ProductDTO product = productService.getProductById(variant.getProductId());
+            // Chuyển đổi sang danh sách DTO để hiển thị
+            List<OrderSuccessItemDTO> itemDTOs = new ArrayList<>();
+            
+            for (OrderItemDTO item : orderItems) {
+                try {
+                    ProductVariantDTO variant = productVariantService.getProductVariantById(item.getProductVariantId());
+                    if (variant == null) {
+                        logger.warn("Product variant not found for ID: {}", item.getProductVariantId());
+                        continue;
+                    }
+                    
+                    ProductDTO product = productService.getProductById(variant.getProductId());
+                    if (product == null) {
+                        logger.warn("Product not found for ID: {}", variant.getProductId());
+                        continue;
+                    }
+                    
+                    itemDTOs.add(new OrderSuccessItemDTO(
+                            product.getProductName(),
+                            variant.getVolume() + "ml",
+                            item.getQuantity(),
+                            item.getUnitPrice(),
+                            product.getImageUrl()
+                    ));
+                } catch (Exception e) {
+                    logger.error("Error processing order item: {}", e.getMessage(), e);
+                }
+            }
+            
+            logger.debug("Converted {} order items to DTOs", itemDTOs.size());
 
-            return new OrderSuccessItemDTO(
-                    product.getProductName(),
-                    variant.getVolume() + "ml",
-                    item.getQuantity(),
-                    item.getUnitPrice(),
-                    product.getImageUrl()
+            // Tính tổng giá
+            BigDecimal subtotal = orderItems.stream()
+                    .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal shipping = subtotal.compareTo(BigDecimal.valueOf(1_000_000)) > 0 ? BigDecimal.ZERO : BigDecimal.valueOf(30000);
+            BigDecimal total = subtotal.add(shipping);
+            logger.debug("Calculated totals: subtotal={}, shipping={}, total={}", subtotal, shipping, total);
+
+            // Tạo DTO hiển thị
+            OrderSuccessDTO dto = new OrderSuccessDTO(
+                    order.getOrderId(),
+                    order.getOrderDate(),
+                    order.getShippingOption(),
+                    order.getShippingAddress(),
+                    customer.getName(),
+                    customer.getPhoneNumber(),
+                    itemDTOs,
+                    subtotal,
+                    shipping,
+                    total
             );
-        }).toList();
+            
+            // Thêm trạng thái đơn hàng
+            dto.setOrderStatus(order.getOrderStatus());
 
-        // Tính tổng giá
-        BigDecimal subtotal = orderItems.stream()
-                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            model.addAttribute("order", dto);
+            model.addAttribute("orderItems", dto.getItems());
 
-        BigDecimal shipping = subtotal.compareTo(BigDecimal.valueOf(1_000_000)) > 0 ? BigDecimal.ZERO : BigDecimal.valueOf(30000);
-        BigDecimal total = subtotal.add(shipping);
-
-        // Tạo DTO hiển thị
-        OrderSuccessDTO dto = new OrderSuccessDTO(
-                order.getOrderId(),
-                order.getOrderDate(),
-                order.getShippingOption(),
-                order.getShippingAddress(),
-                customer.getName(),      // Phải cập nhật trong OrderDTO nếu chưa có
-                customer.getPhoneNumber(),     // Phải cập nhật trong OrderDTO nếu chưa có
-                itemDTOs,
-                subtotal,
-                shipping,
-                total
-        );
-
-        model.addAttribute("order", dto);
-        model.addAttribute("orderItems", dto.getItems());
-
-        model.addAttribute("subtotal", dto.getSubtotal());
-        model.addAttribute("shipping", dto.getShippingFee());
-        model.addAttribute("total", dto.getTotal());
-        return "user/order/order-success";
+            model.addAttribute("subtotal", dto.getSubtotal());
+            model.addAttribute("shipping", dto.getShippingFee());
+            model.addAttribute("total", dto.getTotal());
+            
+            logger.info("Successfully prepared order success page for orderId: {}", orderId);
+            return "user/order/order-success";
+        } catch (Exception e) {
+            logger.error("Error loading order success page for orderId {}: {}", orderId, e.getMessage(), e);
+            model.addAttribute("errorMessage", "Không thể tải thông tin đơn hàng. Lỗi: " + e.getMessage());
+            return "error/error";
+        }
     }
 
-
-    private Map<String, Object> createOrderItem(int id, String name, int quantity, int price, String imageUrl, String size) {
-        Map<String, Object> item = new HashMap<>();
-        item.put("id", id);
-        item.put("name", name);
-        item.put("quantity", quantity);
-        item.put("price", price);
-        item.put("imageUrl", imageUrl);
-        item.put("size", size);
-        return item;
+    private void updateCartItemCountInSession(HttpServletRequest request) {
+        try {
+            request.getSession().setAttribute("cartItemCount", 0);
+            logger.info("Reset cart item count in session to 0");
+        } catch (Exception e) {
+            logger.error("Error updating cart item count in session: {}", e.getMessage());
+        }
     }
 } 

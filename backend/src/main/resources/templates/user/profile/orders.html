@@ -3,10 +3,143 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{shared/fragments/head :: head('Đơn hàng của tôi', ~{::link})}">
     <link rel="stylesheet" href="/css/profile.css">
+    <style>
+        /* Custom Toast Styling */
+        .toast {
+            min-width: 300px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            border: none;
+            border-radius: 0.25rem;
+        }
+        .toast-header.bg-success {
+            background-color: #28a745 !important;
+            color: white;
+        }
+        .toast-body {
+            font-size: 0.95rem;
+            padding: 0.75rem;
+        }
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+        
+        .cancel-order-btn {
+            padding: 0.25rem 0.5rem;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .cancel-order-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .d-flex.gap-2 {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Error toast */
+        .toast-header.bg-danger {
+            background-color: #dc3545 !important;
+            color: white;
+        }
+        
+        /* Button styles */
+        .view-order-btn, .cancel-order-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 50%;
+        }
+        
+        .view-order-btn {
+            background-color: #343a40;
+        }
+        
+        .view-order-btn:hover {
+            background-color: #212529;
+        }
+        
+        .cancel-order-btn {
+            background-color: #dc3545;
+        }
+        
+        .cancel-order-btn:hover {
+            background-color: #c82333;
+        }
+        
+        /* Order status styles */
+        .order-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .order-status-delivered {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .order-status-shipping {
+            background-color: #cff4fc;
+            color: #055160;
+        }
+        
+        .order-status-processing {
+            background-color: #fff3cd;
+            color: #664d03;
+        }
+        
+        .order-status-pending {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+        .order-status-cancelled {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
     <nav th:replace="~{shared/fragments/navbar :: navbar('profile')}"></nav>
+
+    <!-- Toast Notification for Success Message -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050">
+        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" th:if="${successMessage}">
+            <div class="toast-header bg-success text-white">
+                <i class="fas fa-check-circle me-2"></i>
+                <strong class="me-auto">Thành công</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" th:text="${successMessage}">
+                Đặt hàng thành công!
+            </div>
+        </div>
+        
+        <!-- Error Toast -->
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" th:if="${errorMessage}">
+            <div class="toast-header bg-danger text-white">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong class="me-auto">Lỗi</strong>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body" th:text="${errorMessage}">
+                Có lỗi xảy ra!
+            </div>
+        </div>
+    </div>
 
     <!-- Breadcrumb -->
     <header class="breadcrumb-section">
@@ -84,21 +217,37 @@
                             <tbody>
                                 <tr th:each="order : ${orders}">
                                     <td th:text="${order.orderId}">APH123456789</td>
-                                    <td th:text="${order.orderDate}">15/05/2023 14:30</td>
+                                    <td th:text="${#temporals.format(order.orderDate, 'dd/MM/yyyy HH:mm')}">15/05/2023 14:30</td>
                                     <td th:text="${#numbers.formatDecimal(order.totalAmount, 0, 'COMMA', 0, 'POINT') + 'đ'}">8.000.000đ</td>
                                     <td>
                                         <span class="order-status" 
                                               th:classappend="${
-                                                order.orderStatus == 'Đã giao hàng' ? 'order-status-delivered' :
-                                                (order.orderStatus == 'Đang giao hàng' ? 'order-status-shipping' :
-                                                (order.orderStatus == 'Đang xử lý' ? 'order-status-processing' : 'order-status-cancelled'))
+                                                order.orderStatus == 'delivered' ? 'order-status-delivered' :
+                                                (order.orderStatus == 'shipping' ? 'order-status-shipping' :
+                                                (order.orderStatus == 'processing' ? 'order-status-processing' :
+                                                (order.orderStatus == 'pending' ? 'order-status-pending' :
+                                                'order-status-cancelled')))
                                               }"
-                                              th:text="${order.orderStatus}">Đã giao hàng</span>
+                                              th:text="${
+                                                order.orderStatus == 'delivered' ? 'Đã giao hàng' :
+                                                (order.orderStatus == 'shipping' ? 'Đang giao hàng' :
+                                                (order.orderStatus == 'processing' ? 'Đang xử lý' :
+                                                (order.orderStatus == 'pending' ? 'Chờ xác nhận' :
+                                                'Đã huỷ')))
+                                              }">Đã giao hàng</span>
                                     </td>
                                     <td>
-                                        <a th:href="@{'/order-success?orderId=' + ${order.orderId}}" class="view-order-btn">
-                                            <i class="fas fa-eye me-1"></i> Xem
-                                        </a>
+                                        <div class="d-flex gap-2">
+                                            <button th:if="${order.orderStatus == 'pending' || order.orderStatus == 'processing'}" 
+                                                    class="cancel-order-btn" 
+                                                    th:data-order-id="${order.orderId}"
+                                                    onclick="confirmCancelOrder(this)">
+                                                <i class="fas fa-times-circle"></i>
+                                            </button>
+                                            <a th:href="@{'/order-success?orderId=' + ${order.orderId}}" class="view-order-btn">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             </tbody>
@@ -121,43 +270,66 @@
 
     <th:block th:replace="~{shared/fragments/scripts :: scripts(~{})}"></th:block>
 
-    <!-- Hidden form for logout POST request -->
+    <!-- Form logout POST -->
     <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
-        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+    </form>
+    
+    <!-- Form cancel order -->
+    <form id="cancel-order-form" th:action="@{/profile/orders/cancel}" method="post" style="display:none;">
+        <input type="hidden" name="orderId" id="cancel-order-id" value=""/>
+        <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
     </form>
 
+    <!-- Bootstrap & JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function confirmLogout() {
+            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                document.getElementById('logout-form').submit();
+            }
+        }
+        
+        // Initialize toast notification
+        document.addEventListener('DOMContentLoaded', function() {
+            // Success toast
+            const successToast = document.getElementById('successToast');
+            if (successToast) {
+                const toast = new bootstrap.Toast(successToast);
+                toast.show();
+            }
+            
+            // Error toast
+            const errorToast = document.getElementById('errorToast');
+            if (errorToast) {
+                const toast = new bootstrap.Toast(errorToast);
+                toast.show();
+            }
+        });
+        
+        // Function to confirm and handle order cancellation
+        function confirmCancelOrder(button) {
+            const orderId = button.getAttribute('data-order-id');
+            
             Swal.fire({
-                title: 'Xác nhận đăng xuất',
-                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                title: 'Xác nhận huỷ đơn hàng',
+                text: 'Bạn có chắc chắn muốn huỷ đơn hàng này? Hành động này không thể hoàn tác.',
                 icon: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Đăng xuất',
-                cancelButtonText: 'Hủy',
+                confirmButtonText: 'Huỷ đơn hàng',
+                cancelButtonText: 'Giữ lại',
+                confirmButtonColor: '#dc3545',
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    document.getElementById('logout-form').submit();
+                    // Set order ID in hidden form
+                    document.getElementById('cancel-order-id').value = orderId;
+                    
+                    // Submit form
+                    document.getElementById('cancel-order-form').submit();
                 }
             });
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                window.location.reload();
-            });
-
-            }
-        });
     </script>
     <script>
         function showLoginReminder() {

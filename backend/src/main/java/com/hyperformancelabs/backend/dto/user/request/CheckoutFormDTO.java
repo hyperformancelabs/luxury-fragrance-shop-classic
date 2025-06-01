@@ -8,25 +8,33 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckoutFormDTO {
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String email;
     private String phone;
     private String address;
     private String province;
     private String district;
     private String ward;
-    private String addressDetail;
     private String paymentMethod;
-    private boolean sameAddress;
-
-    // Shipping fields (nếu khác)
-    private String shippingFirstName;
-    private String shippingLastName;
-    private String shippingPhone;
-    private String shippingAddress;
-    private String shippingProvince;
-    private String shippingDistrict;
-    private String shippingWard;
-    private String shippingAddressDetail;
+    
+    // Các checkbox cho phép cập nhật thông tin
+    private boolean updateName;
+    private boolean updateEmail;
+    private boolean updatePhone;
+    private boolean updateAddress;
+    
+    // For backward compatibility with existing code
+    public String getFirstName() {
+        if (fullName != null && fullName.contains(" ")) {
+            return fullName.substring(0, fullName.indexOf(" "));
+        }
+        return fullName;
+    }
+    
+    public String getLastName() {
+        if (fullName != null && fullName.contains(" ")) {
+            return fullName.substring(fullName.indexOf(" ") + 1);
+        }
+        return "";
+    }
 } 

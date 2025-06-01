@@ -18,6 +18,7 @@ public class OrderSuccessDTO {
     private Integer orderId;
     private LocalDateTime orderDate;
     private String paymentMethod;
+    private String orderStatus;
 
     private String shippingAddress;
     private String customerName;
@@ -28,4 +29,22 @@ public class OrderSuccessDTO {
     private BigDecimal subtotal;
     private BigDecimal shippingFee;
     private BigDecimal total;
+    
+    // Constructor without orderStatus for backward compatibility
+    public OrderSuccessDTO(Integer orderId, LocalDateTime orderDate, String paymentMethod,
+                          String shippingAddress, String customerName, String customerPhone,
+                          List<OrderSuccessItemDTO> items, BigDecimal subtotal,
+                          BigDecimal shippingFee, BigDecimal total) {
+        this.orderId = orderId;
+        this.orderDate = orderDate;
+        this.paymentMethod = paymentMethod;
+        this.shippingAddress = shippingAddress;
+        this.customerName = customerName;
+        this.customerPhone = customerPhone;
+        this.items = items;
+        this.subtotal = subtotal;
+        this.shippingFee = shippingFee;
+        this.total = total;
+        this.orderStatus = "pending"; // Default value
+    }
 } 

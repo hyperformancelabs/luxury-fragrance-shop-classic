@@ -1,5 +1,6 @@
 package com.hyperformancelabs.backend.service.impl;
 
+import com.hyperformancelabs.backend.model.Order;
 import com.hyperformancelabs.backend.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -14,6 +15,9 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -28,6 +32,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Value("${spring.mail.username}")
     private String fromEmail;
+    
+    @Value("${app.base-url:http://localhost:8080}")
+    private String baseUrl;
 
     @Override
     public void sendPasswordResetEmail(String toEmail, String customerName, String verificationCode) {
@@ -122,6 +129,63 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             logger.error("Unexpected error while sending email verification code to: " + toEmail, e);
             throw new RuntimeException("Lỗi hệ thống khi gửi email", e);
+        }
+    }
+    
+    @Override
+    public void sendOrderConfirmationEmail(String toEmail, 
+                                         String customerName, 
+                                         Order order,
+                                         List<Map<String, Object>> orderItems,
+                                         int subtotal,
+                                         int shipping,
+                                         int total) {
+        try {
+            if (toEmail == null || toEmail.trim().isEmpty()) {
+                logger.warn("Email address is empty, skipping order confirmation email");
+                return;
+            }
+            
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setFrom(fromEmail, "Shop Nước Hoa Xa Xỉ");
+            helper.setTo(toEmail);
+            helper.setSubject("Xác nhận đơn hàng #" + order.getOrderId() + " - Shop Nước Hoa Xa Xỉ");
+
+            // Format date
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            String orderDate = LocalDateTime.now().format(formatter);
+            
+            // Create Thymeleaf context
+            Context context = new Context();
+            context.setVariable("customerName", customerName);
+            context.setVariable("orderId", order.getOrderId());
+            context.setVariable("orderDate", orderDate);
+            context.setVariable("paymentMethod", "Thanh toán khi nhận hàng (COD)");
+            context.setVariable("shippingAddress", order.getShippingAddress());
+            context.setVariable("orderItems", orderItems);
+            context.setVariable("subtotal", subtotal);
+            context.setVariable("shipping", shipping);
+            context.setVariable("total", total);
+            context.setVariable("trackingUrl", baseUrl + "/order/track?orderId=" + order.getOrderId());
+            context.setVariable("shopUrl", baseUrl);
+
+            // Process template
+            String htmlContent = templateEngine.process("shared/email/order-confirmation", context);
+            helper.setText(htmlContent, true);
+
+            mailSender.send(message);
+            logger.info("Order confirmation email sent successfully to: {}", toEmail);
+
+        } catch (MessagingException e) {
+            logger.error("Failed to send order confirmation email to: " + toEmail, e);
+            // Don't throw exception here to prevent order processing failure
+            logger.error("Error details:", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while sending order confirmation email to: " + toEmail, e);
+            // Don't throw exception here to prevent order processing failure
+            logger.error("Error details:", e);
         }
     }
 } 

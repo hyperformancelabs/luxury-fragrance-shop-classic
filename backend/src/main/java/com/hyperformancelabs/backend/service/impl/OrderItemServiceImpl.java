@@ -37,6 +37,11 @@ public class OrderItemServiceImpl implements OrderItemService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<OrderItem> findOrderItemsByOrderId(Integer orderId) {
+        return orderItemRepository.findByOrder_OrderId(orderId);
+    }
+
     private OrderItem convertToOrderItem(OrderItemDTO orderItem) {
         return new OrderItem(
                 orderItem.getOrderItemId(),

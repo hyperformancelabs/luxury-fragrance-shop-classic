@@ -22,4 +22,7 @@ public interface CartService {
 
     // Lấy thông tin giỏ hàng
     CartDTO getCart(String username, String sessionId);
+    
+    // Cập nhật số lượng sản phẩm trong session
+    void updateCartItemCount(Integer count, String sessionId);
 }

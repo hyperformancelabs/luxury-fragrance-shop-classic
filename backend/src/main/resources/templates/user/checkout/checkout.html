@@ -1,52 +1,64 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thanh toán - APH Perfume</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<head th:replace="~{shared/fragments/head :: head('Thanh toán', ~{::link})}">
     <link rel="stylesheet" href="/css/checkout.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        .text-danger {
-            color: #dc3545 !important;
+        /* Cách mới để xử lý thông báo lỗi */
+        .input-group {
+            position: relative;
+            margin-bottom: 5px; /* Giảm margin vì sẽ được xử lý bởi container */
         }
-        .form-text {
+        
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+            display: none; /* Ban đầu ẩn đi */
+        }
+        
+        /* Hiển thị thông báo lỗi khi input không hợp lệ */
+        .input-group input:invalid + .input-group-text + .invalid-feedback,
+        .input-group input:invalid ~ .invalid-feedback,
+        .was-validated .input-group input:invalid ~ .invalid-feedback {
+            display: none; /* Ẩn thông báo lỗi mặc định */
+        }
+        
+        /* Thay vào đó hiển thị thông báo lỗi tùy chỉnh */
+        .input-group input:invalid ~ .error-message,
+        .was-validated .input-group input:invalid ~ .error-message,
+        .input-container input:invalid + .input-group-text + .error-message,
+        .was-validated .input-container input:invalid + .input-group-text + .error-message {
             display: block;
-            margin-top: 0.25rem;
-            font-size: 0.875em;
         }
-        .form-label {
-            display: flex;
-            align-items: center;
-        }
-        .fa-question-circle {
-            font-size: 0.875em;
-            cursor: help;
-            margin-left: 0.25rem;
+        
+        /* Đảm bảo các checkbox không bị ảnh hưởng */
+        .input-group-text {
+            position: relative;
+            z-index: 10; /* Cao hơn thông báo lỗi */
         }
     </style>
 </head>
-<body>
+<body th:data-logged-in="${isLoggedIn != null and isLoggedIn ? 'true' : 'false'}">
     <!-- Navigation -->
     <nav th:replace="~{shared/fragments/navbar :: navbar('checkout')}"></nav>
 
     <!-- Breadcrumb -->
-    <header class="breadcrumb-section">
-        <div class="container">
-            <nav class="d-flex">
-                <a href="/" class="me-2">TRANG CHỦ</a>
-                <span class="mx-2">/</span>
-                <a href="/cart" class="me-2">GIỎ HÀNG</a>
-                <span class="mx-2">/</span>
-                <span>THANH TOÁN</span>
-            </nav>
-        </div>
-    </header>
+    <header th:replace="~{shared/fragments/breadcrumb :: breadcrumb(${breadcrumbPaths ?: null})}"></header>
 
     <main class="container py-5">
         <h1 class="mb-4">Thanh toán</h1>
+
+        <!-- Thông báo lỗi -->
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <span th:text="${error}">Thông báo lỗi</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
 
         <form id="checkout-form" class="needs-validation" novalidate method="POST" action="/checkout">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -58,161 +70,141 @@
                         <div class="form-section">
                             <h3 class="form-section-title">Thông tin thanh toán</h3>
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="firstName" class="form-label">
-                                        Họ <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Nhập họ của người nhận hàng">
+                                <div class="col-12">
+                                    <label for="fullName" class="form-label">
+                                        Họ và tên <span class="text-danger">*</span>
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Họ tên đầy đủ của người nhận hàng">
                                             <i class="fas fa-question-circle"></i>
                                         </span>
                                     </label>
-                                    <input type="text" class="form-control" id="firstName" name="firstName" th:value="${firstName}" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="lastName" class="form-label">
-                                        Tên <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Nhập tên của người nhận hàng">
-                                            <i class="fas fa-question-circle"></i>
-                                        </span>
-                                    </label>
-                                    <input type="text" class="form-control" id="lastName" name="lastName" th:value="${lastName}" required>
+                                    <div class="input-container">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="fullName" name="fullName" 
+                                                   th:value="${fullName}" 
+                                                   required placeholder="Ví dụ: Nguyễn Văn A">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="updateName" name="updateName" th:checked="${isLoggedIn == null || !isLoggedIn}">
+                                                    <label class="form-check-label small" for="updateName">
+                                                        Cập nhật
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="error-message">Vui lòng nhập họ và tên</div>
+                                    </div>
                                 </div>
                                 <div class="col-12">
                                     <label for="email" class="form-label">
-                                        Email <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Email dùng để liên hệ và gửi thông tin đơn hàng">
+                                        Email
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Email dùng để nhận thông tin và theo dõi trạng thái đơn hàng (không bắt buộc)">
                                             <i class="fas fa-question-circle"></i>
                                         </span>
                                     </label>
-                                    <input type="email" class="form-control" id="email" name="email" th:value="${email}" required>
+                                    <div class="input-container">
+                                        <div class="input-group">
+                                            <input type="email" class="form-control" id="email" name="email" th:value="${email}" 
+                                                   pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$" 
+                                                   placeholder="Ví dụ: nguyenvana@gmail.com">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="updateEmail" name="updateEmail" th:checked="${isLoggedIn == null || !isLoggedIn}">
+                                                    <label class="form-check-label small" for="updateEmail">
+                                                        Cập nhật
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="error-message">Email không hợp lệ (ví dụ: name@example.com)</div>
+                                    </div>
+                                    <div class="form-text">Email giúp bạn theo dõi trạng thái đơn hàng dễ dàng hơn</div>
                                 </div>
                                 <div class="col-12">
                                     <label for="phone" class="form-label">
                                         Số điện thoại <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
                                               title="Số điện thoại liên hệ khi giao hàng">
                                             <i class="fas fa-question-circle"></i>
                                         </span>
                                     </label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" th:value="${phone}" required>
+                                    <div class="input-container">
+                                        <div class="input-group">
+                                            <input type="tel" class="form-control" id="phone" name="phone" th:value="${phone}" 
+                                                   pattern="^(\+84|84|0[3-9])([0-9]{8})$"
+                                                   required placeholder="Ví dụ: 0901234567">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="updatePhone" name="updatePhone" th:checked="${isLoggedIn == null || !isLoggedIn}">
+                                                    <label class="form-check-label small" for="updatePhone">
+                                                        Cập nhật
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="error-message">Số điện thoại không hợp lệ (ví dụ: 0901234567)</div>
+                                    </div>
                                 </div>
                                 <div class="col-12">
                                     <label for="address" class="form-label">
                                         Địa chỉ <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
                                               title="Số nhà, tên đường, khu vực">
                                             <i class="fas fa-question-circle"></i>
                                         </span>
                                     </label>
-                                    <input type="text" class="form-control" id="address" name="address" th:value="${address}" required>
-                                </div>
-                                <div class="col-md-5">
-                                    <label for="province" class="form-label">
-                                        Tỉnh/Thành phố <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select" id="province" name="province" required>
-                                        <option value="">Chọn tỉnh/thành phố</option>
-                                        <option value="Hà Nội" th:selected="${province == 'Hà Nội'}">Hà Nội</option>
-                                        <option value="HCM" th:selected="${province == 'HCM'}">TP. Hồ Chí Minh</option>
-                                        <option value="Đà Nẵng" th:selected="${province == 'Đà Nẵng'}">Đà Nẵng</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="district" class="form-label">
-                                        Quận/Huyện <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select" id="district" name="district" required>
-                                        <option value="">Chọn quận/huyện</option>
-                                    </select>
+                                    <div class="input-container">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" id="address" name="address" th:value="${address}" 
+                                                   required placeholder="Ví dụ: 123 Đường Nguyễn Văn Linh">
+                                            <div class="input-group-text">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="updateAddress" name="updateAddress" th:checked="${isLoggedIn == null || !isLoggedIn}">
+                                                    <label class="form-check-label small" for="updateAddress">
+                                                        Cập nhật
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="error-message">Vui lòng nhập địa chỉ</div>
+                                    </div>
                                 </div>
                                 <div class="col-md-4">
                                     <label for="ward" class="form-label">
                                         Phường/Xã <span class="text-danger">*</span>
-                                    </label>
-                                    <select class="form-select" id="ward" name="ward" required>
-                                        <option value="">Chọn phường/xã</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="form-check mt-3">
-                                <input type="checkbox" class="form-check-input" id="sameAddress" name="sameAddress" checked>
-                                <label class="form-check-label" for="sameAddress">Địa chỉ giao hàng giống địa chỉ thanh toán</label>
-                            </div>
-                        </div>
-
-                        <!-- Shipping Address -->
-                        <div class="form-section" id="shipping-address-section" style="display: none;">
-                            <h3 class="form-section-title">Địa chỉ giao hàng</h3>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="shippingFirstName" class="form-label">
-                                        Họ <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Họ của người nhận hàng">
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Phường hoặc xã">
                                             <i class="fas fa-question-circle"></i>
                                         </span>
                                     </label>
-                                    <input type="text" class="form-control" id="shippingFirstName" name="shippingFirstName">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="shippingLastName" class="form-label">
-                                        Tên <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Tên của người nhận hàng">
-                                            <i class="fas fa-question-circle"></i>
-                                        </span>
-                                    </label>
-                                    <input type="text" class="form-control" id="shippingLastName" name="shippingLastName">
-                                </div>
-                                <div class="col-12">
-                                    <label for="shippingPhone" class="form-label">
-                                        Số điện thoại <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Số điện thoại liên hệ khi giao hàng">
-                                            <i class="fas fa-question-circle"></i>
-                                        </span>
-                                    </label>
-                                    <input type="tel" class="form-control" id="shippingPhone" name="shippingPhone" required>
-                                </div>
-                                <div class="col-12">
-                                    <label for="shippingAddress" class="form-label">
-                                        Địa chỉ <span class="text-danger">*</span>
-                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
-                                              title="Số nhà, tên đường, khu vực">
-                                            <i class="fas fa-question-circle"></i>
-                                        </span>
-                                    </label>
-                                    <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required>
-                                </div>
-                                <div class="col-md-5">
-                                    <label for="shippingProvince" class="form-label">
-                                        Tỉnh/Thành phố
-                                    </label>
-                                    <select class="form-select" id="shippingProvince" name="shippingProvince">
-                                        <option value="">Chọn tỉnh/thành phố</option>
-                                        <option value="hanoi">Hà Nội</option>
-                                        <option value="hcm">TP. Hồ Chí Minh</option>
-                                        <option value="danang">Đà Nẵng</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="ward" name="ward" th:value="${ward}" 
+                                           required placeholder="Ví dụ: Phường Tân Thuận Đông">
+                                    <div class="invalid-feedback">Vui lòng nhập phường/xã</div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="shippingDistrict" class="form-label">
-                                        Quận/Huyện
+                                    <label for="district" class="form-label">
+                                        Quận/Huyện <span class="text-danger">*</span>
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Quận hoặc huyện">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
                                     </label>
-                                    <select class="form-select" id="shippingDistrict" name="shippingDistrict" disabled>
-                                        <option value="">Chọn quận/huyện</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="district" name="district" th:value="${district}" 
+                                           required placeholder="Ví dụ: Quận 7">
+                                    <div class="invalid-feedback">Vui lòng nhập quận/huyện</div>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="shippingWard" class="form-label">
-                                        Phường/Xã
+                                    <label for="province" class="form-label">
+                                        Tỉnh/Thành phố <span class="text-danger">*</span>
+                                        <span class="info-icon" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Tỉnh hoặc thành phố">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
                                     </label>
-                                    <select class="form-select" id="shippingWard" name="shippingWard" disabled>
-                                        <option value="">Chọn phường/xã</option>
-                                    </select>
+                                    <input type="text" class="form-control" id="province" name="province" th:value="${province}" 
+                                           required placeholder="Ví dụ: TP. Hồ Chí Minh">
+                                    <div class="invalid-feedback">Vui lòng nhập tỉnh/thành phố</div>
                                 </div>
                             </div>
                         </div>
@@ -226,29 +218,16 @@
                                     <label class="payment-method-title" for="cod">Thanh toán khi nhận hàng (COD)</label>
                                 </div>
                             </div>
-                            <div class="payment-method">
-                                <div class="payment-method-header">
-                                    <input type="radio" class="payment-method-radio" name="paymentMethod" id="bank-transfer" value="bank-transfer">
-                                    <label class="payment-method-title" for="bank-transfer">Chuyển khoản ngân hàng</label>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="payment-method-header">
-                                    <input type="radio" class="payment-method-radio" name="paymentMethod" id="credit-card" value="credit-card">
-                                    <label class="payment-method-title" for="credit-card">Thẻ tín dụng/Thẻ ghi nợ</label>
-                                </div>
-                            </div>
-                            <div class="payment-method">
-                                <div class="payment-method-header">
-                                    <input type="radio" class="payment-method-radio" name="paymentMethod" id="momo" value="momo">
-                                    <label class="payment-method-title" for="momo">Ví MoMo</label>
-                                </div>
+                            <div class="alert alert-info mt-3">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Các phương thức thanh toán khác đang được phát triển và sẽ sớm được ra mắt.
                             </div>
                         </div>
 
                         <div class="form-check mt-3">
-                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                            <label class="form-check-label" for="terms">Tôi đã đọc và đồng ý với <a href="#">điều khoản và điều kiện</a> <span class="text-danger">*</span></label>
+                            <input type="checkbox" class="form-check-input" id="terms" name="terms" required checked>
+                            <label class="form-check-label" for="terms">Tôi đã đọc và đồng ý với <a href="/terms-conditions" target="_blank">điều khoản và điều kiện</a> <span class="text-danger">*</span></label>
+                            <div class="invalid-feedback">Bạn phải đồng ý với điều khoản và điều kiện</div>
                         </div>
                     </div>
                     <a href="/cart" class="back-to-cart mt-3">
@@ -268,7 +247,6 @@
                                     <div class="text-muted small" th:text="'Dung tích: ' + ${item.volume} + 'ml'">Dung tích: 50ml</div>
                                     <div class="text-muted small" th:text="'Số lượng: ' + ${item.quantity}">Số lượng: 2</div>
                                 </div>
-                                <!-- Sửa lỗi formatDecimal bằng cách dùng item.total đã tính sẵn -->
                                 <div th:text="${#numbers.formatDecimal(item.total, 0, 'COMMA', 0, 'POINT') + 'đ'}" class="fw-bold text-end">1.200.000đ</div>
                             </div>
                         </div>
@@ -289,18 +267,42 @@
 
                         <button type="submit" id="place-order-btn" class="place-order-btn mt-3 w-100">Đặt hàng</button>
                     </div>
-
                 </div>
             </div>
         </form>
-
     </main>
 
     <!-- Footer -->
     <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Form logout POST -->
+    <form id="logout-form" th:action="@{/logout}" method="post" style="display:none;">
+        <input type="hidden" name="_csrf" th:if="${_csrf != null}" th:value="${_csrf.token}"/>
+    </form>
 
+    <!-- Bootstrap, jQuery, and custom JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Script xử lý logout -->
+    <script>
+        function confirmLogout() {
+            Swal.fire({
+                title: 'Xác nhận đăng xuất',
+                text: 'Bạn có chắc chắn muốn đăng xuất không?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Đăng xuất',
+                cancelButtonText: 'Hủy',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('logout-form').submit();
+                }
+            });
+        }
+    </script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize tooltips
@@ -319,40 +321,141 @@
                 });
             });
 
+            // Input validation patterns
+            const patterns = {
+                email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/,
+                phone: /^(\+84|84|0[3-9])([0-9]{8})$/
+            };
+            
+            // Validate individual fields
+            function validateField(field, pattern, errorMsg) {
+                if (!field.value.trim()) {
+                    // If field is required, it will be caught by the browser's validation
+                    if (field.hasAttribute('required')) {
+                        field.classList.add('is-invalid');
+                        // Hiển thị thông báo lỗi tùy chỉnh
+                        const container = field.closest('.input-container');
+                        if (container) {
+                            const errorElement = container.querySelector('.error-message');
+                            if (errorElement) {
+                                errorElement.style.display = 'block';
+                            }
+                        }
+                        return false;
+                    }
+                    return true; // Empty fields pass validation if not required
+                }
+                
+                if (pattern.test(field.value.trim())) {
+                    field.classList.remove('is-invalid');
+                    field.classList.add('is-valid');
+                    // Ẩn thông báo lỗi
+                    const container = field.closest('.input-container');
+                    if (container) {
+                        const errorElement = container.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.style.display = 'none';
+                        }
+                    }
+                    return true;
+                } else {
+                    field.classList.remove('is-valid');
+                    field.classList.add('is-invalid');
+                    // Hiển thị thông báo lỗi tùy chỉnh
+                    const container = field.closest('.input-container');
+                    if (container) {
+                        const errorElement = container.querySelector('.error-message');
+                        if (errorElement) {
+                            errorElement.textContent = errorMsg;
+                            errorElement.style.display = 'block';
+                        }
+                    }
+                    return false;
+                }
+            }
+            
+            // Email validation
+            const email = document.getElementById('email');
+            if (email) {
+                email.addEventListener('input', function() {
+                    validateField(
+                        email, 
+                        patterns.email, 
+                        'Email không hợp lệ (ví dụ: name@example.com)'
+                    );
+                });
+            }
+            
+            // Phone validation
+            const phone = document.getElementById('phone');
+            if (phone) {
+                phone.addEventListener('input', function() {
+                    validateField(
+                        phone, 
+                        patterns.phone, 
+                        'Số điện thoại không hợp lệ (ví dụ: 0901234567)'
+                    );
+                });
+            }
+
             // Submit form
             const checkoutForm = document.getElementById('checkout-form');
             if (checkoutForm) {
                 checkoutForm.addEventListener('submit', function (e) {
-                    if (!checkoutForm.checkValidity()) {
+                    // Thêm debug
+                    console.log('Form submit event triggered');
+                    
+                    // Kiểm tra xem người dùng đã đăng nhập chưa
+                    const isLoggedIn = document.body.getAttribute('data-logged-in') === 'true' || document.querySelector('[sec\\:authorize="isAuthenticated()"]') !== null;
+                    console.log('User is logged in:', isLoggedIn);
+                    
+                    let isValid = true;
+                    
+                    // Validate email format if provided
+                    if (email && email.value.trim() && !patterns.email.test(email.value.trim())) {
+                        console.log('Email validation failed');
+                        isValid = false;
+                    }
+                    
+                    // Validate phone format - chỉ khi không đăng nhập hoặc trường này có giá trị
+                    if (!isLoggedIn && (!phone.value.trim() || !patterns.phone.test(phone.value.trim()))) {
+                        console.log('Phone validation failed');
+                        isValid = false;
+                    } else if (isLoggedIn && phone.value.trim() && !patterns.phone.test(phone.value.trim())) {
+                        console.log('Phone validation failed (logged in user)');
+                        isValid = false;
+                    }
+                    
+                    console.log('Form validity:', checkoutForm.checkValidity());
+                    console.log('Custom validation:', isValid);
+                    
+                    if (!checkoutForm.checkValidity() || !isValid) {
+                        console.log('Preventing form submission due to validation');
                         e.preventDefault();
                         e.stopPropagation();
                         checkoutForm.classList.add('was-validated');
-                    } else {
-                        const btn = document.getElementById('place-order-btn');
-                        btn.disabled = true;
-                    }
-                });
-            }
-
-            // Toggle shipping address
-            const sameAddressCheckbox = document.getElementById('sameAddress');
-            const shippingAddressSection = document.getElementById('shipping-address-section');
-            if (sameAddressCheckbox && shippingAddressSection) {
-                sameAddressCheckbox.addEventListener('change', function () {
-                    if (this.checked) {
-                        shippingAddressSection.style.display = 'none';
-                        // Disable shipping address fields validation
-                        document.querySelectorAll('#shipping-address-section input, #shipping-address-section select').forEach(field => {
-                            field.required = false;
-                        });
-                    } else {
-                        shippingAddressSection.style.display = 'block';
-                        // Enable shipping address fields validation
-                        document.querySelectorAll('#shipping-address-section input, #shipping-address-section select').forEach(field => {
-                            if (!field.hasAttribute('disabled')) {
-                                field.required = true;
+                        
+                        // Hiển thị thông báo lỗi cho tất cả các trường không hợp lệ
+                        document.querySelectorAll('.form-control:invalid').forEach(field => {
+                            const container = field.closest('.input-container');
+                            if (container) {
+                                const errorElement = container.querySelector('.error-message');
+                                if (errorElement) {
+                                    errorElement.style.display = 'block';
+                                }
                             }
                         });
+                        
+                        // Focus on first invalid field
+                        const firstInvalid = document.querySelector('.is-invalid');
+                        if (firstInvalid) {
+                            firstInvalid.focus();
+                        }
+                    } else {
+                        console.log('Form validation passed, proceeding with submission');
+                        const btn = document.getElementById('place-order-btn');
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Đang xử lý...';
                     }
                 });
             }

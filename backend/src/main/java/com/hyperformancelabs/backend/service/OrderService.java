@@ -24,6 +24,9 @@ public interface OrderService {
     // Lấy danh sách đơn hàng theo số điện thoại
     List<OrderDTO> findByPhone(String phone);
 
+    // Huỷ đơn hàng
+    void cancelOrder(Integer orderId);
+
     // ----------------------------------------------- ADMIN -----------------------------------------------------
 
     // Tổng doanh thu ngày hôm nay
