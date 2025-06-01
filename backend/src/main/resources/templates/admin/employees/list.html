@@ -224,48 +224,86 @@
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Họ và tên</label>
+                            <label class="form-label d-flex align-items-center">
+                                Họ và tên <span class="text-danger">*</span>
+                            </label>
                             <input type="text" name="fullName" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Tên đăng nhập</label>
-                            <input type="text" name="username" class="form-control" required>
+                            <label class="form-label d-flex align-items-center">
+                                Tên đăng nhập <span class="text-danger">*</span>
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Chỉ chứa chữ cái và số, không có khoảng trắng">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
+                            <input type="text" name="username" class="form-control" required pattern="^[a-zA-Z0-9]+$">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Email</label>
+                            <label class="form-label d-flex align-items-center">
+                                Email
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Định dạng email hợp lệ (ví dụ: example@domain.com)">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="email" name="email" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="text" name="phoneNumber" class="form-control">
+                            <label class="form-label d-flex align-items-center">
+                                Số điện thoại <span class="text-danger">*</span>
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Số điện thoại hợp lệ, chỉ bao gồm số và ký tự như +, -, ()">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
+                            <input type="text" name="phoneNumber" class="form-control" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Địa chỉ</label>
-                        <input type="text" name="address" class="form-control">
+                        <label class="form-label d-flex align-items-center">
+                            Địa chỉ <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" name="address" class="form-control" required>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Ngày sinh</label>
+                            <label class="form-label d-flex align-items-center">
+                                Ngày sinh
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Ngày sinh phải nhỏ hơn ngày hiện tại">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="date" name="dateOfBirth" class="form-control">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Ngày bắt đầu làm việc</label>
+                            <label class="form-label d-flex align-items-center">
+                                Ngày bắt đầu làm việc
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Ngày bắt đầu làm việc phải nhỏ hơn hoặc bằng ngày hiện tại">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="date" name="startDate" class="form-control">
                         </div>
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label">Trạng thái</label>
+                            <label class="form-label d-flex align-items-center">
+                                Trạng thái <span class="text-danger">*</span>
+                            </label>
                             <select name="status" class="form-select" required>
                                 <option value="active">Đang làm việc</option>
                                 <option value="inactive">Không hoạt động</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Vai trò</label>
+                            <label class="form-label d-flex align-items-center">
+                                Vai trò <span class="text-danger">*</span>
+                            </label>
                             <select name="role" class="form-select" required>
                                 <option value="Material Staff">Nhân viên quản lý sản phẩm</option>
                                 <option value="Order Staff">Nhân viên xử lý đơn hàng</option>
@@ -273,8 +311,14 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mật khẩu</label>
-                        <input type="password" name="password" class="form-control" required>
+                        <label class="form-label d-flex align-items-center">
+                            Mật khẩu <span class="text-danger">*</span>
+                            <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                  title="Mật khẩu phải có tối thiểu 6 ký tự">
+                                <i class="fas fa-question-circle"></i>
+                            </span>
+                        </label>
+                        <input type="password" name="password" class="form-control" required minlength="6">
                     </div>
                 </div>
                 <div class="modal-footer">

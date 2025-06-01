@@ -80,6 +80,7 @@ public class SecurityConfig {
                 .requestMatchers("/blog/**").permitAll()
                 .requestMatchers("/track-order/**").permitAll()
                 .requestMatchers("/register/**").permitAll()// Cho phép truy cập trang blog
+                .requestMatchers("/terms-conditions").permitAll() // Cho phép truy cập trang điều khoản và điều kiện
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
 //                .requestMatchers("/admin/**").permitAll()
 //                .requestMatchers("/admin/**").hasRole("ADMIN")

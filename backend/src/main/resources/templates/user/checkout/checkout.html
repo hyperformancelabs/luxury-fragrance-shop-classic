@@ -8,6 +8,25 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/css/checkout.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        .form-label {
+            display: flex;
+            align-items: center;
+        }
+        .fa-question-circle {
+            font-size: 0.875em;
+            cursor: help;
+            margin-left: 0.25rem;
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation -->
@@ -40,27 +59,59 @@
                             <h3 class="form-section-title">Thông tin thanh toán</h3>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="firstName" class="form-label">Họ</label>
+                                    <label for="firstName" class="form-label">
+                                        Họ <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập họ của người nhận hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" class="form-control" id="firstName" name="firstName" th:value="${firstName}" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="lastName" class="form-label">Tên</label>
+                                    <label for="lastName" class="form-label">
+                                        Tên <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập tên của người nhận hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" class="form-control" id="lastName" name="lastName" th:value="${lastName}" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="email" class="form-label">Email</label>
+                                    <label for="email" class="form-label">
+                                        Email <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Email dùng để liên hệ và gửi thông tin đơn hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="email" class="form-control" id="email" name="email" th:value="${email}" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="phone" class="form-label">Số điện thoại</label>
+                                    <label for="phone" class="form-label">
+                                        Số điện thoại <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Số điện thoại liên hệ khi giao hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="tel" class="form-control" id="phone" name="phone" th:value="${phone}" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="address" class="form-label">Địa chỉ</label>
+                                    <label for="address" class="form-label">
+                                        Địa chỉ <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Số nhà, tên đường, khu vực">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" class="form-control" id="address" name="address" th:value="${address}" required>
                                 </div>
                                 <div class="col-md-5">
-                                    <label for="province" class="form-label">Tỉnh/Thành phố</label>
+                                    <label for="province" class="form-label">
+                                        Tỉnh/Thành phố <span class="text-danger">*</span>
+                                    </label>
                                     <select class="form-select" id="province" name="province" required>
                                         <option value="">Chọn tỉnh/thành phố</option>
                                         <option value="Hà Nội" th:selected="${province == 'Hà Nội'}">Hà Nội</option>
@@ -69,21 +120,21 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="district" class="form-label">Quận/Huyện</label>
+                                    <label for="district" class="form-label">
+                                        Quận/Huyện <span class="text-danger">*</span>
+                                    </label>
                                     <select class="form-select" id="district" name="district" required>
                                         <option value="">Chọn quận/huyện</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="ward" class="form-label">Phường/Xã</label>
+                                    <label for="ward" class="form-label">
+                                        Phường/Xã <span class="text-danger">*</span>
+                                    </label>
                                     <select class="form-select" id="ward" name="ward" required>
                                         <option value="">Chọn phường/xã</option>
                                     </select>
                                 </div>
-                                <!--                                <div class="col-md-3">-->
-<!--                                    <label for="addressDetail" class="form-label">Địa chỉ chi tiết</label>-->
-<!--                                    <input type="text" class="form-control" id="addressDetail" name="addressDetail">-->
-<!--                                </div>-->
                             </div>
 
                             <div class="form-check mt-3">
@@ -97,23 +148,49 @@
                             <h3 class="form-section-title">Địa chỉ giao hàng</h3>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="shippingFirstName" class="form-label">Họ</label>
+                                    <label for="shippingFirstName" class="form-label">
+                                        Họ <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Họ của người nhận hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" class="form-control" id="shippingFirstName" name="shippingFirstName">
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="shippingLastName" class="form-label">Tên</label>
+                                    <label for="shippingLastName" class="form-label">
+                                        Tên <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Tên của người nhận hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" class="form-control" id="shippingLastName" name="shippingLastName">
                                 </div>
                                 <div class="col-12">
-                                    <label for="shippingPhone" class="form-label">Số điện thoại</label>
-                                    <input type="tel" class="form-control" id="shippingPhone" name="shippingPhone">
+                                    <label for="shippingPhone" class="form-label">
+                                        Số điện thoại <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Số điện thoại liên hệ khi giao hàng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
+                                    <input type="tel" class="form-control" id="shippingPhone" name="shippingPhone" required>
                                 </div>
                                 <div class="col-12">
-                                    <label for="shippingAddress" class="form-label">Địa chỉ</label>
-                                    <input type="text" class="form-control" id="shippingAddress" name="shippingAddress">
+                                    <label for="shippingAddress" class="form-label">
+                                        Địa chỉ <span class="text-danger">*</span>
+                                        <span class="text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Số nhà, tên đường, khu vực">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
+                                    <input type="text" class="form-control" id="shippingAddress" name="shippingAddress" required>
                                 </div>
                                 <div class="col-md-5">
-                                    <label for="shippingProvince" class="form-label">Tỉnh/Thành phố</label>
+                                    <label for="shippingProvince" class="form-label">
+                                        Tỉnh/Thành phố
+                                    </label>
                                     <select class="form-select" id="shippingProvince" name="shippingProvince">
                                         <option value="">Chọn tỉnh/thành phố</option>
                                         <option value="hanoi">Hà Nội</option>
@@ -122,27 +199,27 @@
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="shippingDistrict" class="form-label">Quận/Huyện</label>
+                                    <label for="shippingDistrict" class="form-label">
+                                        Quận/Huyện
+                                    </label>
                                     <select class="form-select" id="shippingDistrict" name="shippingDistrict" disabled>
                                         <option value="">Chọn quận/huyện</option>
                                     </select>
                                 </div>
                                 <div class="col-md-4">
-                                    <label for="shippingWard" class="form-label">Phường/Xã</label>
-                                    <select class="form-select" id="shippingWard" name="shippingWard" required disabled>
+                                    <label for="shippingWard" class="form-label">
+                                        Phường/Xã
+                                    </label>
+                                    <select class="form-select" id="shippingWard" name="shippingWard" disabled>
                                         <option value="">Chọn phường/xã</option>
                                     </select>
                                 </div>
-<!--                                <div class="col-md-3">-->
-<!--                                    <label for="shippingAddressDetail" class="form-label">Địa chỉ chi tiết</label>-->
-<!--                                    <input type="text" class="form-control" id="shippingAddressDetail" name="shippingAddressDetail">-->
-<!--                                </div>-->
                             </div>
                         </div>
 
                         <!-- Payment Method -->
                         <div class="form-section">
-                            <h3 class="form-section-title">Phương thức thanh toán</h3>
+                            <h3 class="form-section-title">Phương thức thanh toán <span class="text-danger">*</span></h3>
                             <div class="payment-method active">
                                 <div class="payment-method-header">
                                     <input type="radio" class="payment-method-radio" name="paymentMethod" id="cod" value="cod" checked>
@@ -171,7 +248,7 @@
 
                         <div class="form-check mt-3">
                             <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
-                            <label class="form-check-label" for="terms">Tôi đã đọc và đồng ý với <a href="#">điều khoản và điều kiện</a></label>
+                            <label class="form-check-label" for="terms">Tôi đã đọc và đồng ý với <a href="#">điều khoản và điều kiện</a> <span class="text-danger">*</span></label>
                         </div>
                     </div>
                     <a href="/cart" class="back-to-cart mt-3">
@@ -223,10 +300,15 @@
     <footer th:replace="~{shared/fragments/footer :: footer}"></footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<!--    <script src="/js/checkout.js"></script>-->
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+            
             // Xử lý chọn phương thức thanh toán
             document.querySelectorAll('.payment-method').forEach(method => {
                 method.addEventListener('click', function () {
@@ -248,222 +330,33 @@
                     } else {
                         const btn = document.getElementById('place-order-btn');
                         btn.disabled = true;
-                        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xử lý...';
                     }
                 });
             }
 
-            // Toggle shipping address section
-            const sameAddress = document.getElementById('sameAddress');
-            const shippingSection = document.getElementById('shipping-address-section');
-            if (sameAddress && shippingSection) {
-                const toggleShipping = () => {
-                    shippingSection.style.display = sameAddress.checked ? 'none' : 'block';
-                };
-                sameAddress.addEventListener('change', toggleShipping);
-                toggleShipping();
-            }
-
-            // Maps
-            const districtMap = {
-    "Hà Nội": ["Hoàn Kiếm", "Ba Đình", "Đống Đa"],
-    "HCM": ["Quận 1", "Quận 3", "Quận 5"],
-    "Đà Nẵng": ["Hải Châu", "Thanh Khê", "Liên Chiểu"]
-};
-
-const districtLabels = {
-    "Hoàn Kiếm": "Hoàn Kiếm",
-    "Ba Đình": "Ba Đình",
-    "Đống Đa": "Đống Đa",
-    "Quận 1": "Quận 1",
-    "Quận 3": "Quận 3",
-    "Quận 5": "Quận 5",
-    "Hải Châu": "Hải Châu",
-    "Thanh Khê": "Thanh Khê",
-    "Liên Chiểu": "Liên Chiểu"
-};
-
-const wardMap = {
-    "Hoàn Kiếm": ["Hàng Bông", "Hàng Trống"],
-    "Ba Đình": ["Ngọc Hà", "Kim Mã"],
-    "Đống Đa": ["Láng Hạ", "Khâm Thiên"],
-    "Quận 1": ["Bến Nghé", "Bến Thành"],
-    "Quận 3": ["Phường 1", "Phường 2"],
-    "Quận 5": ["Phường 6", "Phường 8"],
-    "Hải Châu": ["Hải Châu 1", "Hải Châu 2"],
-    "Thanh Khê": ["Thanh Khê Đông", "Thanh Khê Tây"],
-    "Liên Chiểu": ["Hoà Minh", "Hoà Khánh"]
-};
-
-
-            function handleLocationChange(provinceId, districtId, wardId) {
-                const provinceSelect = document.getElementById(provinceId);
-                const districtSelect = document.getElementById(districtId);
-                const wardSelect = document.getElementById(wardId);
-
-                if (!provinceSelect || !districtSelect || !wardSelect) return;
-
-                provinceSelect.addEventListener('change', function () {
-                    const provinceValue = this.value;
-                    districtSelect.innerHTML = '<option value="">Chọn quận/huyện</option>';
-                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-                    wardSelect.disabled = true;
-
-                    console.log(provinceValue)
-
-                    if (districtMap[provinceValue]) {
-                        districtMap[provinceValue].forEach(dKey => {
-                            const opt = document.createElement('option');
-                            opt.value = dKey;
-                            opt.textContent = districtLabels[dKey] || dKey;
-                            districtSelect.appendChild(opt);
+            // Toggle shipping address
+            const sameAddressCheckbox = document.getElementById('sameAddress');
+            const shippingAddressSection = document.getElementById('shipping-address-section');
+            if (sameAddressCheckbox && shippingAddressSection) {
+                sameAddressCheckbox.addEventListener('change', function () {
+                    if (this.checked) {
+                        shippingAddressSection.style.display = 'none';
+                        // Disable shipping address fields validation
+                        document.querySelectorAll('#shipping-address-section input, #shipping-address-section select').forEach(field => {
+                            field.required = false;
                         });
-                        districtSelect.disabled = false;
                     } else {
-                        districtSelect.disabled = true;
-                    }
-                });
-
-                districtSelect.addEventListener('change', function () {
-                    const districtValue = this.value;
-                    wardSelect.innerHTML = '<option value="">Chọn phường/xã</option>';
-                    if (wardMap[districtValue]) {
-                        wardMap[districtValue].forEach(w => {
-                            const opt = document.createElement('option');
-                            opt.value = w.toLowerCase().replace(/\s+/g, '');
-                            opt.textContent = w;
-                            wardSelect.appendChild(opt);
-                        });
-                        wardSelect.disabled = false;
-                    } else {
-                        wardSelect.disabled = true;
-                    }
-                });
-            }
-
-            // Áp dụng cho cả billing và shipping
-            handleLocationChange('province', 'district', 'ward');
-            handleLocationChange('shippingProvince', 'shippingDistrict', 'shippingWard');
-        });
-    </script>
-    <script th:inline="javascript">
-        const selectedProvince = /*[[${province != null ? '\'' + province + '\'' : 'null'}]]*/ null;
-        const selectedDistrict = /*[[${district != null ? '\'' + district + '\'' : 'null'}]]*/ null;
-        const selectedWard = /*[[${ward != null ? '\'' + ward + '\'' : 'null'}]]*/ null;
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const provinceSelect = document.getElementById('province');
-            const districtSelect = document.getElementById('district');
-            const wardSelect = document.getElementById('ward');
-
-            if (selectedProvince && provinceSelect) {
-                provinceSelect.value = selectedProvince;
-                provinceSelect.dispatchEvent(new Event('change'));
-
-                const waitForDistricts = setInterval(() => {
-                    if (districtSelect.options.length > 1) {
-                        districtSelect.value = selectedDistrict;
-                        districtSelect.dispatchEvent(new Event('change'));
-                        clearInterval(waitForDistricts);
-
-                        const waitForWards = setInterval(() => {
-                            if (wardSelect.options.length > 1) {
-                                wardSelect.value = selectedWard;
-                                clearInterval(waitForWards);
+                        shippingAddressSection.style.display = 'block';
+                        // Enable shipping address fields validation
+                        document.querySelectorAll('#shipping-address-section input, #shipping-address-section select').forEach(field => {
+                            if (!field.hasAttribute('disabled')) {
+                                field.required = true;
                             }
-                        }, 100);
+                        });
                     }
-                }, 100);
+                });
             }
         });
     </script>
-    <script>
-        function confirmLogout() {
-            Swal.fire({
-                title: 'Xác nhận đăng xuất',
-                text: 'Bạn có chắc chắn muốn đăng xuất không?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Đăng xuất',
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    document.getElementById('logout-form').submit();
-                }
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                window.history.replaceState({}, document.title, window.location.pathname);
-                window.location.reload();
-            });
-
-            }
-        });
-    </script>
-    <script>
-        function showLoginReminder() {
-            Swal.fire({
-                icon: 'info',
-                title: 'Vui lòng đăng nhập',
-                text: 'Bạn cần đăng nhập để thêm sản phẩm vào mục yêu thích.',
-                confirmButtonText: 'Đăng nhập',
-                showCancelButton: true,
-                cancelButtonText: 'Hủy',
-                reverseButtons: true
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = "/auth/login";
-                }
-            });
-        }
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const params = new URLSearchParams(window.location.search);
-
-            if (params.get("logout") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đăng xuất thành công!',
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    window.location.reload();
-                });
-            }
-
-            if (params.get("addedToCart") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã thêm vào giỏ hàng!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-
-            if (params.get("wishlistAdded") === "success") {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Đã thêm vào danh sách yêu thích!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
-        });
-    </script>
-
 </body>
 </html>

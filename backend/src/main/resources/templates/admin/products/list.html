@@ -287,18 +287,36 @@
                             <!-- Form Fields -->
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Tên sản phẩm</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Tên sản phẩm <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập tên đầy đủ của sản phẩm">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" name="product_name" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Thương hiệu</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Thương hiệu <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Chọn thương hiệu của sản phẩm">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <select name="brand_id" class="form-select" required>
                                         <option value="">-- Chọn thương hiệu --</option>
                                         <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.brandName}"></option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Loại nước hoa</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Loại nước hoa <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Chọn đối tượng sử dụng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <select name="gender" class="form-select" required>
                                         <option value="">-- Chọn loại --</option>
                                         <option value="Men">Nam</option>
@@ -309,12 +327,24 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Mô tả</label>
+                                <label class="form-label d-flex align-items-center">
+                                    Mô tả
+                                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Mô tả chi tiết về sản phẩm (không bắt buộc)">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </label>
                                 <textarea name="description" class="form-control"></textarea>
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Ảnh sản phẩm</label>
+                                <label class="form-label d-flex align-items-center">
+                                    Ảnh sản phẩm <span class="text-danger">*</span>
+                                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Chọn ảnh đại diện cho sản phẩm (khuyến nghị kích thước 800x800px)">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </label>
                                 <input type="file" name="imageFile" class="form-control" accept="image/*" required>
                             </div>
 
@@ -322,25 +352,55 @@
                             <h6>Thông tin biến thể</h6>
                             <div class="row mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Dung tích (ml)</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Dung tích (ml) <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập dung tích tính bằng ml">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="volume" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Giá bán</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Giá bán <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập giá bán (đơn vị VNĐ)">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="price" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Giá khuyến mãi</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Giá khuyến mãi
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập giá khuyến mãi nếu có (đơn vị VNĐ)">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="discount_price" class="form-control">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label class="form-label">Tồn kho</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Tồn kho <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập số lượng hiện có trong kho">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="quantity_in_stock" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mức cảnh báo tồn kho</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Mức cảnh báo tồn kho
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập số lượng tối thiểu để hiển thị cảnh báo">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="reorder_level" class="form-control">
                                 </div>
                             </div>
@@ -369,18 +429,36 @@
                             <!-- Row 1: Tên, Thương hiệu, Giới tính -->
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">Tên sản phẩm</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Tên sản phẩm <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập tên đầy đủ của sản phẩm">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="text" name="product_name" id="edit_product_name" class="form-control" required>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Thương hiệu</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Thương hiệu <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Chọn thương hiệu của sản phẩm">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <select name="brand_id" id="edit_brand_id" class="form-select" required>
                                         <option value="">-- Chọn thương hiệu --</option>
                                         <option th:each="brand : ${brands}" th:value="${brand.brandId}" th:text="${brand.brandName}"></option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Loại nước hoa</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Loại nước hoa <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Chọn đối tượng sử dụng">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <select name="gender" id="edit_gender" class="form-select" required>
                                         <option value="">-- Chọn loại --</option>
                                         <option value="Men">Nam</option>
@@ -392,13 +470,25 @@
 
                             <!-- Mô tả -->
                             <div class="mb-3">
-                                <label class="form-label">Mô tả</label>
+                                <label class="form-label d-flex align-items-center">
+                                    Mô tả
+                                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Mô tả chi tiết về sản phẩm (không bắt buộc)">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </label>
                                 <textarea name="description" id="edit_description" class="form-control"></textarea>
                             </div>
 
                             <!-- Ảnh -->
                             <div class="mb-3">
-                                <label class="form-label">Ảnh sản phẩm (chọn nếu muốn thay)</label>
+                                <label class="form-label d-flex align-items-center">
+                                    Ảnh sản phẩm (chọn nếu muốn thay)
+                                    <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                          title="Chọn ảnh mới nếu muốn thay đổi (khuyến nghị kích thước 800x800px)">
+                                        <i class="fas fa-question-circle"></i>
+                                    </span>
+                                </label>
                                 <input type="file" name="imageFile" class="form-control" accept="image/*">
                             </div>
 
@@ -406,27 +496,57 @@
                             <h6>Thông tin biến thể (dung tích)</h6>
                             <div class="row mb-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Dung tích (ml)</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Dung tích (ml) <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập dung tích tính bằng ml">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="volume" id="edit_volume" class="form-control" required>
                                     <input type="hidden" name="old_volume" id="edit_old_volume">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Giá bán</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Giá bán <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập giá bán (đơn vị VNĐ)">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="price" id="edit_price" class="form-control" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Giá khuyến mãi</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Giá khuyến mãi
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập giá khuyến mãi nếu có (đơn vị VNĐ)">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="discount_price" id="edit_discount_price" class="form-control">
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label class="form-label">Tồn kho</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Tồn kho <span class="text-danger">*</span>
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập số lượng hiện có trong kho">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="quantity_in_stock" id="edit_quantity_in_stock" class="form-control" required>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="form-label">Mức cảnh báo tồn kho</label>
+                                    <label class="form-label d-flex align-items-center">
+                                        Mức cảnh báo tồn kho
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Nhập số lượng tối thiểu để hiển thị cảnh báo">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <input type="number" name="reorder_level" id="edit_reorder_level" class="form-control">
                                 </div>
                             </div>
@@ -465,6 +585,12 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                
                 const form = document.querySelector("form[method='get']");
                 form.addEventListener("submit", function () {
                     form.querySelectorAll("input[name], select[name]").forEach(el => {

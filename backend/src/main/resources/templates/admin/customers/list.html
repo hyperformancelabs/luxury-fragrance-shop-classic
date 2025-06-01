@@ -212,24 +212,50 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Họ tên</label>
+                            <label class="form-label d-flex align-items-center">
+                                Họ tên <span class="text-danger">*</span>
+                            </label>
                             <input type="text" name="name" class="form-control" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Số điện thoại</label>
+                            <label class="form-label d-flex align-items-center">
+                                Số điện thoại
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Định dạng số điện thoại hợp lệ">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="text" name="phoneNumber" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label d-flex align-items-center">
+                                Email
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Định dạng email hợp lệ (ví dụ: example@domain.com)">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="email" name="email" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Tên đăng nhập</label>
-                            <input type="text" name="username" class="form-control" required>
+                            <label class="form-label d-flex align-items-center">
+                                Tên đăng nhập
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Chỉ chứa chữ cái và số, không có khoảng trắng">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
+                            <input type="text" name="username" class="form-control" pattern="^[a-zA-Z0-9]+$">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <label class="form-label d-flex align-items-center">
+                                Mật khẩu
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Mật khẩu phải có tối thiểu 6 ký tự">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
+                            <input type="password" name="password" class="form-control" minlength="6">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Địa chỉ</label>
@@ -279,6 +305,12 @@
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                
                 const form = document.querySelector("form[method='get']");
                 form.addEventListener("submit", function (e) {
                     // Xoá các field không có giá trị

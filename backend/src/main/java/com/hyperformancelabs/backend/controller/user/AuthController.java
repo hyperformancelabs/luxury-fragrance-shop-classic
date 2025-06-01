@@ -1,6 +1,7 @@
 package com.hyperformancelabs.backend.controller.user;
 
 import com.hyperformancelabs.backend.dto.common.response.CustomerDTO;
+import com.hyperformancelabs.backend.dto.common.response.BreadcrumbItemDTO;
 import com.hyperformancelabs.backend.model.Customer;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.PasswordResetService;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import java.util.List;
 
 @Controller
 @RequestMapping("/auth")
@@ -108,7 +110,13 @@ public class AuthController {
     }
 
     @GetMapping("/register")
-    public String register() {
+    public String showRegisterPage(Model model) {
+        // Add breadcrumb paths
+        List<BreadcrumbItemDTO> breadcrumbPaths = List.of(
+            BreadcrumbItemDTO.createCurrentPage("ĐĂNG KÝ")
+        );
+        model.addAttribute("breadcrumbPaths", breadcrumbPaths);
+        
         return "user/auth/register";
     }
 

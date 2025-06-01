@@ -63,6 +63,7 @@ public class AdminProfileController {
             
             model.addAttribute("employee", employee);
             model.addAttribute("pageTitle", "Hồ sơ cá nhân");
+            model.addAttribute("activeMenu", "profile");
             
             System.out.println("Profile page data loaded successfully");
             System.out.println("=== END AdminProfileController.showProfile ===");
@@ -92,6 +93,7 @@ public class AdminProfileController {
 
             model.addAttribute("employee", employee);
             model.addAttribute("pageTitle", "Chỉnh sửa hồ sơ");
+            model.addAttribute("activeMenu", "profile");
             
             return "admin/profile/edit-profile";
             

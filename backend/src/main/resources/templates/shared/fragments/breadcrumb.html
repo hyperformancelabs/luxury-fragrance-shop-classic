@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Breadcrumb fragment with dynamic navigation path -->
+<header th:fragment="breadcrumb(paths)" class="breadcrumb-section">
+    <div class="container">
+        <nav class="d-flex">
+            <a href="/" class="me-2">TRANG CHỦ</a>
+            
+            <!-- Loop through all paths except the last one (which is the current page) -->
+            <th:block th:if="${paths != null and #arrays.length(paths) > 0}" th:each="pathItem, iterStat : ${paths}">
+                <span class="mx-2">/</span>
+                
+                <!-- If this is the last item (current page), don't make it a link -->
+                <th:block th:if="${iterStat.last}">
+                    <span th:text="${pathItem.name}">CURRENT PAGE</span>
+                </th:block>
+                
+                <!-- If this is not the last item, make it a link -->
+                <th:block th:unless="${iterStat.last}">
+                    <a th:href="${pathItem.url}" class="me-2" th:text="${pathItem.name}">PARENT PAGE</a>
+                </th:block>
+            </th:block>
+        </nav>
+    </div>
+</header>
+</body>
+</html> 

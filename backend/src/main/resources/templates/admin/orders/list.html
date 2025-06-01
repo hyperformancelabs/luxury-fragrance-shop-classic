@@ -302,11 +302,23 @@
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="startDate" class="form-label">Từ ngày:</label>
+                            <label for="startDate" class="form-label d-flex align-items-center">
+                                Từ ngày:
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Ngày bắt đầu của khoảng thời gian tìm kiếm">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="date" class="form-control" id="startDate" name="startDate">
                         </div>
                         <div class="mb-3">
-                            <label for="endDate" class="form-label">Đến ngày:</label>
+                            <label for="endDate" class="form-label d-flex align-items-center">
+                                Đến ngày:
+                                <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                      title="Ngày kết thúc của khoảng thời gian tìm kiếm">
+                                    <i class="fas fa-question-circle"></i>
+                                </span>
+                            </label>
                             <input type="date" class="form-control" id="endDate" name="endDate">
                         </div>
                     </div>
@@ -354,6 +366,40 @@
                         modal.show();
                     }
                 });
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize tooltips
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+                
+                // Status filter change handler
+                const statusFilter = document.getElementById('status-filter');
+                if (statusFilter) {
+                    statusFilter.addEventListener('change', function() {
+                        const statusForm = document.getElementById('status-form');
+                        statusForm.submit();
+                    });
+                }
+                
+                // Date range filter handler
+                const dateRangeFilter = document.getElementById('date-range-filter');
+                if (dateRangeFilter) {
+                    dateRangeFilter.addEventListener('change', function() {
+                        const value = this.value;
+                        if (value === 'custom') {
+                            // Show custom date range modal
+                            const customDateModal = new bootstrap.Modal(document.getElementById('customOrderDateModal'));
+                            customDateModal.show();
+                        } else {
+                            // Submit form with selected range
+                            document.getElementById('date-range-form').submit();
+                        }
+                    });
+                }
             });
         </script>
 

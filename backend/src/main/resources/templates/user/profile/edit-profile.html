@@ -65,7 +65,9 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="name" class="form-label">Họ và tên</label>
+                                    <label for="name" class="form-label d-flex align-items-center">
+                                        Họ và tên <span class="text-danger">*</span>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-id-card"></i></span>
                                         <input type="text" id="name" name="name" class="form-control" th:value="${user.name}" required>
@@ -76,19 +78,31 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="email" class="form-label">Email</label>
+                                    <label for="email" class="form-label d-flex align-items-center">
+                                        Email
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Định dạng email hợp lệ (ví dụ: example@domain.com)">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                        <input type="email" id="email" name="email" class="form-control" th:value="${user.email}" required>
+                                        <input type="email" id="email" name="email" class="form-control" th:value="${user.email}">
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="phoneNumber" class="form-label">Số điện thoại</label>
+                                    <label for="phoneNumber" class="form-label d-flex align-items-center">
+                                        Số điện thoại
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Số điện thoại hợp lệ, chỉ bao gồm số và ký tự như +, -, ()">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-phone"></i></span>
-                                        <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" th:value="${user.phoneNumber}" required>
+                                        <input type="tel" id="phoneNumber" name="phoneNumber" class="form-control" th:value="${user.phoneNumber}">
                                     </div>
                                 </div>
                             </div>
@@ -108,7 +122,7 @@
                                     <label for="street" class="form-label">Địa chỉ</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-home"></i></span>
-                                        <input type="text" id="street" name="street" class="form-control" th:value="${user.street}" required placeholder="Số nhà, tên đường">
+                                        <input type="text" id="street" name="street" class="form-control" th:value="${user.street}" placeholder="Số nhà, tên đường">
                                     </div>
                                 </div>
                             </div>
@@ -119,7 +133,7 @@
                                     <label for="ward" class="form-label">Phường/Xã</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-map"></i></span>
-                                        <input type="text" id="ward" name="ward" class="form-control" th:value="${user.ward}" required>
+                                        <input type="text" id="ward" name="ward" class="form-control" th:value="${user.ward}">
                                     </div>
                                 </div>
                             </div>
@@ -128,7 +142,7 @@
                                     <label for="district" class="form-label">Quận/Huyện</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-map-signs"></i></span>
-                                        <input type="text" id="district" name="district" class="form-control" th:value="${user.district}" required>
+                                        <input type="text" id="district" name="district" class="form-control" th:value="${user.district}">
                                     </div>
                                 </div>
                             </div>
@@ -137,7 +151,7 @@
                                     <label for="city" class="form-label">Tỉnh/Thành phố</label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-city"></i></span>
-                                        <input type="text" id="city" name="city" class="form-control" th:value="${user.city}" required>
+                                        <input type="text" id="city" name="city" class="form-control" th:value="${user.city}">
                                     </div>
                                 </div>
                             </div>
@@ -165,10 +179,16 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="newPassword" class="form-label">Mật khẩu mới</label>
+                                    <label for="newPassword" class="form-label d-flex align-items-center">
+                                        Mật khẩu mới
+                                        <span class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+                                              title="Mật khẩu phải có tối thiểu 6 ký tự">
+                                            <i class="fas fa-question-circle"></i>
+                                        </span>
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                        <input type="password" id="newPassword" name="newPassword" class="form-control">
+                                        <input type="password" id="newPassword" name="newPassword" class="form-control" minlength="6">
                                     </div>
                                 </div>
                             </div>
@@ -227,6 +247,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // Initialize tooltips
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+        
         const params = new URLSearchParams(window.location.search);
         
         // Check for URL parameters

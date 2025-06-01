@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      th:replace="~{admin/layout/layout :: html(
+        title='Quản lý Điều khoản và Điều kiện - Shop Nước Hoa Xa Xỉ',
+        activeMenu='terms',
+        content=~{::content},
+        additionalCss=~{::additionalCss},
+        additionalJs=~{::additionalJs}
+      )}">
+<head>
+    <additionalCss>
+        <style>
+            /* Custom styles for the markdown editor */
+            .editor-toolbar {
+                border-radius: 0.5rem 0.5rem 0 0;
+                border: 1px solid #dee2e6;
+                background-color: #f8f9fa;
+                padding: 0.5rem;
+            }
+            
+            .CodeMirror {
+                height: 550px;
+                border-radius: 0 0 0.5rem 0.5rem;
+                border: 1px solid #dee2e6;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+            
+            .CodeMirror-scroll {
+                min-height: 550px;
+            }
+            
+            .editor-preview {
+                background-color: #fff;
+                padding: 1.5rem;
+                box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            }
+            
+            .editor-preview-side {
+                border: 1px solid #dee2e6;
+                box-shadow: -2px 0 5px rgba(0, 0, 0, 0.05);
+            }
+            
+            /* SimpleMDE fullscreen and side-by-side fixes */
+            body.side-by-side-active {
+                overflow: hidden !important;
+            }
+            
+            body.fullscreen-active {
+                overflow: hidden !important;
+            }
+            
+            .CodeMirror-fullscreen,
+            .editor-preview-side,
+            .editor-toolbar.fullscreen {
+                z-index: 9999 !important;
+            }
+            
+            .editor-toolbar.fullscreen {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                background: white !important;
+                padding: 10px !important;
+                border-bottom: 1px solid #dee2e6 !important;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+            }
+            
+            .CodeMirror-fullscreen {
+                position: fixed !important;
+                top: 50px !important; /* Leave space for toolbar */
+                left: 0 !important;
+                right: 0 !important;
+                width: 100% !important;
+                z-index: 9998 !important;
+                height: calc(100vh - 50px) !important;
+                background-color: white !important;
+            }
+            
+            .editor-preview-side {
+                position: fixed !important;
+                top: 50px !important; /* Leave space for toolbar */
+                right: 0 !important;
+                width: 50% !important;
+                z-index: 9998 !important;
+                height: calc(100vh - 50px) !important;
+                overflow-y: auto !important;
+                background-color: white !important;
+                padding: 20px !important;
+                box-sizing: border-box !important;
+            }
+            
+            .editor-preview-active-side + .CodeMirror {
+                width: 50% !important;
+                float: left !important;
+            }
+            
+            .editor-preview-side.editor-preview-active-side {
+                background-color: white !important;
+                border-left: 1px solid #dee2e6 !important;
+            }
+            
+            /* Fix for the overlay issue */
+            .overlay {
+                display: none !important;
+            }
+            
+            .overlay.active {
+                display: none !important;
+            }
+            
+            /* Timestamp styling */
+            .last-updated {
+                font-style: italic;
+                color: #6c757d;
+                font-size: 0.9rem;
+                margin-bottom: 0;
+            }
+            
+            /* Preview button styling */
+            .preview-btn {
+                margin-right: 0.5rem;
+                border-radius: 0.5rem;
+                padding: 0.4rem 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: all 0.2s;
+                border: 1px solid #dee2e6;
+                background-color: white;
+            }
+            
+            .preview-btn:hover {
+                background-color: #f8f9fa;
+                border-color: #ced4da;
+            }
+            
+            /* Page header styling */
+            .page-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+                padding-bottom: 1rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            /* Save button styling */
+            .save-btn {
+                background-color: #0d6efd;
+                border: none;
+                border-radius: 0.5rem;
+                padding: 0.5rem 1.5rem;
+                color: white;
+                font-weight: 500;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                transition: all 0.2s;
+            }
+            
+            .save-btn:hover {
+                background-color: #0b5ed7;
+                transform: translateY(-2px);
+                box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.3);
+            }
+            
+            /* Action bar styling */
+            .action-bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 1.5rem;
+            }
+            
+            .action-bar-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            /* Help section styling */
+            .help-card {
+                border-radius: 0.5rem;
+                border: 1px solid #dee2e6;
+                margin-top: 1.5rem;
+                background-color: #f8f9fa;
+            }
+            
+            .help-card .card-header {
+                background-color: transparent;
+                border-bottom-color: #e9ecef;
+                font-weight: 600;
+            }
+            
+            .help-item {
+                display: flex;
+                gap: 1rem;
+                margin-bottom: 0.75rem;
+            }
+            
+            .help-code {
+                background-color: #e9ecef;
+                padding: 0.2rem 0.5rem;
+                border-radius: 0.25rem;
+                font-family: monospace;
+                font-size: 0.9rem;
+            }
+            
+            .help-description {
+                color: #495057;
+            }
+            
+            /* Success alert styling */
+            .alert-success {
+                border-radius: 0.5rem;
+                border: 1px solid #b8e0d1;
+                background-color: #d1e7dd;
+                color: #0f5132;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            /* Side-by-side layout for help items */
+            .help-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 1rem;
+            }
+            
+            /* Fix for editor toolbar icons */
+            .editor-toolbar a {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .editor-toolbar a:before {
+                line-height: 1 !important;
+            }
+            
+            /* Editor statusbar styling */
+            .editor-statusbar {
+                padding: 8px 10px;
+                font-size: 12px;
+                color: #6c757d;
+                background-color: #f8f9fa;
+                border-top: 1px solid #dee2e6;
+                border-radius: 0 0 0.5rem 0.5rem;
+            }
+        </style>
+    </additionalCss>
+</head>
+<body>
+    <content>
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="h3">Quản lý Điều khoản và Điều kiện</h1>
+            <div class="d-flex align-items-center">
+                <p class="last-updated mb-0" th:if="${lastUpdated}">
+                    <i class="fas fa-clock me-1"></i> Cập nhật lần cuối: 
+                    <span th:text="${#dates.format(lastUpdated, 'dd/MM/yyyy HH:mm')}">01/01/2023 12:00</span>
+                </p>
+            </div>
+        </div>
+        
+        <!-- Success Alert -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>
+            <span th:text="${success}">Điều khoản và điều kiện đã được cập nhật thành công!</span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        
+        <!-- Action Bar -->
+        <div class="action-bar">
+            <div class="action-bar-left">
+                <a href="/terms-conditions" target="_blank" class="preview-btn">
+                    <i class="fas fa-eye"></i> Xem trên trang người dùng
+                </a>
+                <span class="text-muted">Chỉnh sửa nội dung điều khoản hiển thị cho người dùng</span>
+            </div>
+        </div>
+        
+        <!-- Editor Card -->
+        <div class="card">
+            <div class="card-body">
+                <form th:action="@{/admin/terms}" method="post" id="termsForm">
+                    <div class="mb-3">
+                        <textarea id="markdown-editor" name="markdownContent" class="form-control" rows="15" th:text="${markdownContent}"></textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" class="save-btn">
+                            <i class="fas fa-save"></i> Lưu thay đổi
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Markdown Help Section -->
+        <div class="card help-card">
+            <div class="card-header">
+                <i class="fas fa-question-circle me-2"></i> Hướng dẫn sử dụng Markdown
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Sử dụng cú pháp Markdown để định dạng nội dung. Dưới đây là một số ví dụ cơ bản:</p>
+                
+                <div class="help-grid">
+                    <div class="help-item">
+                        <div class="help-code"># Tiêu đề lớn</div>
+                        <div class="help-description">Tiêu đề cấp 1</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">## Tiêu đề phụ</div>
+                        <div class="help-description">Tiêu đề cấp 2</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">**In đậm**</div>
+                        <div class="help-description">Văn bản in đậm</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">*In nghiêng*</div>
+                        <div class="help-description">Văn bản in nghiêng</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">[Liên kết](URL)</div>
+                        <div class="help-description">Tạo liên kết</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">- Mục danh sách</div>
+                        <div class="help-description">Danh sách không thứ tự</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">1. Mục danh sách</div>
+                        <div class="help-description">Danh sách có thứ tự</div>
+                    </div>
+                    
+                    <div class="help-item">
+                        <div class="help-code">> Trích dẫn</div>
+                        <div class="help-description">Tạo khối trích dẫn</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </content>
+    
+    <additionalJs>
+        <!-- SimpleMDE Markdown Editor JS -->
+        <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize SimpleMDE with enhanced options
+                const simplemde = new SimpleMDE({
+                    element: document.getElementById("markdown-editor"),
+                    spellChecker: false,
+                    autosave: {
+                        enabled: true,
+                        uniqueId: "admin-terms-editor",
+                        delay: 1000,
+                    },
+                    toolbar: [
+                        "bold", "italic", "heading", "|", 
+                        "quote", "unordered-list", "ordered-list", "|",
+                        "link", "image", "table", "|",
+                        "preview", "side-by-side", "fullscreen", "|",
+                        "guide"
+                    ],
+                    placeholder: "Nhập nội dung điều khoản và điều kiện ở đây...",
+                    status: ["autosave", "lines", "words"],
+                    renderingConfig: {
+                        singleLineBreaks: false,
+                        codeSyntaxHighlighting: true,
+                    }
+                });
+                
+                // Fix for overlay issues with fullscreen and side-by-side modes
+                const sideBySideButton = document.querySelector('.fa-columns')?.closest('a');
+                const fullscreenButton = document.querySelector('.fa-arrows-alt')?.closest('a');
+                
+                if (sideBySideButton) {
+                    sideBySideButton.addEventListener('click', function() {
+                        setTimeout(() => {
+                            if (document.querySelector('.editor-preview-side')) {
+                                document.body.classList.add('side-by-side-active');
+                                // Make sure sidebar is hidden in side-by-side mode
+                                document.querySelector('#sidebar').style.zIndex = '998';
+                                // Hide overlay
+                                document.querySelector('.overlay')?.classList.remove('active');
+                            } else {
+                                document.body.classList.remove('side-by-side-active');
+                                document.querySelector('#sidebar').style.zIndex = '999';
+                            }
+                        }, 100);
+                    });
+                }
+                
+                if (fullscreenButton) {
+                    fullscreenButton.addEventListener('click', function() {
+                        setTimeout(() => {
+                            if (document.querySelector('.CodeMirror-fullscreen')) {
+                                document.body.classList.add('fullscreen-active');
+                                // Make sure sidebar is hidden in fullscreen mode
+                                document.querySelector('#sidebar').style.zIndex = '998';
+                                // Hide overlay
+                                document.querySelector('.overlay')?.classList.remove('active');
+                            } else {
+                                document.body.classList.remove('fullscreen-active');
+                                document.querySelector('#sidebar').style.zIndex = '999';
+                            }
+                        }, 100);
+                    });
+                }
+                
+                // When clicking in the preview area, make sure it doesn't get hidden
+                document.addEventListener('click', function(e) {
+                    if (e.target.closest('.editor-preview-side') && document.body.classList.contains('side-by-side-active')) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }
+                }, true);
+                
+                // Form submission handler
+                document.getElementById('termsForm').addEventListener('submit', function() {
+                    // Exit fullscreen or side-by-side mode before submitting
+                    if (document.body.classList.contains('fullscreen-active') || document.body.classList.contains('side-by-side-active')) {
+                        // Try to find and click the exit buttons
+                        const activeButton = document.querySelector('.active.fa-arrows-alt')?.closest('a') || 
+                                           document.querySelector('.active.fa-columns')?.closest('a');
+                        if (activeButton) {
+                            activeButton.click();
+                        }
+                    }
+                    
+                    // Update textarea with current editor content before submit
+                    simplemde.codemirror.save();
+                });
+
+                // Auto-hide success alert after 5 seconds
+                const successAlert = document.querySelector('.alert-success');
+                if (successAlert) {
+                    setTimeout(() => {
+                        const bsAlert = new bootstrap.Alert(successAlert);
+                        bsAlert.close();
+                    }, 5000);
+                }
+                
+                // Fix any SimpleMDE toolbar icons that might be broken
+                setTimeout(() => {
+                    const toolbarButtons = document.querySelectorAll('.editor-toolbar a');
+                    toolbarButtons.forEach(button => {
+                        if (!button.children.length) {
+                            button.style.display = 'inline-flex';
+                            button.style.alignItems = 'center';
+                            button.style.justifyContent = 'center';
+                        }
+                    });
+                }, 500);
+            });
+        </script>
+    </additionalJs>
+</body>
+</html> 

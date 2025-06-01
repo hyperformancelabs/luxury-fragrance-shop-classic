@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<body>
+    <!-- Form label with optional tooltip -->
+    <label th:fragment="label(for, text, required, tooltip)" 
+           th:for="${for}" 
+           class="form-label d-flex align-items-center">
+        <span th:text="${text}">Label</span>
+        <span th:if="${required}" class="text-danger ms-1">*</span>
+        <span th:if="${tooltip}" class="ms-1 text-muted" data-bs-toggle="tooltip" data-bs-placement="top" 
+              th:title="${tooltip}">
+            <i class="fas fa-question-circle"></i>
+        </span>
+    </label>
+    
+    <!-- CSS styles for form elements -->
+    <style th:fragment="form-styles">
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .text-danger {
+            color: #dc3545 !important;
+        }
+        
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+        }
+        
+        .input-group-text {
+            background-color: #f8f9fa;
+        }
+        
+        /* Tooltip styles */
+        .fa-question-circle {
+            font-size: 0.875em;
+            cursor: help;
+        }
+    </style>
+    
+    <!-- Initialize tooltips script -->
+    <script th:fragment="tooltipInit">
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</body>
+</html> 
