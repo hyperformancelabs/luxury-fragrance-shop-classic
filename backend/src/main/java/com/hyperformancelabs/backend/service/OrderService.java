@@ -50,6 +50,9 @@ public interface OrderService {
     // Tổng doanh thu theo ngày tháng năm
     BigDecimal getTotalRevenueBetweenDates(LocalDate startDate, LocalDate endDate);
 
+    // Lấy doanh thu theo ngày trong khoảng thời gian
+    Map<String, BigDecimal> getSalesDailyData(LocalDate startDate, LocalDate endDate);
+
     // Tổng số đơn hàng ngày hôm nay
     Long countOrdersToday();
 

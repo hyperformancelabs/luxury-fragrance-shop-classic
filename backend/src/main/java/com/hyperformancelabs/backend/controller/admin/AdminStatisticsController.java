@@ -3,6 +3,11 @@ package com.hyperformancelabs.backend.controller.admin;
 import com.hyperformancelabs.backend.dto.admin.response.TopSellingDisplayDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.OrderService;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -11,7 +16,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
@@ -154,6 +161,51 @@ public class AdminStatisticsController {
         }
         return ((newValue.doubleValue() - oldValue.doubleValue()) / oldValue.doubleValue()) * 100.0;
     }
+
+    @GetMapping("/export")
+    public void exportRevenueReport(@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+                                    @RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                    HttpServletResponse response) throws IOException {
+        // Lấy dữ liệu từ service
+        Map<String, BigDecimal> salesData = orderService.getSalesDailyData(startDate, endDate);
+
+        // Tạo workbook
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Doanh thu");
+
+        // Header
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("Ngày");
+        header.createCell(1).setCellValue("Doanh thu (VND)");
+
+        // Dữ liệu
+        int rowIdx = 1;
+        BigDecimal totalRevenue = BigDecimal.ZERO;
+
+        for (Map.Entry<String, BigDecimal> entry : salesData.entrySet()) {
+            Row row = sheet.createRow(rowIdx++);
+            row.createCell(0).setCellValue(entry.getKey());
+            row.createCell(1).setCellValue(entry.getValue().doubleValue());
+            totalRevenue = totalRevenue.add(entry.getValue());
+        }
+
+        // Thêm hàng tổng
+        Row totalRow = sheet.createRow(rowIdx);
+        totalRow.createCell(0).setCellValue("Tổng doanh thu");
+        totalRow.createCell(1).setCellValue(totalRevenue.doubleValue());
+
+        // Tên file
+        String fileName = "BaoCao_DoanhThu_" + startDate + "_den_" + endDate + ".xlsx";
+
+        // Cấu hình response
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+
+        // Ghi file
+        workbook.write(response.getOutputStream());
+        workbook.close();
+    }
+
 
 
 }

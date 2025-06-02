@@ -221,6 +221,18 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     BigDecimal getTotalRevenueBetweenDates(@Param("startDate") LocalDate startDate,
                                            @Param("endDate") LocalDate endDate);
 
+    // Lấy doanh thu theo ngày trong khoảng thời gian
+    @Query(value = """
+    SELECT CAST(o.order_date AS DATE) AS day, SUM(o.total_amount)
+    FROM [Order] o
+    WHERE (o.order_status = 'delivered' OR o.order_status = 'shipping')
+    AND CAST(o.order_date AS DATE) BETWEEN :startDate AND :endDate
+    GROUP BY CAST(o.order_date AS DATE)
+    ORDER BY day ASC
+""", nativeQuery = true)
+    List<Object[]> getRevenueByDay(@Param("startDate") LocalDate startDate,
+                                   @Param("endDate") LocalDate endDate);
+
     // Tổng doanh thu theo loại sản phẩm
     @Query(value = """
         WITH GenderList AS (

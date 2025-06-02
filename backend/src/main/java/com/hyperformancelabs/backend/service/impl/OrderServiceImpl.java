@@ -125,6 +125,22 @@ public class OrderServiceImpl implements OrderService {
         return orderRepository.getTotalRevenueBetweenDates(startDate, endDate);
     }
 
+    // Lấy doanh thu theo ngày trong khoảng thời gian
+    @Override
+    public Map<String, BigDecimal> getSalesDailyData(LocalDate startDate, LocalDate endDate) {
+        List<Object[]> results = orderRepository.getRevenueByDay(startDate, endDate);
+        Map<String, BigDecimal> salesData = new LinkedHashMap<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        for (Object[] row : results) {
+            LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
+            BigDecimal revenue = (BigDecimal) row[1];
+            salesData.put(date.format(formatter), revenue);
+        }
+
+        return salesData;
+    }
+
     // Tổng số đơn hàng ngày hôm nay
     @Override
     public Long countOrdersToday() {

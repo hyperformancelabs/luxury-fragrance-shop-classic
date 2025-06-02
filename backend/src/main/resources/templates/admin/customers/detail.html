@@ -127,9 +127,12 @@
                         </p>
 
                         <div class="d-flex justify-content-center mb-3">
-                            <button class="btn btn-outline-primary me-2">
+                            <button class="btn btn-outline-primary me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#sendEmailModal">
                                 <i class="fas fa-envelope me-1"></i> Gửi email
                             </button>
+
                             <button class="btn btn-outline-success">
                                 <i class="fas fa-phone me-1"></i> Gọi điện
                             </button>
@@ -449,6 +452,34 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
                         <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- Modal gửi email -->
+        <div class="modal fade" id="sendEmailModal" tabindex="-1" aria-labelledby="sendEmailModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form th:action="@{/admin/customers/send-email}" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="sendEmailModalLabel">Gửi email cho khách hàng</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="email" th:value="${customer.email}">
+                        <input type="hidden" name="customerId" th:value="${customer.customerId}">
+
+                        <div class="mb-3">
+                            <label class="form-label">Tiêu đề</label>
+                            <input type="text" name="subject" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nội dung</label>
+                            <textarea name="message" class="form-control" rows="5" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Huỷ</button>
+                        <button type="submit" class="btn btn-primary">Gửi</button>
                     </div>
                 </form>
             </div>

@@ -92,6 +92,7 @@ public class AdminDashboardController {
             List<RecentOrderDTO> recentOrders = orderService.findTop3ByOrderByOrderDateDesc();
 
             model.addAttribute("roles", roles);
+            model.addAttribute("range", range);
             model.addAttribute("activeMenu", "dashboard");
             model.addAttribute("today", today.format(formatter));
             model.addAttribute("revenueData", revenueData);

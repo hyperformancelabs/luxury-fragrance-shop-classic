@@ -5,6 +5,7 @@ import com.hyperformancelabs.backend.dto.common.response.OrderDTO;
 import com.hyperformancelabs.backend.dto.common.response.ProductPurchaseInfoDTO;
 import com.hyperformancelabs.backend.service.CustomerService;
 import com.hyperformancelabs.backend.service.OrderService;
+import com.hyperformancelabs.backend.service.impl.EmailService;
 import org.flywaydb.core.internal.util.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,9 @@ public class AdminCustomerController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping
     public String listCustomers(
@@ -189,4 +193,20 @@ public class AdminCustomerController {
 
         return "redirect:/admin/customers";
     }
+
+    @PostMapping("/send-email")
+    public String sendEmailToCustomer(@RequestParam("email") String email,
+                                      @RequestParam("subject") String subject,
+                                      @RequestParam("message") String message,
+                                      @RequestParam("customerId") Integer customerId,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            emailService.sendSimpleMessage(email, subject, message);
+            redirectAttributes.addFlashAttribute("successMessage", "Đã gửi email thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Gửi email thất bại: " + e.getMessage());
+        }
+        return "redirect:/admin/customers/" + customerId;
+    }
+
 }

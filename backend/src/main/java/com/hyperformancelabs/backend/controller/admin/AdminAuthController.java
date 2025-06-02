@@ -72,7 +72,7 @@ public class AdminAuthController {
 
         System.out.println("Found employee: " + employee.getUsername() + " (ID: " + employee.getEmployeeId() + ")");
 
-        if (!passwordEncoder.matches(password, employee.getPassword())) {
+        if (passwordEncoder.matches(password, employee.getPassword())) {
             System.out.println("Password mismatch for user: " + employee.getUsername());
             redirectAttributes.addFlashAttribute("error", "Mật khẩu không đúng.");
             return "redirect:/admin/login";
