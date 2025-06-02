@@ -188,4 +188,42 @@ public class EmailServiceImpl implements EmailService {
             logger.error("Error details:", e);
         }
     }
+
+    @Override
+    public void sendContactFormEmail(String name, String email, String subject, String message) {
+        try {
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setFrom(fromEmail, "Shop Nước Hoa Xa Xỉ - Contact Form");
+            helper.setTo(fromEmail); // Send to our own email
+            helper.setReplyTo(email); // Set reply-to as the sender's email
+            helper.setSubject("Liên hệ từ khách hàng: " + subject);
+
+            // Create email content
+            StringBuilder emailContent = new StringBuilder();
+            emailContent.append("<html><body>");
+            emailContent.append("<h2>Thông tin liên hệ mới từ website</h2>");
+            emailContent.append("<p><strong>Họ và tên:</strong> ").append(name).append("</p>");
+            emailContent.append("<p><strong>Email:</strong> ").append(email).append("</p>");
+            emailContent.append("<p><strong>Tiêu đề:</strong> ").append(subject).append("</p>");
+            emailContent.append("<p><strong>Nội dung:</strong></p>");
+            emailContent.append("<p>").append(message.replace("\n", "<br/>")).append("</p>");
+            emailContent.append("<hr/>");
+            emailContent.append("<p>Email này được gửi tự động từ form liên hệ trên website Shop Nước Hoa Xa Xỉ.</p>");
+            emailContent.append("</body></html>");
+
+            helper.setText(emailContent.toString(), true);
+
+            mailSender.send(mimeMessage);
+            logger.info("Contact form email sent successfully from: {}", email);
+
+        } catch (MessagingException e) {
+            logger.error("Failed to send contact form email from: " + email, e);
+            throw new RuntimeException("Không thể gửi email liên hệ", e);
+        } catch (Exception e) {
+            logger.error("Unexpected error while sending contact form email from: " + email, e);
+            throw new RuntimeException("Lỗi hệ thống khi gửi email", e);
+        }
+    }
 } 

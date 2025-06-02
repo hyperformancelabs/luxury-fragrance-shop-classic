@@ -292,12 +292,6 @@
                 </li>
                 
                 <li th:if="${roles.contains('System Admin')}">
-                    <a th:class="${activeMenu == 'marketing' ? 'active' : ''}" href="/admin/marketing">
-                        <i class="fas fa-bullhorn"></i> Marketing
-                    </a>
-                </li>
-                
-                <li th:if="${roles.contains('System Admin')}">
                     <a th:class="${activeMenu == 'employees' ? 'active' : ''}" href="/admin/employees">
                         <i class="fas fa-user-tie"></i> Nhân viên
                     </a>

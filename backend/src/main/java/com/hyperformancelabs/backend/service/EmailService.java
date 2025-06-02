@@ -48,4 +48,13 @@ public interface EmailService {
                                    int subtotal,
                                    int shipping,
                                    int total);
+    
+    /**
+     * Send contact form email
+     * @param name sender's name
+     * @param email sender's email address
+     * @param subject email subject
+     * @param message email content/message
+     */
+    void sendContactFormEmail(String name, String email, String subject, String message);
 } 
